@@ -1,7 +1,8 @@
 import { Link, useLocation } from "react-router-dom";
-import { Moon, Sun, Menu } from "lucide-react";
+import { Moon, Sun, Menu, LayoutDashboard } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import useAuth from "@/features/auth/hooks/useAuth";
 
 interface PublicNavbarProps {
   isDarkMode: boolean;
@@ -18,6 +19,7 @@ const navLinks = [
 export default function PublicNavbar({ isDarkMode, onToggleDarkMode }: PublicNavbarProps) {
   const location = useLocation();
   const isHomePage = location.pathname === "/";
+  const { isAuthenticated } = useAuth();
 
   function renderNavLinks(className?: string) {
     return navLinks.map((link) =>
@@ -56,12 +58,23 @@ export default function PublicNavbar({ isDarkMode, onToggleDarkMode }: PublicNav
           </Button>
 
           <div className="hidden items-center gap-2 sm:flex">
-            <Link to="/login">
-              <Button variant="ghost">Log In</Button>
-            </Link>
-            <Link to="/signup">
-              <Button>Sign Up</Button>
-            </Link>
+            {isAuthenticated ? (
+              <Link to="/dashboard">
+                <Button variant="ghost">
+                  <LayoutDashboard className="mr-2 size-4" />
+                  Dashboard
+                </Button>
+              </Link>
+            ) : (
+              <>
+                <Link to="/login">
+                  <Button variant="ghost">Log In</Button>
+                </Link>
+                <Link to="/signup">
+                  <Button>Sign Up</Button>
+                </Link>
+              </>
+            )}
           </div>
 
           <Sheet>
@@ -88,14 +101,25 @@ export default function PublicNavbar({ isDarkMode, onToggleDarkMode }: PublicNav
                     </a>
                   ))}
                 <div className="mt-4 flex flex-col gap-2 border-t pt-4">
-                  <Link to="/login">
-                    <Button variant="outline" className="w-full">
-                      Log In
-                    </Button>
-                  </Link>
-                  <Link to="/signup">
-                    <Button className="w-full">Sign Up</Button>
-                  </Link>
+                  {isAuthenticated ? (
+                    <Link to="/dashboard">
+                      <Button variant="outline" className="w-full">
+                        <LayoutDashboard className="mr-2 size-4" />
+                        Dashboard
+                      </Button>
+                    </Link>
+                  ) : (
+                    <>
+                      <Link to="/login">
+                        <Button variant="outline" className="w-full">
+                          Log In
+                        </Button>
+                      </Link>
+                      <Link to="/signup">
+                        <Button className="w-full">Sign Up</Button>
+                      </Link>
+                    </>
+                  )}
                 </div>
               </nav>
             </SheetContent>

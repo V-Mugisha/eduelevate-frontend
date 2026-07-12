@@ -52,7 +52,8 @@ function PasswordInput({
 }
 
 export default function StudentSignupForm() {
-  const { formValues, fieldErrors, handleChange, handleSubmit } = useStudentSignupForm();
+  const { formValues, fieldErrors, apiError, isLoading, handleChange, handleSubmit } =
+    useStudentSignupForm();
 
   function onSubmit(event: React.FormEvent) {
     event.preventDefault();
@@ -68,6 +69,12 @@ export default function StudentSignupForm() {
             Join EduElevate and start building real-world tech skills today.
           </p>
         </div>
+
+        {apiError && (
+          <div className="border-destructive/50 bg-destructive/10 text-destructive mt-6 rounded-lg border px-4 py-3 text-sm">
+            {apiError}
+          </div>
+        )}
 
         <form onSubmit={onSubmit} className="mt-8 space-y-5">
           <div className="grid gap-5 sm:grid-cols-2">
@@ -186,8 +193,8 @@ export default function StudentSignupForm() {
             />
           </div>
 
-          <Button type="submit" className="w-full" size="lg">
-            Create Account
+          <Button type="submit" className="w-full" size="lg" disabled={isLoading}>
+            {isLoading ? "Creating account..." : "Create Account"}
           </Button>
         </form>
 

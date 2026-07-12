@@ -7,7 +7,8 @@ import { Label } from "@/components/ui/label";
 import useLoginForm from "../hooks/useLoginForm";
 
 export default function LoginForm() {
-  const { formValues, fieldErrors, handleChange, handleSubmit } = useLoginForm();
+  const { formValues, fieldErrors, apiError, isLoading, handleChange, handleSubmit } =
+    useLoginForm();
   const [showPassword, setShowPassword] = useState(false);
 
   function onSubmit(event: React.FormEvent) {
@@ -24,6 +25,12 @@ export default function LoginForm() {
             Log in to your EduElevate account to continue learning.
           </p>
         </div>
+
+        {apiError && (
+          <div className="border-destructive/50 bg-destructive/10 text-destructive mt-6 rounded-lg border px-4 py-3 text-sm">
+            {apiError}
+          </div>
+        )}
 
         <form onSubmit={onSubmit} className="mt-8 space-y-5">
           <div className="space-y-2">
@@ -73,8 +80,8 @@ export default function LoginForm() {
             )}
           </div>
 
-          <Button type="submit" className="w-full" size="lg">
-            Log In
+          <Button type="submit" className="w-full" size="lg" disabled={isLoading}>
+            {isLoading ? "Logging in..." : "Log In"}
           </Button>
         </form>
 

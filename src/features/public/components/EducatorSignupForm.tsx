@@ -60,6 +60,8 @@ export default function EducatorSignupForm() {
   const {
     formValues,
     fieldErrors,
+    apiError,
+    isLoading,
     handleChange,
     handleAddExpertise,
     handleRemoveExpertise,
@@ -82,6 +84,12 @@ export default function EducatorSignupForm() {
             temporary registration form. Invitation-based onboarding will replace this soon.
           </p>
         </div>
+
+        {apiError && (
+          <div className="border-destructive/50 bg-destructive/10 text-destructive mt-6 rounded-lg border px-4 py-3 text-sm">
+            {apiError}
+          </div>
+        )}
 
         <form onSubmit={onSubmit} className="mt-8 space-y-5">
           <div className="grid gap-5 sm:grid-cols-2">
@@ -275,8 +283,8 @@ export default function EducatorSignupForm() {
             />
           </div>
 
-          <Button type="submit" className="w-full" size="lg">
-            Register as Educator
+          <Button type="submit" className="w-full" size="lg" disabled={isLoading}>
+            {isLoading ? "Creating account..." : "Register as Educator"}
           </Button>
         </form>
 
