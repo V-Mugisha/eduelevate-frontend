@@ -12,6 +12,9 @@ import DashboardPage from "@/features/dashboard/DashboardPage";
 import ProfilePage from "@/features/profile/ProfilePage";
 import EditProfilePage from "@/features/profile/EditProfilePage";
 import ChangePasswordPage from "@/features/profile/ChangePasswordPage";
+import CoursesCatalogPage from "@/features/courses/CoursesCatalogPage";
+import CourseDetailPage from "@/features/courses/CourseDetailPage";
+import CreateCoursePage from "@/features/courses/CreateCoursePage";
 import NotFoundPage from "@/pages/NotFoundPage";
 
 export default function App() {
@@ -66,6 +69,9 @@ export default function App() {
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/profile/edit" element={<EditProfilePage />} />
             <Route path="/profile/change-password" element={<ChangePasswordPage />} />
+            <Route path="/courses" element={<CoursesCatalogPage />} />
+            <Route path="/courses/create" element={<CreateCoursePage />} />
+            <Route path="/courses/:id" element={<CourseDetailPage />} />
             <Route path="*" element={<NotFoundPage />} />
           </Route>
         </Routes>

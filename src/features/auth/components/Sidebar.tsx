@@ -11,20 +11,20 @@ interface SidebarProps {
 
 const studentItems = [
   { icon: LayoutDashboard, label: "Dashboard", href: "/dashboard" },
-  { icon: BookOpen, label: "My Courses", href: "/courses", disabled: true },
+  { icon: BookOpen, label: "Courses", href: "/courses" },
   { icon: Code, label: "Exercises", href: "/exercises", disabled: true },
 ];
 
 const educatorItems = [
   { icon: LayoutDashboard, label: "Dashboard", href: "/dashboard" },
-  { icon: BookOpen, label: "My Courses", href: "/courses", disabled: true },
+  { icon: BookOpen, label: "Courses", href: "/courses" },
   { icon: Code, label: "Review Submissions", href: "/exercises", disabled: true },
 ];
 
 const adminItems = [
   { icon: LayoutDashboard, label: "Dashboard", href: "/dashboard" },
+  { icon: BookOpen, label: "Courses", href: "/courses" },
   { icon: Users, label: "User Management", href: "/users", disabled: true },
-  { icon: BookOpen, label: "Courses", href: "/courses", disabled: true },
   { icon: Settings, label: "Settings", href: "/settings", disabled: true },
 ];
 
