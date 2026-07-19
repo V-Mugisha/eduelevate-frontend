@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import SearchableSelectDropdown from "@/components/shared/SearchableSelectDropdown";
 import PasswordStrengthMeter from "@/components/shared/PasswordStrengthMeter";
+import LoadingBubbles from "@/components/shared/LoadingBubbles";
 import useStudentSignupForm from "../hooks/useStudentSignupForm";
 
 const gradeOptions = [
@@ -194,7 +195,7 @@ export default function StudentSignupForm() {
           </div>
 
           <Button type="submit" className="w-full" size="lg" disabled={isLoading}>
-            {isLoading ? "Creating account..." : "Create Account"}
+            {isLoading ? <LoadingBubbles size="sm" /> : "Create Account"}
           </Button>
         </form>
 

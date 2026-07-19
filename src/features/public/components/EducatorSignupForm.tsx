@@ -17,6 +17,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import PasswordStrengthMeter from "@/components/shared/PasswordStrengthMeter";
+import LoadingBubbles from "@/components/shared/LoadingBubbles";
 import useEducatorSignupForm from "../hooks/useEducatorSignupForm";
 
 function PasswordInput({
@@ -284,7 +285,7 @@ export default function EducatorSignupForm() {
           </div>
 
           <Button type="submit" className="w-full" size="lg" disabled={isLoading}>
-            {isLoading ? "Creating account..." : "Register as Educator"}
+            {isLoading ? <LoadingBubbles size="sm" /> : "Register as Educator"}
           </Button>
         </form>
 

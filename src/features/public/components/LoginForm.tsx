@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Mail, Lock as LockIcon, Eye, EyeOff } from "lucide-react";
+import { Mail, Eye, EyeOff, Lock as LockIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import LoadingBubbles from "@/components/shared/LoadingBubbles";
 import useLoginForm from "../hooks/useLoginForm";
 
 export default function LoginForm() {
@@ -81,7 +82,7 @@ export default function LoginForm() {
           </div>
 
           <Button type="submit" className="w-full" size="lg" disabled={isLoading}>
-            {isLoading ? "Logging in..." : "Log In"}
+            {isLoading ? <LoadingBubbles size="sm" /> : "Log In"}
           </Button>
         </form>
 

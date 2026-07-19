@@ -1,25 +1,25 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import AuthProvider from "@/features/auth/context/AuthProvider";
 import ProtectedRoute from "@/features/auth/components/ProtectedRoute";
 import GuestRoute from "@/features/auth/components/GuestRoute";
-import PublicNavbar from "@/features/public/components/PublicNavbar";
-import PublicFooter from "@/features/public/components/PublicFooter";
+import GuestLayout from "@/features/auth/components/GuestLayout";
+import AuthenticatedLayout from "@/features/auth/components/AuthenticatedLayout";
 import LandingPage from "@/features/public/LandingPage";
 import LoginPage from "@/features/public/LoginPage";
 import SignupPage from "@/features/public/SignupPage";
 import EducatorSignupPage from "@/features/public/EducatorSignupPage";
 import DashboardPage from "@/features/dashboard/DashboardPage";
-import useDarkMode from "@/hooks/useDarkMode";
+import ProfilePage from "@/features/profile/ProfilePage";
+import EditProfilePage from "@/features/profile/EditProfilePage";
+import ChangePasswordPage from "@/features/profile/ChangePasswordPage";
+import NotFoundPage from "@/pages/NotFoundPage";
 
 export default function App() {
-  const { isDarkMode, toggleDarkMode } = useDarkMode();
-
   return (
     <BrowserRouter>
       <AuthProvider>
-        <div className="flex min-h-screen flex-col">
-          <PublicNavbar isDarkMode={isDarkMode} onToggleDarkMode={toggleDarkMode} />
-          <Routes>
+        <Routes>
+          <Route element={<GuestLayout />}>
             <Route
               path="/"
               element={
@@ -52,17 +52,23 @@ export default function App() {
                 </GuestRoute>
               }
             />
-            <Route
-              path="/dashboard"
-              element={
-                <ProtectedRoute>
-                  <DashboardPage />
-                </ProtectedRoute>
-              }
-            />
-          </Routes>
-          <PublicFooter />
-        </div>
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Route>
+
+          <Route
+            element={
+              <ProtectedRoute>
+                <AuthenticatedLayout />
+              </ProtectedRoute>
+            }
+          >
+            <Route path="/dashboard" element={<DashboardPage />} />
+            <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/profile/edit" element={<EditProfilePage />} />
+            <Route path="/profile/change-password" element={<ChangePasswordPage />} />
+            <Route path="*" element={<NotFoundPage />} />
+          </Route>
+        </Routes>
       </AuthProvider>
     </BrowserRouter>
   );
