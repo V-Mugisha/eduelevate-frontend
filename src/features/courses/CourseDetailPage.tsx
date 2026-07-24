@@ -11,6 +11,8 @@ import {
   Send,
   EyeOff,
   Loader2,
+  Award,
+  Download,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import LoadingBubbles from "@/components/shared/LoadingBubbles";
@@ -18,6 +20,9 @@ import useAuth from "@/features/auth/hooks/useAuth";
 import { getCourse, publishCourse } from "./services/coursesService";
 import type { Course } from "./types/coursesTypes";
 import useEnrollment from "./hooks/useEnrollment";
+import { generateCertificate, getCertificateByCourse } from "./services/certificateService";
+import { generateCertificatePdf } from "@/lib/generateCertificatePdf";
+import type { Certificate } from "./types/coursesTypes";
 import EnrollmentModal from "./components/EnrollmentModal";
 
 const levelColors: Record<string, string> = {
@@ -44,6 +49,9 @@ export default function CourseDetailPage() {
   const [isEnrolling, setIsEnrolling] = useState(false);
   const [showUnpublishConfirm, setShowUnpublishConfirm] = useState(false);
   const [isPublishing, setIsPublishing] = useState(false);
+  const [activeTab, setActiveTab] = useState<"overview" | "certificate">("overview");
+  const [certificate, setCertificate] = useState<Certificate | null>(null);
+  const [isGeneratingCert, setIsGeneratingCert] = useState(false);
 
   useEffect(() => {
     if (!id) return;
@@ -52,6 +60,13 @@ export default function CourseDetailPage() {
       .catch(() => setError("Failed to load course details."))
       .finally(() => setIsLoading(false));
   }, [id]);
+
+  useEffect(() => {
+    if (!id || !isEnrolled) return;
+    getCertificateByCourse(id)
+      .then((cert) => setCertificate(cert ?? null))
+      .catch(() => setCertificate(null));
+  }, [id, isEnrolled]);
 
   const isOwner = user?.id === course?.creator?.id || user?.role === "admin";
 
@@ -99,6 +114,37 @@ export default function CourseDetailPage() {
     }
   }
 
+  async function handleGenerateCertificate() {
+    if (!id) return;
+    setIsGeneratingCert(true);
+    try {
+      const cert = await generateCertificate(id);
+      setCertificate(cert);
+    } catch {
+      // error handled silently
+    } finally {
+      setIsGeneratingCert(false);
+    }
+  }
+
+  function handleDownloadCert() {
+    if (!certificate) return;
+    generateCertificatePdf(
+      {
+        studentName: `${certificate.user.firstName} ${certificate.user.lastName}`,
+        courseTitle: certificate.course.title,
+        educatorName: `${certificate.course.creator.firstName} ${certificate.course.creator.lastName}`,
+        issuedAt: new Date(certificate.issuedAt).toLocaleDateString("en-US", {
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+        }),
+        certificateId: certificate.id,
+      },
+      `certificate-${certificate.user.firstName}-${certificate.user.lastName}.pdf`,
+    );
+  }
+
   if (isLoading) return <LoadingBubbles size="lg" />;
   if (error || !course) {
     return (
@@ -122,33 +168,147 @@ export default function CourseDetailPage() {
         <BookOpen className="size-12 text-white/50" />
       </div>
 
+      <div className="mt-8 border-b">
+        <nav className="flex gap-6">
+          <button
+            onClick={() => setActiveTab("overview")}
+            className={`border-b-2 pb-2 text-sm font-medium transition-colors ${
+              activeTab === "overview"
+                ? "border-primary text-primary"
+                : "border-transparent text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            Overview
+          </button>
+          <button
+            onClick={() => setActiveTab("certificate")}
+            className={`border-b-2 pb-2 text-sm font-medium transition-colors ${
+              activeTab === "certificate"
+                ? "border-primary text-primary"
+                : "border-transparent text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            Certificate
+          </button>
+        </nav>
+      </div>
+
       <div className="mt-8 grid gap-10 lg:grid-cols-3">
         <div className="lg:col-span-2">
-          <span className="bg-primary/10 text-primary inline-block rounded-full px-3 py-1 text-sm font-medium">
-            {course.category.name}
-          </span>
-          <h1 className="text-foreground mt-3 text-3xl font-bold">{course.title}</h1>
-          {course.subtitle && (
-            <p className="text-muted-foreground mt-2 text-lg">{course.subtitle}</p>
-          )}
-          <div className="mt-6 flex flex-wrap gap-2">
-            <span
-              className={`rounded-full px-3 py-1 text-sm font-medium ${levelColors[course.level]}`}
-            >
-              {course.level}
-            </span>
-            {course.duration && (
-              <span className="bg-muted text-muted-foreground flex items-center gap-1 rounded-full px-3 py-1 text-sm">
-                <Clock className="size-3.5" /> {course.duration}
+          {activeTab === "overview" ? (
+            <>
+              <span className="inline-block rounded-full bg-primary/10 px-3 py-1 text-sm font-medium text-primary">
+                {course.category.name}
               </span>
-            )}
-          </div>
-          <div className="mt-8">
-            <h2 className="text-foreground text-lg font-semibold">About this course</h2>
-            <p className="text-muted-foreground mt-3 leading-relaxed whitespace-pre-line">
-              {course.description}
-            </p>
-          </div>
+              <h1 className="mt-3 text-3xl font-bold text-foreground">{course.title}</h1>
+              {course.subtitle && (
+                <p className="mt-2 text-lg text-muted-foreground">{course.subtitle}</p>
+              )}
+              <div className="mt-6 flex flex-wrap gap-2">
+                <span
+                  className={`rounded-full px-3 py-1 text-sm font-medium ${levelColors[course.level]}`}
+                >
+                  {course.level}
+                </span>
+                {course.duration && (
+                  <span className="flex items-center gap-1 rounded-full bg-muted px-3 py-1 text-sm text-muted-foreground">
+                    <Clock className="size-3.5" /> {course.duration}
+                  </span>
+                )}
+              </div>
+              <div className="mt-8">
+                <h2 className="text-lg font-semibold text-foreground">About this course</h2>
+                <p className="mt-3 leading-relaxed whitespace-pre-line text-muted-foreground">
+                  {course.description}
+                </p>
+              </div>
+            </>
+          ) : (
+            <div>
+              {!isEnrolled || isOwner ? (
+                <div className="flex flex-col items-center justify-center py-20 text-center">
+                  <Award className="size-12 text-muted-foreground" />
+                  <p className="mt-4 text-muted-foreground">
+                    Enroll and complete this course to earn a certificate.
+                  </p>
+                </div>
+              ) : certificate ? (
+                <div className="space-y-4">
+                  <div className="rounded-xl border bg-card p-6">
+                    <div className="flex items-center gap-2">
+                      <Award className="size-5 text-primary" />
+                      <span className="text-sm font-medium text-foreground">Certificate Earned</span>
+                    </div>
+                    <p className="mt-2 text-sm text-muted-foreground">
+                      You earned this certificate on{" "}
+                      {new Date(certificate.issuedAt).toLocaleDateString("en-US", {
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
+                      })}
+                      .
+                    </p>
+                    <div className="mt-4 flex flex-wrap gap-2">
+                      <Link to={`/certificates/${certificate.id}`}>
+                        <Button variant="outline" size="sm">
+                          View Certificate
+                        </Button>
+                      </Link>
+                      <Button variant="default" size="sm" onClick={handleDownloadCert}>
+                        <Download className="mr-1.5 size-4" />
+                        Download PDF
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              ) : progress === 100 ? (
+                <div className="flex flex-col items-center justify-center py-20 text-center">
+                  <Award className="size-12 text-primary" />
+                  <p className="mt-4 text-lg font-medium text-foreground">
+                    Congratulations! You have completed this course.
+                  </p>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    Generate your certificate now.
+                  </p>
+                  <Button
+                    className="mt-6"
+                    onClick={handleGenerateCertificate}
+                    disabled={isGeneratingCert}
+                  >
+                    <Award className="mr-2 size-4" />
+                    {isGeneratingCert ? "Generating..." : "Generate Certificate"}
+                  </Button>
+                </div>
+              ) : (
+                <div className="flex flex-col items-center justify-center py-20 text-center">
+                  <Award className="size-12 text-muted-foreground" />
+                  <p className="mt-4 text-lg font-medium text-foreground">
+                    Complete all lessons to earn your certificate
+                  </p>
+                  <div className="mt-4 w-full max-w-xs">
+                    <div className="flex items-center justify-between text-xs text-muted-foreground">
+                      <span>Progress</span>
+                      <span>{progress}%</span>
+                    </div>
+                    <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-muted">
+                      <div
+                        className="h-full rounded-full bg-primary transition-all"
+                        style={{ width: `${progress}%` }}
+                      />
+                    </div>
+                  </div>
+                  {isEnrolled && (
+                    <Link to={`/courses/${course.id}/learn`} className="mt-6">
+                      <Button size="sm">
+                        <Play className="mr-1.5 size-4" />
+                        Continue Learning
+                      </Button>
+                    </Link>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         <div className="lg:col-span-1">

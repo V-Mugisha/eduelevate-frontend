@@ -73,5 +73,18 @@ export interface StudentDetail {
     id: string;
     title: string;
   };
+  certificate: { id: string; issuedAt: string } | null;
   modules: StudentDetailModule[];
+}
+
+export interface Certificate {
+  id: string;
+  issuedAt: string;
+  user: { id: string; firstName: string; lastName: string };
+  course: {
+    id: string;
+    title: string;
+    description: string;
+    creator: { id: string; firstName: string; lastName: string };
+  };
 }

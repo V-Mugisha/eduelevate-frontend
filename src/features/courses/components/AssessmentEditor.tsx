@@ -276,7 +276,7 @@ export default function AssessmentEditor({ lessonId }: AssessmentEditorProps) {
 
       <div className="space-y-2">
         <div className="flex items-center justify-between">
-          <h4 className="text-sm font-medium text-foreground">Questions ({questions.length})</h4>
+          <h4 className="text-foreground text-sm font-medium">Questions ({questions.length})</h4>
         </div>
 
         {!editQuestionId && (
@@ -443,7 +443,6 @@ export default function AssessmentEditor({ lessonId }: AssessmentEditorProps) {
             )}
           </div>
         ))}
-
       </div>
     </div>
   );

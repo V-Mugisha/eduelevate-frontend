@@ -106,7 +106,7 @@ export default function CreateCourseForm() {
           value={description}
           onChange={(event) => setDescription(event.target.value)}
           placeholder="Describe what students will learn in this course..."
-          className="min-h-[160px]"
+          className="min-h-40"
         />
       </div>
 

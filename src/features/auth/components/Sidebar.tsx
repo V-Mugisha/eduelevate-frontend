@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { LayoutDashboard, BookOpen, Code, Users, Settings } from "lucide-react";
+import { LayoutDashboard, BookOpen, Code, Users, Settings, Award } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import useAuth from "@/features/auth/hooks/useAuth";
 import SidebarItem from "./SidebarItem";
@@ -20,6 +20,7 @@ const studentItems = [
       { label: "My Learning", href: "/my-learning" },
     ],
   },
+  { icon: Award, label: "Certificates", href: "/certificates" },
   { icon: Code, label: "Exercises", href: "/exercises", disabled: true },
 ];
 

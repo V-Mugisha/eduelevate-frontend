@@ -20,6 +20,8 @@ import CourseContentPage from "@/features/courses/CourseContentPage";
 import CourseLearnPage from "@/features/courses/CourseLearnPage";
 import AssessmentPage from "@/features/courses/AssessmentPage";
 import AssessmentEditorPage from "@/features/courses/AssessmentEditorPage";
+import CertificatesPage from "@/features/courses/CertificatesPage";
+import CertificateDetailPage from "@/features/courses/CertificateDetailPage";
 import CourseStudentsPage from "@/features/courses/CourseStudentsPage";
 import StudentDetailPage from "@/features/courses/StudentDetailPage";
 import CreateCoursePage from "@/features/courses/CreateCoursePage";
@@ -77,6 +79,8 @@ export default function App() {
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/profile/edit" element={<EditProfilePage />} />
             <Route path="/profile/change-password" element={<ChangePasswordPage />} />
+            <Route path="/certificates" element={<CertificatesPage />} />
+            <Route path="/certificates/:id" element={<CertificateDetailPage />} />
             <Route path="/courses" element={<CoursesCatalogPage />} />
             <Route path="/courses/my-courses" element={<MyCoursesPage />} />
             <Route path="/my-learning" element={<MyLearningPage />} />
@@ -88,10 +92,7 @@ export default function App() {
               element={<AssessmentEditorPage />}
             />
             <Route path="/courses/:id/learn" element={<CourseLearnPage />} />
-            <Route
-              path="/courses/:id/learn/assessment/:lessonId"
-              element={<AssessmentPage />}
-            />
+            <Route path="/courses/:id/learn/assessment/:lessonId" element={<AssessmentPage />} />
             <Route path="/courses/:id/students" element={<CourseStudentsPage />} />
             <Route path="/courses/:id/students/:userId" element={<StudentDetailPage />} />
             <Route path="*" element={<NotFoundPage />} />

@@ -1,12 +1,6 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { useParams, useNavigate, Navigate } from "react-router-dom";
-import {
-  ArrowLeft,
-  CheckCircle,
-  XCircle,
-  Send,
-  ChevronRight,
-} from "lucide-react";
+import { ArrowLeft, CheckCircle, XCircle, Send, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import LoadingBubbles from "@/components/shared/LoadingBubbles";
 import useEnrollment from "./hooks/useEnrollment";
@@ -89,21 +83,18 @@ export default function AssessmentPage() {
       .finally(() => setIsLoading(false));
   }, [courseId, lessonId]);
 
-  const handleToggleOption = useCallback(
-    (questionId: string, option: string, isMulti: boolean) => {
-      setSelectedAnswers((prev) => {
-        const current = prev[questionId] ?? [];
-        if (current.includes(option)) {
-          return { ...prev, [questionId]: current.filter((o) => o !== option) };
-        }
-        if (isMulti) {
-          return { ...prev, [questionId]: [...current, option] };
-        }
-        return { ...prev, [questionId]: [option] };
-      });
-    },
-    [],
-  );
+  const handleToggleOption = useCallback((questionId: string, option: string, isMulti: boolean) => {
+    setSelectedAnswers((prev) => {
+      const current = prev[questionId] ?? [];
+      if (current.includes(option)) {
+        return { ...prev, [questionId]: current.filter((o) => o !== option) };
+      }
+      if (isMulti) {
+        return { ...prev, [questionId]: [...current, option] };
+      }
+      return { ...prev, [questionId]: [option] };
+    });
+  }, []);
 
   async function handleSubmit() {
     if (!assessment) return;
@@ -137,14 +128,11 @@ export default function AssessmentPage() {
   }
 
   const isMultiPerQuestion = useMemo(
-    () =>
-      new Map(questions.map((q) => [q.id, (q.correctAnswers?.length ?? 0) > 1])),
+    () => new Map(questions.map((q) => [q.id, (q.correctAnswers?.length ?? 0) > 1])),
     [questions],
   );
 
-  const allAnswered = questions.every(
-    (q) => (selectedAnswers[q.id]?.length ?? 0) > 0,
-  );
+  const allAnswered = questions.every((q) => (selectedAnswers[q.id]?.length ?? 0) > 0);
   const isSubmitted = result !== null;
 
   if (isLoading) return <LoadingBubbles size="lg" />;
@@ -162,28 +150,26 @@ export default function AssessmentPage() {
         Back
       </Button>
 
-      <p className="text-sm text-muted-foreground">{moduleTitle}</p>
-      <h1 className="text-2xl font-bold text-foreground">{lessonTitle}</h1>
-      {assessment.title && (
-        <p className="mt-1 text-lg text-muted-foreground">{assessment.title}</p>
-      )}
+      <p className="text-muted-foreground text-sm">{moduleTitle}</p>
+      <h1 className="text-foreground text-2xl font-bold">{lessonTitle}</h1>
+      {assessment.title && <p className="text-muted-foreground mt-1 text-lg">{assessment.title}</p>}
 
       {assessment.isGraded && (
-        <span className="mt-2 inline-block rounded-full bg-primary/10 px-2 py-0.5 text-xs text-primary">
+        <span className="bg-primary/10 text-primary mt-2 inline-block rounded-full px-2 py-0.5 text-xs">
           Graded
         </span>
       )}
 
       {assessment.instructions && (
-        <div className="mt-4 rounded-lg border bg-card p-4">
-          <p className="text-sm text-muted-foreground whitespace-pre-line">
+        <div className="bg-card mt-4 rounded-lg border p-4">
+          <p className="text-muted-foreground text-sm whitespace-pre-line">
             {assessment.instructions}
           </p>
         </div>
       )}
 
       {error && (
-        <div className="mt-4 rounded-lg border border-destructive/50 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+        <div className="border-destructive/50 bg-destructive/10 text-destructive mt-4 rounded-lg border px-4 py-3 text-sm">
           {error}
         </div>
       )}
@@ -195,10 +181,10 @@ export default function AssessmentPage() {
           const qResult = result?.results.find((r) => r.questionId === q.id);
 
           return (
-            <div key={q.id} className="rounded-lg border bg-card p-4">
-              <p className="text-sm font-medium text-foreground">
+            <div key={q.id} className="bg-card rounded-lg border p-4">
+              <p className="text-foreground text-sm font-medium">
                 {i + 1}. {q.title}
-                <span className="ml-2 text-xs text-muted-foreground">
+                <span className="text-muted-foreground ml-2 text-xs">
                   ({q.grade} pt{q.grade !== 1 ? "s" : ""})
                 </span>
               </p>
@@ -206,32 +192,29 @@ export default function AssessmentPage() {
               <div className="mt-3 space-y-1.5">
                 {q.answerOptions.map((option) => {
                   const isSelected = current.includes(option);
-                  const isResultCorrect = qResult
-                    ? qResult.correctAnswers.includes(option)
-                    : false;
+                  const isResultCorrect = qResult ? qResult.correctAnswers.includes(option) : false;
                   const showResult = !!qResult;
 
                   let optionClass = "text-foreground";
                   if (showResult) {
                     if (isResultCorrect) optionClass = "text-green-600 dark:text-green-400";
-                    else if (isSelected && !isResultCorrect)
-                      optionClass = "text-destructive";
+                    else if (isSelected && !isResultCorrect) optionClass = "text-destructive";
                   }
 
                   return (
                     <label
                       key={option}
                       className={`flex items-center gap-2 rounded px-2 py-2 text-sm ${
-                        showResult ? "" : "cursor-pointer hover:bg-muted"
+                        showResult ? "" : "hover:bg-muted cursor-pointer"
                       }`}
                     >
                       {showResult ? (
                         isResultCorrect ? (
                           <CheckCircle className="size-4 shrink-0 text-green-500" />
                         ) : isSelected ? (
-                          <XCircle className="size-4 shrink-0 text-destructive" />
+                          <XCircle className="text-destructive size-4 shrink-0" />
                         ) : (
-                          <div className="size-4 shrink-0 rounded-full border-2 border-muted-foreground/30" />
+                          <div className="border-muted-foreground/30 size-4 shrink-0 rounded-full border-2" />
                         )
                       ) : (
                         <input
@@ -244,8 +227,8 @@ export default function AssessmentPage() {
                       )}
                       <span className={optionClass}>{option}</span>
                       {showResult && isSelected && !isResultCorrect && (
-                        <span className="ml-auto text-xs text-muted-foreground">
-                          <XCircle className="mr-1 inline-block size-3 text-destructive" />
+                        <span className="text-muted-foreground ml-auto text-xs">
+                          <XCircle className="text-destructive mr-1 inline-block size-3" />
                           Your answer
                         </span>
                       )}
@@ -271,11 +254,11 @@ export default function AssessmentPage() {
       </div>
 
       {isSubmitted && result ? (
-        <div className="mt-8 rounded-lg border bg-card p-6">
+        <div className="bg-card mt-8 rounded-lg border p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-muted-foreground">Your Score</p>
-              <p className="text-2xl font-bold text-foreground">
+              <p className="text-muted-foreground text-sm">Your Score</p>
+              <p className="text-foreground text-2xl font-bold">
                 {result.totalScore} / {result.totalPossible}
               </p>
             </div>

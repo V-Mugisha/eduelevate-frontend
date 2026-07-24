@@ -8,10 +8,13 @@ import {
   GraduationCap,
   Calendar,
   Shield,
+  Award,
+  Download,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import LoadingBubbles from "@/components/shared/LoadingBubbles";
 import { getStudentDetail } from "./services/enrollmentService";
+import { generateCertificatePdf } from "@/lib/generateCertificatePdf";
 import type { StudentDetail } from "./types/coursesTypes";
 
 const gradeLabels: Record<string, string> = {
@@ -129,6 +132,46 @@ export default function StudentDetailPage() {
                 {detail.completedCount} of {detail.totalLessons} lessons completed
               </p>
             </div>
+
+            {detail.certificate && (
+              <div className="mt-6 border-t pt-4">
+                <div className="flex items-center gap-2">
+                  <Award className="size-4 text-primary" />
+                  <span className="text-sm font-medium text-foreground">Certificate</span>
+                </div>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  Earned on{" "}
+                  {new Date(detail.certificate.issuedAt).toLocaleDateString("en-US", {
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
+                  })}
+                </p>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="mt-3 w-full"
+                  onClick={() =>
+                    generateCertificatePdf(
+                      {
+                        studentName: `${detail.user.firstName} ${detail.user.lastName}`,
+                        courseTitle: detail.course.title,
+                        educatorName: "Educator",
+                        issuedAt: new Date(detail.certificate!.issuedAt).toLocaleDateString(
+                          "en-US",
+                          { year: "numeric", month: "long", day: "numeric" },
+                        ),
+                        certificateId: detail.certificate!.id,
+                      },
+                      `certificate-${detail.user.firstName}-${detail.user.lastName}.pdf`,
+                    )
+                  }
+                >
+                  <Download className="mr-1.5 size-3.5" />
+                  Download PDF
+                </Button>
+              </div>
+            )}
           </div>
         </div>
 

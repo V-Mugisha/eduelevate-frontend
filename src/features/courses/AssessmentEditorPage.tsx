@@ -43,8 +43,8 @@ export default function AssessmentEditorPage() {
         Back to Course Content
       </Button>
 
-      <p className="text-sm text-muted-foreground">{moduleTitle}</p>
-      <h1 className="text-2xl font-bold text-foreground">{lessonTitle}</h1>
+      <p className="text-muted-foreground text-sm">{moduleTitle}</p>
+      <h1 className="text-foreground text-2xl font-bold">{lessonTitle}</h1>
 
       <div className="mt-8">
         <AssessmentEditor lessonId={lessonId!} />

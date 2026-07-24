@@ -303,9 +303,7 @@ export default function CourseLearnPage() {
                     disabled={completingLessonId === activeLesson.id}
                   >
                     <CheckCircle className="mr-1.5 size-4" />
-                    {completingLessonId === activeLesson.id
-                      ? "Completing..."
-                      : "Mark as Complete"}
+                    {completingLessonId === activeLesson.id ? "Completing..." : "Mark as Complete"}
                   </Button>
                 )}
               </div>

@@ -557,9 +557,7 @@ export default function CourseContentPage() {
                     ),
                   )}
                   <div className="mt-8 border-t pt-6">
-                    <Link
-                      to={`/courses/${courseId}/content/assessment/${activeLessonId}`}
-                    >
+                    <Link to={`/courses/${courseId}/content/assessment/${activeLessonId}`}>
                       <Button variant="outline" size="sm">
                         <ClipboardList className="mr-1.5 size-4" />
                         Manage Assessment
