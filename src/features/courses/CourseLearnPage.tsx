@@ -1,10 +1,12 @@
 import { useState, useEffect } from "react";
-import { useParams, Link } from "react-router-dom";
-import { ArrowLeft, ChevronRight, BookOpen } from "lucide-react";
+import { useParams, Link, Navigate } from "react-router-dom";
+import { ArrowLeft, ChevronRight, BookOpen, CheckCircle } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import LoadingBubbles from "@/components/shared/LoadingBubbles";
 import type { Module, Lesson } from "./services/contentService";
 import { listModules } from "./services/contentService";
 import { getCourse } from "./services/coursesService";
+import useEnrollment from "./hooks/useEnrollment";
 
 export default function CourseLearnPage() {
   const { id: courseId } = useParams<{ id: string }>();
@@ -12,9 +14,11 @@ export default function CourseLearnPage() {
   const [activeModule, setActiveModule] = useState<Module | null>(null);
   const [activeLesson, setActiveLesson] = useState<Lesson | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-
   const [courseTitle, setCourseTitle] = useState("");
   const [courseSubtitle, setCourseSubtitle] = useState<string | null>(null);
+  const { isEnrolled, completedLessonIds, progress, handleCompleteLesson } = useEnrollment(
+    courseId ?? "",
+  );
 
   useEffect(() => {
     if (!courseId) return;
@@ -32,15 +36,16 @@ export default function CourseLearnPage() {
   }, [courseId]);
 
   if (isLoading) return <LoadingBubbles size="lg" />;
+  if (!isEnrolled) return <Navigate to={`/courses/${courseId}`} replace />;
 
   return (
     <div className="flex h-[calc(100vh-3.5rem)] flex-col">
       <header className="bg-background flex items-start gap-4 border-b px-6 py-3">
         <Link
-          to="/courses"
+          to={`/courses/${courseId}`}
           className="text-muted-foreground hover:text-foreground mt-0.5 flex shrink-0 items-center gap-1 text-sm"
         >
-          <ArrowLeft className="size-4" /> Courses
+          <ArrowLeft className="size-4" /> Back
         </Link>
         <div className="min-w-0 flex-1">
           <h2 className="text-foreground truncate text-lg font-semibold">
@@ -49,6 +54,15 @@ export default function CourseLearnPage() {
           {courseSubtitle && (
             <p className="text-muted-foreground truncate text-sm">{courseSubtitle}</p>
           )}
+          <div className="mt-1 flex items-center gap-2">
+            <div className="bg-muted h-1.5 w-40 rounded-full">
+              <div
+                className="bg-primary h-full rounded-full transition-all"
+                style={{ width: `${progress}%` }}
+              />
+            </div>
+            <span className="text-muted-foreground text-xs">{progress}% complete</span>
+          </div>
         </div>
       </header>
 
@@ -74,19 +88,25 @@ export default function CourseLearnPage() {
               </button>
               {activeModule?.id === mod.id && (
                 <div className="ml-5 border-l pl-2">
-                  {mod.lessons.map((l) => (
-                    <button
-                      key={l.id}
-                      onClick={() => setActiveLesson(l)}
-                      className={`block w-full rounded px-2 py-1 text-left text-sm ${
-                        activeLesson?.id === l.id
-                          ? "bg-primary/5 text-primary"
-                          : "text-muted-foreground hover:bg-muted"
-                      }`}
-                    >
-                      {l.title}
-                    </button>
-                  ))}
+                  {mod.lessons.map((l) => {
+                    const isComplete = completedLessonIds.has(l.id);
+                    return (
+                      <button
+                        key={l.id}
+                        onClick={() => setActiveLesson(l)}
+                        className={`flex w-full items-center gap-1 rounded px-2 py-1 text-left text-sm ${
+                          activeLesson?.id === l.id
+                            ? "bg-primary/5 text-primary"
+                            : isComplete
+                              ? "text-foreground"
+                              : "text-muted-foreground hover:bg-muted"
+                        }`}
+                      >
+                        {isComplete && <CheckCircle className="size-3 text-green-500" />}
+                        {l.title}
+                      </button>
+                    );
+                  })}
                 </div>
               )}
             </div>
@@ -100,10 +120,28 @@ export default function CourseLearnPage() {
               {activeLesson.subtitle && (
                 <p className="text-muted-foreground mt-1">{activeLesson.subtitle}</p>
               )}
-              <div
-                className="prose dark:prose-invert mt-8 max-w-none"
-                dangerouslySetInnerHTML={{ __html: activeLesson.content }}
-              />
+              <div className="mt-8 space-y-6">
+                {(activeLesson.sections ?? []).map((s) => (
+                  <div key={s.id}>
+                    {s.title && (
+                      <h3 className="text-foreground text-lg font-semibold">{s.title}</h3>
+                    )}
+                    <p className="text-muted-foreground whitespace-pre-line">{s.content}</p>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-12 border-t pt-6">
+                {completedLessonIds.has(activeLesson.id) ? (
+                  <div className="flex items-center gap-2 text-sm text-green-600 dark:text-green-400">
+                    <CheckCircle className="size-4" /> Lesson completed
+                  </div>
+                ) : (
+                  <Button onClick={() => handleCompleteLesson(activeLesson.id)}>
+                    <CheckCircle className="mr-1.5 size-4" />
+                    Mark as Complete
+                  </Button>
+                )}
+              </div>
             </div>
           ) : (
             <div className="text-muted-foreground flex h-full items-center justify-center">

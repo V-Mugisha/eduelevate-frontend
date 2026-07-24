@@ -1,5 +1,12 @@
 import apiClient from "@/lib/apiClient";
 
+export interface Section {
+  id: string;
+  title: string | null;
+  content: string;
+  order: number;
+}
+
 export interface Module {
   id: string;
   courseId: string;
@@ -17,9 +24,9 @@ export interface Lesson {
   moduleId: string;
   title: string;
   subtitle: string | null;
-  content: string;
   createdAt: string;
   updatedAt: string;
+  sections: Section[];
 }
 
 export async function listModules(courseId: string): Promise<Module[]> {
@@ -53,7 +60,7 @@ export async function deleteModule(courseId: string, moduleId: string): Promise<
 
 export async function createLesson(
   moduleId: string,
-  data: { title: string; subtitle?: string; content: string },
+  data: { title: string; subtitle?: string },
 ): Promise<Lesson> {
   const res = await apiClient.post<{ data: Lesson }>(`/modules/${moduleId}/lessons`, data);
   return res.data.data;
@@ -62,7 +69,7 @@ export async function createLesson(
 export async function updateLesson(
   moduleId: string,
   lessonId: string,
-  data: { title?: string; subtitle?: string; content?: string },
+  data: { title?: string; subtitle?: string },
 ): Promise<Lesson> {
   const res = await apiClient.put<{ data: Lesson }>(
     `/modules/${moduleId}/lessons/${lessonId}`,
@@ -73,4 +80,28 @@ export async function updateLesson(
 
 export async function deleteLesson(moduleId: string, lessonId: string): Promise<void> {
   await apiClient.delete(`/modules/${moduleId}/lessons/${lessonId}`);
+}
+
+export async function createSection(
+  lessonId: string,
+  data: { title?: string; content: string },
+): Promise<Section> {
+  const res = await apiClient.post<{ data: Section }>(`/lessons/${lessonId}/sections`, data);
+  return res.data.data;
+}
+
+export async function updateSection(
+  lessonId: string,
+  sectionId: string,
+  data: { title?: string; content?: string },
+): Promise<Section> {
+  const res = await apiClient.put<{ data: Section }>(
+    `/lessons/${lessonId}/sections/${sectionId}`,
+    data,
+  );
+  return res.data.data;
+}
+
+export async function deleteSection(lessonId: string, sectionId: string): Promise<void> {
+  await apiClient.delete(`/lessons/${lessonId}/sections/${sectionId}`);
 }

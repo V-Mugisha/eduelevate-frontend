@@ -15,16 +15,18 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import LoadingBubbles from "@/components/shared/LoadingBubbles";
-import RichTextEditor from "@/components/shared/RichTextEditor";
+import SectionsEditor from "@/components/shared/SectionsEditor";
 import useModules from "./hooks/useModules";
 import type { Module, Lesson } from "./services/contentService";
 import { getCourse } from "./services/coursesService";
+import { createSection } from "./services/contentService";
 
 export default function CourseContentPage() {
   const { id: courseId } = useParams<{ id: string }>();
   const {
     modules,
     isLoading,
+    fetchModules,
     addModule,
     editModule,
     removeModule,
@@ -48,7 +50,22 @@ export default function CourseContentPage() {
 
   const [lessonTitle, setLessonTitle] = useState("");
   const [lessonSubtitle, setLessonSubtitle] = useState("");
-  const [lessonContent, setLessonContent] = useState("");
+  const [lessonSections, setLessonSections] = useState<{ title: string; content: string }[]>([
+    { title: "", content: "" },
+  ]);
+
+  const [courseTitle, setCourseTitle] = useState("");
+  const [courseSubtitle, setCourseSubtitle] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!courseId) return;
+    getCourse(courseId)
+      .then((c) => {
+        setCourseTitle(c.title);
+        setCourseSubtitle(c.subtitle);
+      })
+      .catch(() => {});
+  }, [courseId]);
 
   function toggleModule(moduleId: string) {
     setExpandedModules((prev) => {
@@ -77,7 +94,14 @@ export default function CourseContentPage() {
     setIsEditingLesson(false);
     setLessonTitle(lesson.title);
     setLessonSubtitle(lesson.subtitle ?? "");
-    setLessonContent(lesson.content);
+  }
+
+  function startAddLesson() {
+    setIsAddingLesson(true);
+    setActiveLessonId(null);
+    setLessonTitle("");
+    setLessonSubtitle("");
+    setLessonSections([{ title: "", content: "" }]);
   }
 
   async function handleSaveModule() {
@@ -103,44 +127,35 @@ export default function CourseContentPage() {
 
   async function handleAddLesson() {
     if (!activeModuleId || !lessonTitle || !courseId) return;
-    await addLesson(activeModuleId, {
+    const lesson = await addLesson(activeModuleId, {
       title: lessonTitle,
       subtitle: lessonSubtitle || undefined,
-      content: lessonContent,
     });
+    for (const s of lessonSections) {
+      if (s.content.trim())
+        await createSection(lesson.id, { title: s.title || undefined, content: s.content });
+    }
     setIsAddingLesson(false);
+    await fetchModules();
+    setActiveLessonId(lesson.id);
   }
 
   async function handleSaveLesson() {
     if (!activeLessonId || !activeModuleId) return;
-    await editLesson(activeLessonId, activeModuleId, {
+    await editLesson(activeModuleId, activeLessonId, {
       title: lessonTitle,
       subtitle: lessonSubtitle || undefined,
-      content: lessonContent,
     });
     setIsEditingLesson(false);
   }
 
   const activeModule = modules.find((m) => m.id === activeModuleId) ?? null;
 
-  const [courseTitle, setCourseTitle] = useState("");
-  const [courseSubtitle, setCourseSubtitle] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (!courseId) return;
-    getCourse(courseId)
-      .then((c) => {
-        setCourseTitle(c.title);
-        setCourseSubtitle(c.subtitle);
-      })
-      .catch(() => {});
-  }, [courseId]);
-
   if (!courseId || isLoading) return <LoadingBubbles size="lg" />;
 
   return (
     <div className="flex h-[calc(100vh-3.5rem)] flex-col">
-      <header className="bg-background flex items-start gap-4 border-b px-6 py-3 lg:items-center">
+      <header className="bg-background flex items-start gap-4 border-b px-6 py-3">
         <Link
           to="/courses"
           className="text-muted-foreground hover:text-foreground mt-0.5 flex shrink-0 items-center gap-1 text-sm"
@@ -207,8 +222,7 @@ export default function CourseContentPage() {
                       <button
                         onClick={() => {
                           setActiveModuleId(mod.id);
-                          setIsAddingLesson(true);
-                          setActiveLessonId(null);
+                          startAddLesson();
                         }}
                         className="text-muted-foreground hover:bg-muted flex w-full items-center gap-1 rounded px-2 py-1 text-sm"
                       >
@@ -330,7 +344,13 @@ export default function CourseContentPage() {
                     </div>
                   )}
                   <div className="border-t pt-4">
-                    <Button variant="outline" onClick={() => setIsAddingLesson(true)}>
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        setActiveModuleId(activeModule.id);
+                        startAddLesson();
+                      }}
+                    >
                       <Plus className="mr-1.5 size-4" />
                       Add Lesson
                     </Button>
@@ -352,12 +372,8 @@ export default function CourseContentPage() {
                 <Input value={lessonSubtitle} onChange={(e) => setLessonSubtitle(e.target.value)} />
               </div>
               <div className="space-y-2">
-                <Label>Content</Label>
-                <RichTextEditor
-                  value={lessonContent}
-                  onChange={setLessonContent}
-                  minHeight="300px"
-                />
+                <Label>Sections</Label>
+                <SectionsEditor sections={lessonSections} onChange={setLessonSections} />
               </div>
               <div className="flex gap-3">
                 <Button onClick={handleAddLesson}>Create Lesson</Button>
@@ -382,14 +398,6 @@ export default function CourseContentPage() {
                     <Input
                       value={lessonSubtitle}
                       onChange={(e) => setLessonSubtitle(e.target.value)}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Content</Label>
-                    <RichTextEditor
-                      value={lessonContent}
-                      onChange={setLessonContent}
-                      minHeight="300px"
                     />
                   </div>
                   <div className="flex gap-3">
@@ -425,10 +433,16 @@ export default function CourseContentPage() {
                       </Button>
                     </div>
                   </div>
-                  <div
-                    className="prose dark:prose-invert max-w-none"
-                    dangerouslySetInnerHTML={{ __html: lessonContent }}
-                  />
+                  {(activeModule.lessons.find((l) => l.id === activeLessonId)?.sections ?? []).map(
+                    (s) => (
+                      <div key={s.id} className="mb-6">
+                        {s.title && (
+                          <h3 className="text-foreground text-lg font-semibold">{s.title}</h3>
+                        )}
+                        <p className="text-muted-foreground whitespace-pre-line">{s.content}</p>
+                      </div>
+                    ),
+                  )}
                   <div className="mt-12 border-t pt-6">
                     <Button disabled title="Progress tracking coming soon">
                       <CheckCircle className="mr-1.5 size-4" />

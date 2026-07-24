@@ -1,11 +1,13 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
-import { ArrowLeft, BookOpen, Clock, User, Shield } from "lucide-react";
+import { ArrowLeft, BookOpen, Clock, User, Shield, Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import LoadingBubbles from "@/components/shared/LoadingBubbles";
 import useAuth from "@/features/auth/hooks/useAuth";
 import { getCourse } from "./services/coursesService";
 import type { Course } from "./types/coursesTypes";
+import useEnrollment from "./hooks/useEnrollment";
+import EnrollmentModal from "./components/EnrollmentModal";
 
 const levelColors: Record<string, string> = {
   beginner: "bg-green-500/10 text-green-600 dark:text-green-400",
@@ -26,17 +28,33 @@ export default function CourseDetailPage() {
   const [course, setCourse] = useState<Course | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
-  const isOwner = user?.id === course?.creator?.id;
+  const { isEnrolled, progress, handleEnroll, fetchEnrollment } = useEnrollment(id ?? "");
+  const [showEnrollModal, setShowEnrollModal] = useState(false);
+  const [isEnrolling, setIsEnrolling] = useState(false);
 
   useEffect(() => {
     if (!id) return;
-    setIsLoading(true);
     getCourse(id)
       .then(setCourse)
       .catch(() => setError("Failed to load course details."))
       .finally(() => setIsLoading(false));
   }, [id]);
+
+  const isOwner = user?.id === course?.creator?.id;
+  const isEducatorOrAdmin = user?.role === "educator" || user?.role === "admin";
+
+  async function confirmEnroll() {
+    setIsEnrolling(true);
+    try {
+      await handleEnroll();
+      await fetchEnrollment();
+      setShowEnrollModal(false);
+    } catch {
+      // error handled by hook
+    } finally {
+      setIsEnrolling(false);
+    }
+  }
 
   if (isLoading) return <LoadingBubbles size="lg" />;
   if (error || !course) {
@@ -70,7 +88,6 @@ export default function CourseDetailPage() {
           {course.subtitle && (
             <p className="text-muted-foreground mt-2 text-lg">{course.subtitle}</p>
           )}
-
           <div className="mt-6 flex flex-wrap gap-2">
             <span
               className={`rounded-full px-3 py-1 text-sm font-medium ${levelColors[course.level]}`}
@@ -79,12 +96,10 @@ export default function CourseDetailPage() {
             </span>
             {course.duration && (
               <span className="bg-muted text-muted-foreground flex items-center gap-1 rounded-full px-3 py-1 text-sm">
-                <Clock className="size-3.5" />
-                {course.duration}
+                <Clock className="size-3.5" /> {course.duration}
               </span>
             )}
           </div>
-
           <div className="mt-8">
             <h2 className="text-foreground text-lg font-semibold">About this course</h2>
             <p className="text-muted-foreground mt-3 leading-relaxed whitespace-pre-line">
@@ -121,19 +136,50 @@ export default function CourseDetailPage() {
               </div>
             </div>
             <div className="mt-4 border-t pt-4">
-              {isOwner ? (
+              {isOwner || isEducatorOrAdmin ? (
                 <Link to={`/courses/${course.id}/content`}>
                   <Button className="w-full">Manage Content</Button>
                 </Link>
+              ) : isEnrolled ? (
+                <div>
+                  {progress > 0 && (
+                    <div className="mb-3">
+                      <div className="text-muted-foreground flex items-center justify-between text-xs">
+                        <span>Progress</span>
+                        <span>{progress}%</span>
+                      </div>
+                      <div className="bg-muted mt-1 h-1.5 w-full rounded-full">
+                        <div
+                          className="bg-primary h-full rounded-full transition-all"
+                          style={{ width: `${progress}%` }}
+                        />
+                      </div>
+                    </div>
+                  )}
+                  <Link to={`/courses/${course.id}/learn`}>
+                    <Button className="w-full">
+                      <Play className="mr-1.5 size-4" />
+                      {progress > 0 ? `Continue (${progress}%)` : "Start Learning"}
+                    </Button>
+                  </Link>
+                </div>
               ) : (
-                <Link to={`/courses/${course.id}/learn`}>
-                  <Button className="w-full">Start Learning</Button>
-                </Link>
+                <Button className="w-full" onClick={() => setShowEnrollModal(true)}>
+                  Enroll
+                </Button>
               )}
             </div>
           </div>
         </div>
       </div>
+
+      <EnrollmentModal
+        courseTitle={course.title}
+        isOpen={showEnrollModal}
+        onConfirm={confirmEnroll}
+        onCancel={() => setShowEnrollModal(false)}
+        isLoading={isEnrolling}
+      />
     </div>
   );
 }

@@ -16,7 +16,7 @@ const studentItems = [
     label: "Courses",
     children: [
       { label: "All Courses", href: "/courses" },
-      { label: "My Learning", href: "/courses/my-courses" },
+      { label: "My Learning", href: "/my-learning" },
     ],
   },
   { icon: Code, label: "Exercises", href: "/exercises", disabled: true },

@@ -14,6 +14,7 @@ import EditProfilePage from "@/features/profile/EditProfilePage";
 import ChangePasswordPage from "@/features/profile/ChangePasswordPage";
 import CoursesCatalogPage from "@/features/courses/CoursesCatalogPage";
 import MyCoursesPage from "@/features/courses/MyCoursesPage";
+import MyLearningPage from "@/features/courses/MyLearningPage";
 import CourseDetailPage from "@/features/courses/CourseDetailPage";
 import CourseContentPage from "@/features/courses/CourseContentPage";
 import CourseLearnPage from "@/features/courses/CourseLearnPage";
@@ -74,6 +75,7 @@ export default function App() {
             <Route path="/profile/change-password" element={<ChangePasswordPage />} />
             <Route path="/courses" element={<CoursesCatalogPage />} />
             <Route path="/courses/my-courses" element={<MyCoursesPage />} />
+            <Route path="/my-learning" element={<MyLearningPage />} />
             <Route path="/courses/create" element={<CreateCoursePage />} />
             <Route path="/courses/:id" element={<CourseDetailPage />} />
             <Route path="/courses/:id/content" element={<CourseContentPage />} />
