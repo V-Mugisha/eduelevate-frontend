@@ -37,7 +37,7 @@ export default function useEnrollment(courseId: string) {
 
   async function handleCompleteLesson(lessonId: string) {
     await enrollmentService.completeLesson(lessonId);
-    await fetchEnrollment();
+    return fetchEnrollment();
   }
 
   const isEnrolled = enrollment !== null;

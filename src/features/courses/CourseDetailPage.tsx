@@ -148,10 +148,10 @@ export default function CourseDetailPage() {
                         <span>Progress</span>
                         <span>{progress}%</span>
                       </div>
-                      <div className="bg-muted mt-1 h-1.5 w-full rounded-full">
+                      <div className="bg-muted mt-1 h-1.5 w-full overflow-hidden rounded-full">
                         <div
                           className="bg-primary h-full rounded-full transition-all"
-                          style={{ width: `${progress}%` }}
+                          style={{ width: `${Math.min(progress, 100)}%` }}
                         />
                       </div>
                     </div>

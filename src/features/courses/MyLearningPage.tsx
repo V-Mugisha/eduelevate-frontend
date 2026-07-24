@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { BookOpen, CheckCircle } from "lucide-react";
+import { BookOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import LoadingBubbles from "@/components/shared/LoadingBubbles";
 import { listMyEnrollments } from "./services/enrollmentService";
-import CourseCard from "./components/CourseCard";
+import EnrolledCourseCard from "./components/EnrolledCourseCard";
 
 interface EnrollmentItem {
   id: string;
@@ -55,49 +55,27 @@ export default function MyLearningPage() {
       ) : (
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {enrollments.map((e) => (
-            <div key={e.id}>
-              <CourseCard
-                course={{
-                  id: e.course.id,
-                  title: e.course.title,
-                  subtitle: e.course.subtitle,
-                  description: "",
-                  level: e.course.level,
-                  duration: e.course.duration,
-                  isPublished: true,
-                  createdAt: "",
-                  updatedAt: "",
-                  category: {
-                    id: e.course.category.id,
-                    name: e.course.category.name,
-                    description: e.course.category.description,
-                  },
-                  creator: e.course.creator,
-                }}
-              />
-              {(e.progress ?? 0) > 0 && (
-                <div className="bg-card mx-5 -mt-2 mb-0 rounded-b-lg border border-t-0 px-3 pb-3">
-                  <div className="text-muted-foreground flex items-center justify-between text-xs">
-                    <span>Progress</span>
-                    <span>{e.progress}%</span>
-                  </div>
-                  <div className="bg-muted mt-1 h-1.5 w-full rounded-full">
-                    <div
-                      className="bg-primary h-full rounded-full transition-all"
-                      style={{ width: `${e.progress}%` }}
-                    />
-                  </div>
-                </div>
-              )}
-              {e.progress === 0 && (
-                <div className="bg-card mx-5 -mt-2 rounded-b-lg border border-t-0 px-3 pb-3">
-                  <div className="text-muted-foreground flex items-center gap-1 text-xs">
-                    <CheckCircle className="size-3" />
-                    Enrolled — start learning
-                  </div>
-                </div>
-              )}
-            </div>
+            <EnrolledCourseCard
+              key={e.id}
+              course={{
+                id: e.course.id,
+                title: e.course.title,
+                subtitle: e.course.subtitle,
+                description: "",
+                level: e.course.level,
+                duration: e.course.duration,
+                isPublished: true,
+                createdAt: "",
+                updatedAt: "",
+                category: {
+                  id: e.course.category.id,
+                  name: e.course.category.name,
+                  description: e.course.category.description,
+                },
+                creator: e.course.creator,
+              }}
+              progress={e.progress ?? 0}
+            />
           ))}
         </div>
       )}

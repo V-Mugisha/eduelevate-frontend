@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { useParams, Link, Navigate } from "react-router-dom";
+import { useState, useEffect, useMemo, useCallback } from "react";
+import { useParams, useSearchParams, Link, Navigate } from "react-router-dom";
 import { ArrowLeft, ChevronRight, BookOpen, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import LoadingBubbles from "@/components/shared/LoadingBubbles";
@@ -8,17 +8,57 @@ import { listModules } from "./services/contentService";
 import { getCourse } from "./services/coursesService";
 import useEnrollment from "./hooks/useEnrollment";
 
+interface FlatLesson {
+  lesson: Lesson;
+  module: Module;
+}
+
+function buildFlatLessonList(modules: Module[]): FlatLesson[] {
+  const flat: FlatLesson[] = [];
+  for (const mod of modules) {
+    for (const lesson of mod.lessons) {
+      flat.push({ lesson, module: mod });
+    }
+  }
+  return flat;
+}
+
+function findFlatLessonById(flat: FlatLesson[], lessonId: string): FlatLesson | undefined {
+  return flat.find((f) => f.lesson.id === lessonId);
+}
+
+function computeExpandedModuleIds(
+  activeFlatLesson: FlatLesson | null,
+): Set<string> {
+  if (!activeFlatLesson) return new Set();
+  return new Set([activeFlatLesson.module.id]);
+}
+
 export default function CourseLearnPage() {
   const { id: courseId } = useParams<{ id: string }>();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [modules, setModules] = useState<Module[]>([]);
-  const [activeModule, setActiveModule] = useState<Module | null>(null);
-  const [activeLesson, setActiveLesson] = useState<Lesson | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [courseTitle, setCourseTitle] = useState("");
   const [courseSubtitle, setCourseSubtitle] = useState<string | null>(null);
+  const [completingLessonId, setCompletingLessonId] = useState<string | null>(null);
   const { isEnrolled, completedLessonIds, progress, handleCompleteLesson } = useEnrollment(
     courseId ?? "",
   );
+
+  const flatLessonList = useMemo(() => buildFlatLessonList(modules), [modules]);
+
+  const lessonParam = searchParams.get("lesson");
+  const activeFlatLesson = lessonParam
+    ? (findFlatLessonById(flatLessonList, lessonParam) ?? null)
+    : null;
+
+  const expandedModuleIds = useMemo(
+    () => computeExpandedModuleIds(activeFlatLesson),
+    [activeFlatLesson],
+  );
+
+  const activeLesson = activeFlatLesson?.lesson ?? null;
 
   useEffect(() => {
     if (!courseId) return;
@@ -27,13 +67,61 @@ export default function CourseLearnPage() {
         setModules(moduleData);
         setCourseTitle(courseData.title);
         setCourseSubtitle(courseData.subtitle);
-        if (moduleData.length > 0) {
-          setActiveModule(moduleData[0]);
-          if (moduleData[0].lessons.length > 0) setActiveLesson(moduleData[0].lessons[0]);
-        }
       })
       .finally(() => setIsLoading(false));
   }, [courseId]);
+
+  useEffect(() => {
+    if (isLoading || flatLessonList.length === 0) return;
+    const param = searchParams.get("lesson");
+    if (!param || !findFlatLessonById(flatLessonList, param)) {
+      const firstId = flatLessonList[0].lesson.id;
+      setSearchParams({ lesson: firstId }, { replace: true });
+    }
+  }, [isLoading, flatLessonList, searchParams, setSearchParams]);
+
+  const selectLesson = useCallback(
+    (lessonId: string) => {
+      setSearchParams({ lesson: lessonId }, { replace: true });
+    },
+    [setSearchParams],
+  );
+
+  const handleModuleToggle = useCallback(
+    (moduleId: string) => {
+      if (expandedModuleIds.has(moduleId)) {
+        setSearchParams(
+          (prev) => {
+            const next = new URLSearchParams(prev);
+            next.delete("lesson");
+            return next;
+          },
+          { replace: true },
+        );
+      } else {
+        const mod = modules.find((m) => m.id === moduleId);
+        if (mod && mod.lessons.length > 0) {
+          selectLesson(mod.lessons[0].id);
+        }
+      }
+    },
+    [expandedModuleIds, modules, selectLesson, setSearchParams],
+  );
+
+  const handleMarkComplete = useCallback(async () => {
+    if (!activeLesson) return;
+    setCompletingLessonId(activeLesson.id);
+    try {
+      await handleCompleteLesson(activeLesson.id);
+      const currentIndex = flatLessonList.findIndex((f) => f.lesson.id === activeLesson.id);
+      if (currentIndex >= 0 && currentIndex < flatLessonList.length - 1) {
+        const nextLesson = flatLessonList[currentIndex + 1].lesson;
+        selectLesson(nextLesson.id);
+      }
+    } finally {
+      setCompletingLessonId(null);
+    }
+  }, [activeLesson, handleCompleteLesson, flatLessonList, selectLesson]);
 
   if (isLoading) return <LoadingBubbles size="lg" />;
   if (!isEnrolled) return <Navigate to={`/courses/${courseId}`} replace />;
@@ -55,7 +143,7 @@ export default function CourseLearnPage() {
             <p className="text-muted-foreground truncate text-sm">{courseSubtitle}</p>
           )}
           <div className="mt-1 flex items-center gap-2">
-            <div className="bg-muted h-1.5 w-40 rounded-full">
+            <div className="bg-muted h-1.5 w-40 overflow-hidden rounded-full">
               <div
                 className="bg-primary h-full rounded-full transition-all"
                 style={{ width: `${progress}%` }}
@@ -68,49 +156,47 @@ export default function CourseLearnPage() {
 
       <div className="flex flex-1 overflow-hidden">
         <div className="bg-background w-72 shrink-0 overflow-y-auto border-r p-4">
-          {modules.map((mod) => (
-            <div key={mod.id} className="mb-1">
-              <button
-                onClick={() => {
-                  setActiveModule(mod);
-                  if (mod.lessons.length > 0) setActiveLesson(mod.lessons[0]);
-                }}
-                className={`flex w-full items-center gap-1 rounded-lg px-2 py-1.5 text-left text-sm font-medium ${
-                  activeModule?.id === mod.id
-                    ? "bg-primary/10 text-primary"
-                    : "text-foreground hover:bg-muted"
-                }`}
-              >
-                <ChevronRight
-                  className={`size-4 shrink-0 transition-transform ${activeModule?.id === mod.id ? "rotate-90" : ""}`}
-                />
-                {mod.title}
-              </button>
-              {activeModule?.id === mod.id && (
-                <div className="ml-5 border-l pl-2">
-                  {mod.lessons.map((l) => {
-                    const isComplete = completedLessonIds.has(l.id);
-                    return (
-                      <button
-                        key={l.id}
-                        onClick={() => setActiveLesson(l)}
-                        className={`flex w-full items-center gap-1 rounded px-2 py-1 text-left text-sm ${
-                          activeLesson?.id === l.id
-                            ? "bg-primary/5 text-primary"
-                            : isComplete
-                              ? "text-foreground"
-                              : "text-muted-foreground hover:bg-muted"
-                        }`}
-                      >
-                        {isComplete && <CheckCircle className="size-3 text-green-500" />}
-                        {l.title}
-                      </button>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
-          ))}
+          {modules.map((mod) => {
+            const isExpanded = expandedModuleIds.has(mod.id);
+            return (
+              <div key={mod.id} className="mb-1">
+                <button
+                  onClick={() => handleModuleToggle(mod.id)}
+                  className={`flex w-full items-center gap-1 rounded-lg px-2 py-1.5 text-left text-sm font-medium ${
+                    isExpanded ? "bg-primary/10 text-primary" : "text-foreground hover:bg-muted"
+                  }`}
+                >
+                  <ChevronRight
+                    className={`size-4 shrink-0 transition-transform ${isExpanded ? "rotate-90" : ""}`}
+                  />
+                  {mod.title}
+                </button>
+                {isExpanded && (
+                  <div className="ml-5 border-l pl-2">
+                    {mod.lessons.map((l) => {
+                      const isComplete = completedLessonIds.has(l.id);
+                      return (
+                        <button
+                          key={l.id}
+                          onClick={() => selectLesson(l.id)}
+                          className={`flex w-full items-center gap-1 rounded px-2 py-1 text-left text-sm ${
+                            activeLesson?.id === l.id
+                              ? "bg-primary/5 text-primary"
+                              : isComplete
+                                ? "text-foreground"
+                                : "text-muted-foreground hover:bg-muted"
+                          }`}
+                        >
+                          {isComplete && <CheckCircle className="size-3 text-green-500" />}
+                          {l.title}
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </div>
 
         <div className="flex-1 overflow-y-auto">
@@ -136,9 +222,12 @@ export default function CourseLearnPage() {
                     <CheckCircle className="size-4" /> Lesson completed
                   </div>
                 ) : (
-                  <Button onClick={() => handleCompleteLesson(activeLesson.id)}>
+                  <Button
+                    onClick={handleMarkComplete}
+                    disabled={completingLessonId === activeLesson.id}
+                  >
                     <CheckCircle className="mr-1.5 size-4" />
-                    Mark as Complete
+                    {completingLessonId === activeLesson.id ? "Completing..." : "Mark as Complete"}
                   </Button>
                 )}
               </div>
