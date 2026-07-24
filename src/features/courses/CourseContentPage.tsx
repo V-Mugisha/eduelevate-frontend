@@ -140,7 +140,7 @@ export default function CourseContentPage() {
 
   return (
     <div className="flex h-[calc(100vh-3.5rem)] flex-col">
-      <header className="bg-background flex items-start lg:items-center gap-4 border-b px-6 py-3">
+      <header className="bg-background flex items-start gap-4 border-b px-6 py-3 lg:items-center">
         <Link
           to="/courses"
           className="text-muted-foreground hover:text-foreground mt-0.5 flex shrink-0 items-center gap-1 text-sm"

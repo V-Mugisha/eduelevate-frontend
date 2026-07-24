@@ -13,6 +13,7 @@ import ProfilePage from "@/features/profile/ProfilePage";
 import EditProfilePage from "@/features/profile/EditProfilePage";
 import ChangePasswordPage from "@/features/profile/ChangePasswordPage";
 import CoursesCatalogPage from "@/features/courses/CoursesCatalogPage";
+import MyCoursesPage from "@/features/courses/MyCoursesPage";
 import CourseDetailPage from "@/features/courses/CourseDetailPage";
 import CourseContentPage from "@/features/courses/CourseContentPage";
 import CourseLearnPage from "@/features/courses/CourseLearnPage";
@@ -72,6 +73,7 @@ export default function App() {
             <Route path="/profile/edit" element={<EditProfilePage />} />
             <Route path="/profile/change-password" element={<ChangePasswordPage />} />
             <Route path="/courses" element={<CoursesCatalogPage />} />
+            <Route path="/courses/my-courses" element={<MyCoursesPage />} />
             <Route path="/courses/create" element={<CreateCoursePage />} />
             <Route path="/courses/:id" element={<CourseDetailPage />} />
             <Route path="/courses/:id/content" element={<CourseContentPage />} />

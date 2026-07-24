@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -7,7 +8,7 @@ import useCourses from "./hooks/useCourses";
 import CourseCard from "./components/CourseCard";
 import CourseFilterBar from "./components/CourseFilterBar";
 
-export default function CoursesCatalogPage() {
+export default function MyCoursesPage() {
   const { user } = useAuth();
   const {
     courses,
@@ -19,16 +20,23 @@ export default function CoursesCatalogPage() {
     setCategoryId,
     level,
     setLevel,
+    showMyCourses,
+    setShowMyCourses,
   } = useCourses();
-
   const isEducatorOrAdmin = user?.role === "educator" || user?.role === "admin";
+
+  useEffect(() => {
+    setShowMyCourses(true);
+  }, [setShowMyCourses]);
 
   return (
     <div className="mx-auto w-full max-w-7xl px-6 py-10 lg:px-8">
       <div className="mb-8 flex items-center justify-between">
         <div>
-          <h1 className="text-foreground text-2xl font-bold sm:text-3xl">Course Catalog</h1>
-          <p className="text-muted-foreground mt-1">Discover courses and start learning today</p>
+          <h1 className="text-foreground text-2xl font-bold sm:text-3xl">My Courses</h1>
+          <p className="text-muted-foreground mt-1">
+            {user?.role === "student" ? "Your enrolled courses" : "Courses you have created"}
+          </p>
         </div>
         {isEducatorOrAdmin && (
           <Link to="/courses/create">

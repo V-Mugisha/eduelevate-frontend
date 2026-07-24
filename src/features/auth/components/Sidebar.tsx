@@ -11,19 +11,40 @@ interface SidebarProps {
 
 const studentItems = [
   { icon: LayoutDashboard, label: "Dashboard", href: "/dashboard" },
-  { icon: BookOpen, label: "Courses", href: "/courses" },
+  {
+    icon: BookOpen,
+    label: "Courses",
+    children: [
+      { label: "All Courses", href: "/courses" },
+      { label: "My Learning", href: "/courses/my-courses" },
+    ],
+  },
   { icon: Code, label: "Exercises", href: "/exercises", disabled: true },
 ];
 
 const educatorItems = [
   { icon: LayoutDashboard, label: "Dashboard", href: "/dashboard" },
-  { icon: BookOpen, label: "Courses", href: "/courses" },
+  {
+    icon: BookOpen,
+    label: "Courses",
+    children: [
+      { label: "All Courses", href: "/courses" },
+      { label: "My Courses", href: "/courses/my-courses" },
+    ],
+  },
   { icon: Code, label: "Review Submissions", href: "/exercises", disabled: true },
 ];
 
 const adminItems = [
   { icon: LayoutDashboard, label: "Dashboard", href: "/dashboard" },
-  { icon: BookOpen, label: "Courses", href: "/courses" },
+  {
+    icon: BookOpen,
+    label: "Courses",
+    children: [
+      { label: "All Courses", href: "/courses" },
+      { label: "My Courses", href: "/courses/my-courses" },
+    ],
+  },
   { icon: Users, label: "User Management", href: "/users", disabled: true },
   { icon: Settings, label: "Settings", href: "/settings", disabled: true },
 ];
@@ -58,12 +79,13 @@ export default function Sidebar({ collapsed, onToggle }: SidebarProps) {
       <nav className="flex flex-1 flex-col gap-1 overflow-y-auto p-3">
         {items.map((item) => (
           <SidebarItem
-            key={item.href}
+            key={item.label}
             icon={item.icon}
             label={item.label}
-            href={item.href}
+            href={"href" in item ? (item.href as string) : undefined}
             collapsed={collapsed}
-            disabled={item.disabled}
+            disabled={"disabled" in item ? (item.disabled as boolean) : false}
+            children={"children" in item ? item.children : undefined}
           />
         ))}
       </nav>

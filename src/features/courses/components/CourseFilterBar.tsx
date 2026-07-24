@@ -13,8 +13,8 @@ interface CourseFilterBarProps {
   onCategoryChange: (value: string) => void;
   level: string;
   onLevelChange: (value: string) => void;
-  showMyCourses: boolean;
-  onShowMyCoursesChange: (value: boolean) => void;
+  showMyCourses?: boolean;
+  onShowMyCoursesChange?: (value: boolean) => void;
   categories: Category[];
 }
 
@@ -76,7 +76,7 @@ export default function CourseFilterBar({
           triggerClassName="h-9 w-auto min-w-[150px]"
         />
 
-        {isEducatorOrAdmin && (
+        {isEducatorOrAdmin && showMyCourses !== undefined && onShowMyCoursesChange && (
           <div className="flex items-center gap-2">
             <Checkbox
               id="my-courses"
