@@ -218,7 +218,7 @@ export default function CourseDetailPage() {
                   </Button>
                 </div>
               ) : !course.isPublished ? (
-                <p className="text-sm text-muted-foreground">
+                <p className="text-muted-foreground text-sm">
                   This course is not yet available for enrollment.
                 </p>
               ) : isEnrolled ? (
@@ -264,15 +264,13 @@ export default function CourseDetailPage() {
 
       {showUnpublishConfirm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-          <div className="mx-4 w-full max-w-sm rounded-xl border bg-card p-6 shadow-lg">
-            <h3 className="text-lg font-semibold text-foreground">Unpublish Course</h3>
-            <p className="mt-2 text-sm text-muted-foreground">
+          <div className="bg-card mx-4 w-full max-w-sm rounded-xl border p-6 shadow-lg">
+            <h3 className="text-foreground text-lg font-semibold">Unpublish Course</h3>
+            <p className="text-muted-foreground mt-2 text-sm">
               Unpublishing will hide this course from the catalog. Students who are already enrolled
               will retain access, but no new students will be able to enroll.
             </p>
-            <p className="mt-2 text-sm text-muted-foreground">
-              Are you sure you want to continue?
-            </p>
+            <p className="text-muted-foreground mt-2 text-sm">Are you sure you want to continue?</p>
             <div className="mt-6 flex justify-end gap-3">
               <Button variant="outline" onClick={() => setShowUnpublishConfirm(false)}>
                 Cancel

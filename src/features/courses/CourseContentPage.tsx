@@ -293,11 +293,11 @@ export default function CourseContentPage() {
           )}
         </Button>
         <div className="min-w-0 flex-1">
-          <h2 className="truncate text-lg font-semibold text-foreground">
+          <h2 className="text-foreground truncate text-lg font-semibold">
             {courseTitle || "Course Content"}
           </h2>
           {courseSubtitle && (
-            <p className="truncate text-sm text-muted-foreground">{courseSubtitle}</p>
+            <p className="text-muted-foreground truncate text-sm">{courseSubtitle}</p>
           )}
           {!courseIsPublished && (
             <span className="mt-1 inline-block rounded-full bg-yellow-500/10 px-2 py-0.5 text-xs text-yellow-600 dark:text-yellow-400">
@@ -579,13 +579,13 @@ export default function CourseContentPage() {
 
       {showUnpublishConfirm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-          <div className="mx-4 w-full max-w-sm rounded-xl border bg-card p-6 shadow-lg">
-            <h3 className="text-lg font-semibold text-foreground">Unpublish Course</h3>
-            <p className="mt-2 text-sm text-muted-foreground">
+          <div className="bg-card mx-4 w-full max-w-sm rounded-xl border p-6 shadow-lg">
+            <h3 className="text-foreground text-lg font-semibold">Unpublish Course</h3>
+            <p className="text-muted-foreground mt-2 text-sm">
               Unpublishing will hide this course from the catalog. Students who are already enrolled
               will retain access, but no new students will be able to enroll.
             </p>
-            <p className="mt-2 text-sm text-muted-foreground">Are you sure you want to continue?</p>
+            <p className="text-muted-foreground mt-2 text-sm">Are you sure you want to continue?</p>
             <div className="mt-6 flex justify-end gap-3">
               <Button variant="outline" onClick={() => setShowUnpublishConfirm(false)}>
                 Cancel

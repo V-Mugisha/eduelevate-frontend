@@ -155,7 +155,7 @@ export default function CreateCourseForm() {
           onChange={(event) => setMaxStudents(event.target.value)}
           placeholder="Leave empty for unlimited seats"
         />
-        <p className="text-xs text-muted-foreground">
+        <p className="text-muted-foreground text-xs">
           Set a limit on how many students can enroll. Leave empty for no limit.
         </p>
       </div>
