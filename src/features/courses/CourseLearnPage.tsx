@@ -7,6 +7,7 @@ import {
   CheckCircle,
   PanelLeftClose,
   PanelLeftOpen,
+  ClipboardList,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
@@ -15,6 +16,7 @@ import type { Module, Lesson } from "./services/contentService";
 import { listModules } from "./services/contentService";
 import { getCourse } from "./services/coursesService";
 import useEnrollment from "./hooks/useEnrollment";
+import { getAssessment } from "./services/assessmentService";
 
 interface FlatLesson {
   lesson: Lesson;
@@ -50,6 +52,7 @@ export default function CourseLearnPage() {
   const [completingLessonId, setCompletingLessonId] = useState<string | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [mobileSheetOpen, setMobileSheetOpen] = useState(false);
+  const [hasAssessment, setHasAssessment] = useState(false);
   const { isEnrolled, completedLessonIds, progress, handleCompleteLesson } = useEnrollment(
     courseId ?? "",
   );
@@ -87,6 +90,16 @@ export default function CourseLearnPage() {
       setSearchParams({ lesson: firstId }, { replace: true });
     }
   }, [isLoading, flatLessonList, searchParams, setSearchParams]);
+
+  useEffect(() => {
+    if (!activeLesson) {
+      setHasAssessment(false);
+      return;
+    }
+    getAssessment(activeLesson.id)
+      .then((a) => setHasAssessment(!!a))
+      .catch(() => setHasAssessment(false));
+  }, [activeLesson?.id]);
 
   const selectLesson = useCallback(
     (lessonId: string) => {
@@ -269,18 +282,30 @@ export default function CourseLearnPage() {
                   </div>
                 ))}
               </div>
-              <div className="mt-12 border-t pt-6">
+              <div className="mt-8 border-t pt-6">
                 {completedLessonIds.has(activeLesson.id) ? (
                   <div className="flex items-center gap-2 text-sm text-green-600 dark:text-green-400">
                     <CheckCircle className="size-4" /> Lesson completed
                   </div>
+                ) : hasAssessment ? (
+                  <Link
+                    to={`/courses/${courseId}/learn/assessment/${activeLesson.id}`}
+                    className="inline-flex w-full"
+                  >
+                    <Button size="lg" className="w-full">
+                      <ClipboardList className="mr-2 size-4" />
+                      Practice
+                    </Button>
+                  </Link>
                 ) : (
                   <Button
                     onClick={handleMarkComplete}
                     disabled={completingLessonId === activeLesson.id}
                   >
                     <CheckCircle className="mr-1.5 size-4" />
-                    {completingLessonId === activeLesson.id ? "Completing..." : "Mark as Complete"}
+                    {completingLessonId === activeLesson.id
+                      ? "Completing..."
+                      : "Mark as Complete"}
                   </Button>
                 )}
               </div>
