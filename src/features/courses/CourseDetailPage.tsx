@@ -175,7 +175,7 @@ export default function CourseDetailPage() {
             className={`border-b-2 pb-2 text-sm font-medium transition-colors ${
               activeTab === "overview"
                 ? "border-primary text-primary"
-                : "border-transparent text-muted-foreground hover:text-foreground"
+                : "text-muted-foreground hover:text-foreground border-transparent"
             }`}
           >
             Overview
@@ -185,7 +185,7 @@ export default function CourseDetailPage() {
             className={`border-b-2 pb-2 text-sm font-medium transition-colors ${
               activeTab === "certificate"
                 ? "border-primary text-primary"
-                : "border-transparent text-muted-foreground hover:text-foreground"
+                : "text-muted-foreground hover:text-foreground border-transparent"
             }`}
           >
             Certificate
@@ -197,12 +197,12 @@ export default function CourseDetailPage() {
         <div className="lg:col-span-2">
           {activeTab === "overview" ? (
             <>
-              <span className="inline-block rounded-full bg-primary/10 px-3 py-1 text-sm font-medium text-primary">
+              <span className="bg-primary/10 text-primary inline-block rounded-full px-3 py-1 text-sm font-medium">
                 {course.category.name}
               </span>
-              <h1 className="mt-3 text-3xl font-bold text-foreground">{course.title}</h1>
+              <h1 className="text-foreground mt-3 text-3xl font-bold">{course.title}</h1>
               {course.subtitle && (
-                <p className="mt-2 text-lg text-muted-foreground">{course.subtitle}</p>
+                <p className="text-muted-foreground mt-2 text-lg">{course.subtitle}</p>
               )}
               <div className="mt-6 flex flex-wrap gap-2">
                 <span
@@ -211,14 +211,14 @@ export default function CourseDetailPage() {
                   {course.level}
                 </span>
                 {course.duration && (
-                  <span className="flex items-center gap-1 rounded-full bg-muted px-3 py-1 text-sm text-muted-foreground">
+                  <span className="bg-muted text-muted-foreground flex items-center gap-1 rounded-full px-3 py-1 text-sm">
                     <Clock className="size-3.5" /> {course.duration}
                   </span>
                 )}
               </div>
               <div className="mt-8">
-                <h2 className="text-lg font-semibold text-foreground">About this course</h2>
-                <p className="mt-3 leading-relaxed whitespace-pre-line text-muted-foreground">
+                <h2 className="text-foreground text-lg font-semibold">About this course</h2>
+                <p className="text-muted-foreground mt-3 leading-relaxed whitespace-pre-line">
                   {course.description}
                 </p>
               </div>
@@ -227,19 +227,21 @@ export default function CourseDetailPage() {
             <div>
               {!isEnrolled || isOwner ? (
                 <div className="flex flex-col items-center justify-center py-20 text-center">
-                  <Award className="size-12 text-muted-foreground" />
-                  <p className="mt-4 text-muted-foreground">
+                  <Award className="text-muted-foreground size-12" />
+                  <p className="text-muted-foreground mt-4">
                     Enroll and complete this course to earn a certificate.
                   </p>
                 </div>
               ) : certificate ? (
                 <div className="space-y-4">
-                  <div className="rounded-xl border bg-card p-6">
+                  <div className="bg-card rounded-xl border p-6">
                     <div className="flex items-center gap-2">
-                      <Award className="size-5 text-primary" />
-                      <span className="text-sm font-medium text-foreground">Certificate Earned</span>
+                      <Award className="text-primary size-5" />
+                      <span className="text-foreground text-sm font-medium">
+                        Certificate Earned
+                      </span>
                     </div>
-                    <p className="mt-2 text-sm text-muted-foreground">
+                    <p className="text-muted-foreground mt-2 text-sm">
                       You earned this certificate on{" "}
                       {new Date(certificate.issuedAt).toLocaleDateString("en-US", {
                         year: "numeric",
@@ -263,11 +265,11 @@ export default function CourseDetailPage() {
                 </div>
               ) : progress === 100 ? (
                 <div className="flex flex-col items-center justify-center py-20 text-center">
-                  <Award className="size-12 text-primary" />
-                  <p className="mt-4 text-lg font-medium text-foreground">
+                  <Award className="text-primary size-12" />
+                  <p className="text-foreground mt-4 text-lg font-medium">
                     Congratulations! You have completed this course.
                   </p>
-                  <p className="mt-1 text-sm text-muted-foreground">
+                  <p className="text-muted-foreground mt-1 text-sm">
                     Generate your certificate now.
                   </p>
                   <Button
@@ -281,18 +283,18 @@ export default function CourseDetailPage() {
                 </div>
               ) : (
                 <div className="flex flex-col items-center justify-center py-20 text-center">
-                  <Award className="size-12 text-muted-foreground" />
-                  <p className="mt-4 text-lg font-medium text-foreground">
+                  <Award className="text-muted-foreground size-12" />
+                  <p className="text-foreground mt-4 text-lg font-medium">
                     Complete all lessons to earn your certificate
                   </p>
                   <div className="mt-4 w-full max-w-xs">
-                    <div className="flex items-center justify-between text-xs text-muted-foreground">
+                    <div className="text-muted-foreground flex items-center justify-between text-xs">
                       <span>Progress</span>
                       <span>{progress}%</span>
                     </div>
-                    <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-muted">
+                    <div className="bg-muted mt-1 h-1.5 w-full overflow-hidden rounded-full">
                       <div
-                        className="h-full rounded-full bg-primary transition-all"
+                        className="bg-primary h-full rounded-full transition-all"
                         style={{ width: `${progress}%` }}
                       />
                     </div>

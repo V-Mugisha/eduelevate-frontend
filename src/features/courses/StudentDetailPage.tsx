@@ -136,10 +136,10 @@ export default function StudentDetailPage() {
             {detail.certificate && (
               <div className="mt-6 border-t pt-4">
                 <div className="flex items-center gap-2">
-                  <Award className="size-4 text-primary" />
-                  <span className="text-sm font-medium text-foreground">Certificate</span>
+                  <Award className="text-primary size-4" />
+                  <span className="text-foreground text-sm font-medium">Certificate</span>
                 </div>
-                <p className="mt-1 text-xs text-muted-foreground">
+                <p className="text-muted-foreground mt-1 text-xs">
                   Earned on{" "}
                   {new Date(detail.certificate.issuedAt).toLocaleDateString("en-US", {
                     year: "numeric",

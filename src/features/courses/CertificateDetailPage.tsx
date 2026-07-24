@@ -128,7 +128,7 @@ export default function CertificateDetailPage() {
             </p>
             <DividerLine />
             <p
-              className="mt-3 text-center text-[13px] italic text-[#64748b]"
+              className="mt-3 text-center text-[13px] text-[#64748b] italic"
               style={{ fontFamily: "Georgia, 'Times New Roman', serif" }}
             >
               Congratulations on your outstanding achievement. Your dedication and hard work have
@@ -141,7 +141,7 @@ export default function CertificateDetailPage() {
       <div className="mt-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <Link
           to={`/courses/${certificate.course.id}`}
-          className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
+          className="text-muted-foreground hover:text-foreground flex items-center gap-2 text-sm"
         >
           <BookOpen className="size-4" />
           <span>{certificate.course.title}</span>

@@ -99,12 +99,9 @@ export function generateCertificatePdf(data: CertificatePdfData, filename: strin
     566,
     { align: "center" },
   );
-  doc.text(
-    "have earned you this certificate of completion from EduElevate.",
-    w / 2,
-    586,
-    { align: "center" },
-  );
+  doc.text("have earned you this certificate of completion from EduElevate.", w / 2, 586, {
+    align: "center",
+  });
 
   doc.setFont("times", "normal");
   doc.setFontSize(9);

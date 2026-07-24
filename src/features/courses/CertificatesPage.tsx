@@ -29,19 +29,21 @@ export default function CertificatesPage() {
   return (
     <div className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 sm:py-10 lg:px-8">
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-foreground sm:text-3xl">Certificates</h1>
-        <p className="mt-1 text-muted-foreground">Certificates you have earned by completing courses</p>
+        <h1 className="text-foreground text-2xl font-bold sm:text-3xl">Certificates</h1>
+        <p className="text-muted-foreground mt-1">
+          Certificates you have earned by completing courses
+        </p>
       </div>
 
       {certificates.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-20 text-center">
-          <Award className="size-12 text-muted-foreground" />
-          <p className="mt-4 text-lg text-muted-foreground">No certificates yet.</p>
-          <p className="mt-1 text-sm text-muted-foreground">
+          <Award className="text-muted-foreground size-12" />
+          <p className="text-muted-foreground mt-4 text-lg">No certificates yet.</p>
+          <p className="text-muted-foreground mt-1 text-sm">
             Complete a course to earn a certificate.
           </p>
           <Link to="/courses" className="mt-4">
-            <span className="text-sm text-primary hover:underline">Browse Courses</span>
+            <span className="text-primary text-sm hover:underline">Browse Courses</span>
           </Link>
         </div>
       ) : (
@@ -50,16 +52,16 @@ export default function CertificatesPage() {
             <Link
               key={cert.id}
               to={`/certificates/${cert.id}`}
-              className="group rounded-xl border bg-card p-5 shadow-sm transition-shadow hover:shadow-md"
+              className="group bg-card rounded-xl border p-5 shadow-sm transition-shadow hover:shadow-md"
             >
               <div className="mb-3 flex items-center gap-2">
-                <Award className="size-5 text-primary" />
-                <span className="text-xs font-medium text-primary">Certificate</span>
+                <Award className="text-primary size-5" />
+                <span className="text-primary text-xs font-medium">Certificate</span>
               </div>
-              <h3 className="line-clamp-2 text-base font-semibold text-foreground group-hover:text-primary">
+              <h3 className="text-foreground group-hover:text-primary line-clamp-2 text-base font-semibold">
                 {cert.course.title}
               </h3>
-              <div className="mt-3 flex items-center justify-between text-xs text-muted-foreground">
+              <div className="text-muted-foreground mt-3 flex items-center justify-between text-xs">
                 <span className="flex items-center gap-1">
                   <Calendar className="size-3" />
                   {formatDate(cert.issuedAt)}
