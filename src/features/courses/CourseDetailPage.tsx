@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
-import { ArrowLeft, BookOpen, Clock, User, Shield, Play } from "lucide-react";
+import { ArrowLeft, BookOpen, Clock, User, Shield, Play, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import LoadingBubbles from "@/components/shared/LoadingBubbles";
 import useAuth from "@/features/auth/hooks/useAuth";
@@ -41,7 +41,6 @@ export default function CourseDetailPage() {
   }, [id]);
 
   const isOwner = user?.id === course?.creator?.id;
-  const isEducatorOrAdmin = user?.role === "educator" || user?.role === "admin";
 
   async function confirmEnroll() {
     setIsEnrolling(true);
@@ -136,10 +135,18 @@ export default function CourseDetailPage() {
               </div>
             </div>
             <div className="mt-4 border-t pt-4">
-              {isOwner || isEducatorOrAdmin ? (
-                <Link to={`/courses/${course.id}/content`}>
-                  <Button className="w-full">Manage Content</Button>
-                </Link>
+              {isOwner ? (
+                <div className="space-y-2">
+                  <Link to={`/courses/${course.id}/content`}>
+                    <Button className="w-full">Manage Content</Button>
+                  </Link>
+                  <Link to={`/courses/${course.id}/students`}>
+                    <Button variant="outline" className="w-full">
+                      <Users className="mr-1.5 size-4" />
+                      Manage Students
+                    </Button>
+                  </Link>
+                </div>
               ) : isEnrolled ? (
                 <div>
                   {progress > 0 && (

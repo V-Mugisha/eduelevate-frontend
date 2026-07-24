@@ -1,4 +1,5 @@
 import apiClient from "@/lib/apiClient";
+import type { EnrolledStudent, StudentDetail } from "../types/coursesTypes";
 
 interface EnrollmentData {
   id: string;
@@ -38,4 +39,19 @@ export async function listMyEnrollments(): Promise<EnrollmentData[]> {
 
 export async function completeLesson(lessonId: string): Promise<void> {
   await apiClient.post(`/lessons/${lessonId}/complete`);
+}
+
+export async function getCourseStudents(courseId: string): Promise<EnrolledStudent[]> {
+  const res = await apiClient.get<{ data: EnrolledStudent[] }>(`/courses/${courseId}/students`);
+  return res.data.data;
+}
+
+export async function getStudentDetail(
+  courseId: string,
+  studentUserId: string,
+): Promise<StudentDetail> {
+  const res = await apiClient.get<{ data: StudentDetail }>(
+    `/courses/${courseId}/students/${studentUserId}`,
+  );
+  return res.data.data;
 }

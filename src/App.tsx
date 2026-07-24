@@ -18,6 +18,8 @@ import MyLearningPage from "@/features/courses/MyLearningPage";
 import CourseDetailPage from "@/features/courses/CourseDetailPage";
 import CourseContentPage from "@/features/courses/CourseContentPage";
 import CourseLearnPage from "@/features/courses/CourseLearnPage";
+import CourseStudentsPage from "@/features/courses/CourseStudentsPage";
+import StudentDetailPage from "@/features/courses/StudentDetailPage";
 import CreateCoursePage from "@/features/courses/CreateCoursePage";
 import NotFoundPage from "@/pages/NotFoundPage";
 
@@ -80,6 +82,8 @@ export default function App() {
             <Route path="/courses/:id" element={<CourseDetailPage />} />
             <Route path="/courses/:id/content" element={<CourseContentPage />} />
             <Route path="/courses/:id/learn" element={<CourseLearnPage />} />
+            <Route path="/courses/:id/students" element={<CourseStudentsPage />} />
+            <Route path="/courses/:id/students/:userId" element={<StudentDetailPage />} />
             <Route path="*" element={<NotFoundPage />} />
           </Route>
         </Routes>
