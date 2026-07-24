@@ -1,7 +1,15 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { useParams, useSearchParams, Link, Navigate } from "react-router-dom";
-import { ArrowLeft, ChevronRight, BookOpen, CheckCircle } from "lucide-react";
+import {
+  ArrowLeft,
+  ChevronRight,
+  BookOpen,
+  CheckCircle,
+  PanelLeftClose,
+  PanelLeftOpen,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import LoadingBubbles from "@/components/shared/LoadingBubbles";
 import type { Module, Lesson } from "./services/contentService";
 import { listModules } from "./services/contentService";
@@ -27,9 +35,7 @@ function findFlatLessonById(flat: FlatLesson[], lessonId: string): FlatLesson | 
   return flat.find((f) => f.lesson.id === lessonId);
 }
 
-function computeExpandedModuleIds(
-  activeFlatLesson: FlatLesson | null,
-): Set<string> {
+function computeExpandedModuleIds(activeFlatLesson: FlatLesson | null): Set<string> {
   if (!activeFlatLesson) return new Set();
   return new Set([activeFlatLesson.module.id]);
 }
@@ -42,6 +48,8 @@ export default function CourseLearnPage() {
   const [courseTitle, setCourseTitle] = useState("");
   const [courseSubtitle, setCourseSubtitle] = useState<string | null>(null);
   const [completingLessonId, setCompletingLessonId] = useState<string | null>(null);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [mobileSheetOpen, setMobileSheetOpen] = useState(false);
   const { isEnrolled, completedLessonIds, progress, handleCompleteLesson } = useEnrollment(
     courseId ?? "",
   );
@@ -83,6 +91,7 @@ export default function CourseLearnPage() {
   const selectLesson = useCallback(
     (lessonId: string) => {
       setSearchParams({ lesson: lessonId }, { replace: true });
+      setMobileSheetOpen(false);
     },
     [setSearchParams],
   );
@@ -126,15 +135,80 @@ export default function CourseLearnPage() {
   if (isLoading) return <LoadingBubbles size="lg" />;
   if (!isEnrolled) return <Navigate to={`/courses/${courseId}`} replace />;
 
+  function renderSidebarContent() {
+    return (
+      <div className="space-y-1">
+        {modules.map((mod) => {
+          const isExpanded = expandedModuleIds.has(mod.id);
+          return (
+            <div key={mod.id} className="mb-1">
+              <button
+                onClick={() => handleModuleToggle(mod.id)}
+                className={`flex w-full items-center gap-1 rounded-lg px-2 py-1.5 text-left text-sm font-medium ${
+                  isExpanded ? "bg-primary/10 text-primary" : "text-foreground hover:bg-muted"
+                }`}
+              >
+                <ChevronRight
+                  className={`size-4 shrink-0 transition-transform ${isExpanded ? "rotate-90" : ""}`}
+                />
+                {mod.title}
+              </button>
+              {isExpanded && (
+                <div className="ml-5 border-l pl-2">
+                  {mod.lessons.map((l) => {
+                    const isComplete = completedLessonIds.has(l.id);
+                    return (
+                      <button
+                        key={l.id}
+                        onClick={() => selectLesson(l.id)}
+                        className={`flex w-full items-center gap-1 rounded px-2 py-1 text-left text-sm ${
+                          activeLesson?.id === l.id
+                            ? "bg-primary/5 text-primary"
+                            : isComplete
+                              ? "text-foreground"
+                              : "text-muted-foreground hover:bg-muted"
+                        }`}
+                      >
+                        {isComplete && <CheckCircle className="size-3 text-green-500" />}
+                        {l.title}
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    );
+  }
+
   return (
-    <div className="flex h-[calc(100vh-3.5rem)] flex-col">
-      <header className="bg-background flex items-start gap-4 border-b px-6 py-3">
-        <Link
-          to={`/courses/${courseId}`}
-          className="text-muted-foreground hover:text-foreground mt-0.5 flex shrink-0 items-center gap-1 text-sm"
-        >
-          <ArrowLeft className="size-4" /> Back
-        </Link>
+    <div className="flex h-[calc(100dvh-3.5rem)] min-w-0 flex-col overflow-x-hidden">
+      <header className="bg-background flex min-w-0 items-start gap-3 border-b px-4 py-3 sm:px-6">
+        <div>
+          <Link
+            to={`/courses/${courseId}`}
+            className="text-muted-foreground hover:text-foreground mt-0.5 flex shrink-0 items-center gap-1 text-sm"
+          >
+            <ArrowLeft className="size-4" /> Back
+          </Link>
+          {activeLesson && (
+            <Button
+              variant="ghost"
+              size="icon"
+              className="hidden md:flex"
+              onClick={() => setSidebarOpen((prev) => !prev)}
+              aria-label={sidebarOpen ? "Collapse sidebar" : "Expand sidebar"}
+            >
+              {sidebarOpen ? (
+                <PanelLeftClose className="size-5" />
+              ) : (
+                <PanelLeftOpen className="size-5" />
+              )}
+            </Button>
+          )}
+        </div>
         <div className="min-w-0 flex-1">
           <h2 className="text-foreground truncate text-lg font-semibold">
             {courseTitle || "Course Content"}
@@ -143,7 +217,7 @@ export default function CourseLearnPage() {
             <p className="text-muted-foreground truncate text-sm">{courseSubtitle}</p>
           )}
           <div className="mt-1 flex items-center gap-2">
-            <div className="bg-muted h-1.5 w-40 overflow-hidden rounded-full">
+            <div className="bg-muted h-1.5 w-32 overflow-hidden rounded-full sm:w-40">
               <div
                 className="bg-primary h-full rounded-full transition-all"
                 style={{ width: `${progress}%` }}
@@ -155,53 +229,32 @@ export default function CourseLearnPage() {
       </header>
 
       <div className="flex flex-1 overflow-hidden">
-        <div className="bg-background w-72 shrink-0 overflow-y-auto border-r p-4">
-          {modules.map((mod) => {
-            const isExpanded = expandedModuleIds.has(mod.id);
-            return (
-              <div key={mod.id} className="mb-1">
-                <button
-                  onClick={() => handleModuleToggle(mod.id)}
-                  className={`flex w-full items-center gap-1 rounded-lg px-2 py-1.5 text-left text-sm font-medium ${
-                    isExpanded ? "bg-primary/10 text-primary" : "text-foreground hover:bg-muted"
-                  }`}
-                >
-                  <ChevronRight
-                    className={`size-4 shrink-0 transition-transform ${isExpanded ? "rotate-90" : ""}`}
-                  />
-                  {mod.title}
-                </button>
-                {isExpanded && (
-                  <div className="ml-5 border-l pl-2">
-                    {mod.lessons.map((l) => {
-                      const isComplete = completedLessonIds.has(l.id);
-                      return (
-                        <button
-                          key={l.id}
-                          onClick={() => selectLesson(l.id)}
-                          className={`flex w-full items-center gap-1 rounded px-2 py-1 text-left text-sm ${
-                            activeLesson?.id === l.id
-                              ? "bg-primary/5 text-primary"
-                              : isComplete
-                                ? "text-foreground"
-                                : "text-muted-foreground hover:bg-muted"
-                          }`}
-                        >
-                          {isComplete && <CheckCircle className="size-3 text-green-500" />}
-                          {l.title}
-                        </button>
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
-            );
-          })}
-        </div>
+        <aside
+          className={`bg-background hidden shrink-0 overflow-hidden border-r transition-all duration-200 md:block ${
+            sidebarOpen ? "w-72" : "w-0 border-r-0"
+          }`}
+        >
+          <div className="w-72 overflow-y-auto p-4">{renderSidebarContent()}</div>
+        </aside>
 
-        <div className="flex-1 overflow-y-auto">
+        <Sheet open={mobileSheetOpen} onOpenChange={setMobileSheetOpen}>
+          <SheetContent side="left" className="w-72 sm:w-80">
+            <SheetHeader>
+              <SheetTitle>Course Content</SheetTitle>
+            </SheetHeader>
+            {renderSidebarContent()}
+          </SheetContent>
+        </Sheet>
+
+        <div className="min-w-0 flex-1 overflow-x-hidden overflow-y-auto">
           {activeLesson ? (
-            <div className="mx-auto max-w-3xl px-6 py-10 lg:px-8">
+            <div className="mx-auto max-w-3xl px-4 py-8 sm:px-6 lg:px-8 lg:py-10">
+              <div className="mb-4 flex items-center gap-2 md:hidden">
+                <Button variant="outline" size="sm" onClick={() => setMobileSheetOpen(true)}>
+                  <PanelLeftOpen className="mr-1.5 size-4" />
+                  Lessons
+                </Button>
+              </div>
               <h1 className="text-foreground text-2xl font-bold">{activeLesson.title}</h1>
               {activeLesson.subtitle && (
                 <p className="text-muted-foreground mt-1">{activeLesson.subtitle}</p>

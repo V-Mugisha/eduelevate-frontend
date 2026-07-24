@@ -7,6 +7,7 @@ import SidebarItem from "./SidebarItem";
 interface SidebarProps {
   collapsed: boolean;
   onToggle: () => void;
+  variant?: "desktop" | "sheet";
 }
 
 const studentItems = [
@@ -49,26 +50,31 @@ const adminItems = [
   { icon: Settings, label: "Settings", href: "/settings", disabled: true },
 ];
 
-export default function Sidebar({ collapsed, onToggle }: SidebarProps) {
+export default function Sidebar({ collapsed, onToggle, variant = "desktop" }: SidebarProps) {
   const { user } = useAuth();
 
   const role = user?.role ?? "student";
   const items = role === "admin" ? adminItems : role === "educator" ? educatorItems : studentItems;
 
+  const isSheet = variant === "sheet";
+  const isEffectivelyCollapsed = isSheet ? false : collapsed;
+
   return (
     <aside
-      className={`bg-background fixed top-0 left-0 z-50 flex h-screen flex-col border-r transition-all duration-200 ${
-        collapsed ? "w-16" : "w-60"
-      }`}
+      className={
+        isSheet
+          ? "flex h-full flex-col"
+          : `bg-background fixed top-0 left-0 z-50 flex h-screen flex-col border-r transition-all duration-200 ${collapsed ? "w-16" : "w-60"}`
+      }
     >
       <div className="flex h-14 items-center border-b px-4">
         <Link
           to="/dashboard"
           className={`text-primary flex items-center gap-2 font-bold ${
-            collapsed ? "justify-center" : ""
+            isEffectivelyCollapsed ? "justify-center" : ""
           }`}
         >
-          {collapsed ? (
+          {isEffectivelyCollapsed ? (
             <span className="text-lg">EE</span>
           ) : (
             <span className="text-lg">EduElevate</span>
@@ -83,7 +89,7 @@ export default function Sidebar({ collapsed, onToggle }: SidebarProps) {
             icon={item.icon}
             label={item.label}
             href={"href" in item ? (item.href as string) : undefined}
-            collapsed={collapsed}
+            collapsed={isEffectivelyCollapsed}
             disabled={"disabled" in item ? (item.disabled as boolean) : false}
             children={"children" in item ? item.children : undefined}
           />
@@ -98,7 +104,7 @@ export default function Sidebar({ collapsed, onToggle }: SidebarProps) {
           onClick={onToggle}
         >
           <ChevronDoubleIcon collapsed={collapsed} />
-          {!collapsed && <span>{collapsed ? "Expand" : "Collapse"}</span>}
+          {!isEffectivelyCollapsed && <span>{collapsed ? "Expand" : "Collapse"}</span>}
         </Button>
       </div>
     </aside>

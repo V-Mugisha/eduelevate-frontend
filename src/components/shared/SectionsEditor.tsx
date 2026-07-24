@@ -48,7 +48,7 @@ export default function SectionsEditor({ sections, onChange }: SectionsEditorPro
             />
             <Textarea
               placeholder="Section content..."
-              className="min-h-[120px]"
+              className="min-h-30"
               value={section.content}
               onChange={(e) => handleChange(index, "content", e.target.value)}
             />

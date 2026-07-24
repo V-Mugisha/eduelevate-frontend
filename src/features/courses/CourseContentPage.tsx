@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import {
   Plus,
   ChevronDown,
@@ -8,12 +8,14 @@ import {
   Pencil,
   CheckCircle,
   ArrowLeft,
+  PanelLeftClose,
+  PanelLeftOpen,
 } from "lucide-react";
-import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import LoadingBubbles from "@/components/shared/LoadingBubbles";
 import SectionsEditor from "@/components/shared/SectionsEditor";
 import useModules from "./hooks/useModules";
@@ -42,6 +44,8 @@ export default function CourseContentPage() {
   const [isEditingLesson, setIsEditingLesson] = useState(false);
   const [showAddModule, setShowAddModule] = useState(false);
   const [isAddingLesson, setIsAddingLesson] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [mobileSheetOpen, setMobileSheetOpen] = useState(false);
 
   const [moduleTitle, setModuleTitle] = useState("");
   const [moduleSubtitle, setModuleSubtitle] = useState("");
@@ -96,12 +100,36 @@ export default function CourseContentPage() {
     setLessonSubtitle(lesson.subtitle ?? "");
   }
 
+  function handleModuleClick(mod: Module) {
+    toggleModule(mod.id);
+    openModulePreview(mod);
+    setMobileSheetOpen(false);
+  }
+
+  function handleLessonClick(lesson: Lesson) {
+    openLessonPreview(lesson);
+    setMobileSheetOpen(false);
+  }
+
   function startAddLesson() {
     setIsAddingLesson(true);
     setActiveLessonId(null);
     setLessonTitle("");
     setLessonSubtitle("");
     setLessonSections([{ title: "", content: "" }]);
+  }
+
+  function handleStartAddModule() {
+    setShowAddModule(true);
+    setActiveModuleId(null);
+    setActiveLessonId(null);
+    setMobileSheetOpen(false);
+  }
+
+  function handleStartAddLesson(moduleId: string) {
+    setActiveModuleId(moduleId);
+    startAddLesson();
+    setMobileSheetOpen(false);
   }
 
   async function handleSaveModule() {
@@ -151,17 +179,82 @@ export default function CourseContentPage() {
 
   const activeModule = modules.find((m) => m.id === activeModuleId) ?? null;
 
+  function renderSidebarContent() {
+    return (
+      <>
+        <div className="mb-4 flex items-center justify-between">
+          <h2 className="text-foreground font-semibold">Modules</h2>
+          <Button variant="ghost" size="icon" onClick={handleStartAddModule} title="Add Module">
+            <Plus className="size-4" />
+          </Button>
+        </div>
+        <div className="space-y-1">
+          {modules.map((mod) => {
+            const isOpen = expandedModules.has(mod.id);
+            return (
+              <div key={mod.id}>
+                <button
+                  onClick={() => handleModuleClick(mod)}
+                  className={`flex w-full items-center gap-1 rounded-lg px-2 py-1.5 text-left text-sm ${activeModuleId === mod.id && !activeLessonId ? "bg-primary/10 text-primary" : "hover:bg-muted"}`}
+                >
+                  {isOpen ? (
+                    <ChevronDown className="size-4 shrink-0" />
+                  ) : (
+                    <ChevronRight className="size-4 shrink-0" />
+                  )}
+                  <span className="truncate">{mod.title}</span>
+                </button>
+                {isOpen && (
+                  <div className="ml-5 space-y-0.5 border-l pl-2">
+                    {mod.lessons.map((l) => (
+                      <button
+                        key={l.id}
+                        onClick={() => handleLessonClick(l)}
+                        className={`block w-full rounded px-2 py-1 text-left text-sm ${activeLessonId === l.id ? "bg-primary/5 text-primary" : "text-muted-foreground hover:bg-muted"}`}
+                      >
+                        {l.title}
+                      </button>
+                    ))}
+                    <button
+                      onClick={() => handleStartAddLesson(mod.id)}
+                      className="text-muted-foreground hover:bg-muted flex w-full items-center gap-1 rounded px-2 py-1 text-sm"
+                    >
+                      <Plus className="size-3" /> Add Lesson
+                    </button>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </>
+    );
+  }
+
   if (!courseId || isLoading) return <LoadingBubbles size="lg" />;
 
   return (
-    <div className="flex h-[calc(100vh-3.5rem)] flex-col">
-      <header className="bg-background flex items-start gap-4 border-b px-6 py-3">
+    <div className="flex h-[calc(100dvh-3.5rem)] min-w-0 flex-col overflow-x-hidden">
+      <header className="bg-background flex items-start gap-3 border-b px-4 py-3 sm:px-6">
         <Link
           to="/courses"
           className="text-muted-foreground hover:text-foreground mt-0.5 flex shrink-0 items-center gap-1 text-sm"
         >
           <ArrowLeft className="size-4" /> Courses
         </Link>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="hidden md:flex"
+          onClick={() => setSidebarOpen((prev) => !prev)}
+          aria-label={sidebarOpen ? "Collapse sidebar" : "Expand sidebar"}
+        >
+          {sidebarOpen ? (
+            <PanelLeftClose className="size-5" />
+          ) : (
+            <PanelLeftOpen className="size-5" />
+          )}
+        </Button>
         <div className="min-w-0 flex-1">
           <h2 className="text-foreground truncate text-lg font-semibold">
             {courseTitle || "Course Content"}
@@ -173,70 +266,31 @@ export default function CourseContentPage() {
       </header>
 
       <div className="flex flex-1 overflow-hidden">
-        <div className="bg-background w-72 shrink-0 overflow-y-auto border-r p-4">
-          <div className="mb-4 flex items-center justify-between">
-            <h2 className="text-foreground font-semibold">Modules</h2>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => {
-                setShowAddModule(true);
-                setActiveModuleId(null);
-                setActiveLessonId(null);
-              }}
-              title="Add Module"
-            >
-              <Plus className="size-4" />
+        <aside
+          className={`bg-background hidden shrink-0 overflow-hidden border-r transition-all duration-200 md:block ${
+            sidebarOpen ? "w-72" : "w-0 border-r-0"
+          }`}
+        >
+          <div className="w-72 overflow-y-auto p-4">{renderSidebarContent()}</div>
+        </aside>
+
+        <Sheet open={mobileSheetOpen} onOpenChange={setMobileSheetOpen}>
+          <SheetContent side="left" className="w-72 sm:w-80">
+            <SheetHeader>
+              <SheetTitle>Modules</SheetTitle>
+            </SheetHeader>
+            {renderSidebarContent()}
+          </SheetContent>
+        </Sheet>
+
+        <div className="min-w-0 flex-1 overflow-x-hidden overflow-y-auto p-4 sm:p-6">
+          <div className="mb-4 md:hidden">
+            <Button variant="outline" size="sm" onClick={() => setMobileSheetOpen(true)}>
+              <PanelLeftOpen className="mr-1.5 size-4" />
+              Modules
             </Button>
           </div>
-          <div className="space-y-1">
-            {modules.map((mod) => {
-              const isOpen = expandedModules.has(mod.id);
-              return (
-                <div key={mod.id}>
-                  <button
-                    onClick={() => {
-                      toggleModule(mod.id);
-                      openModulePreview(mod);
-                    }}
-                    className={`flex w-full items-center gap-1 rounded-lg px-2 py-1.5 text-left text-sm ${activeModuleId === mod.id && !activeLessonId ? "bg-primary/10 text-primary" : "hover:bg-muted"}`}
-                  >
-                    {isOpen ? (
-                      <ChevronDown className="size-4 shrink-0" />
-                    ) : (
-                      <ChevronRight className="size-4 shrink-0" />
-                    )}
-                    <span className="truncate">{mod.title}</span>
-                  </button>
-                  {isOpen && (
-                    <div className="ml-5 space-y-0.5 border-l pl-2">
-                      {mod.lessons.map((l) => (
-                        <button
-                          key={l.id}
-                          onClick={() => openLessonPreview(l)}
-                          className={`block w-full rounded px-2 py-1 text-left text-sm ${activeLessonId === l.id ? "bg-primary/5 text-primary" : "text-muted-foreground hover:bg-muted"}`}
-                        >
-                          {l.title}
-                        </button>
-                      ))}
-                      <button
-                        onClick={() => {
-                          setActiveModuleId(mod.id);
-                          startAddLesson();
-                        }}
-                        className="text-muted-foreground hover:bg-muted flex w-full items-center gap-1 rounded px-2 py-1 text-sm"
-                      >
-                        <Plus className="size-3" /> Add Lesson
-                      </button>
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        </div>
 
-        <div className="flex-1 overflow-y-auto p-6">
           {showAddModule && (
             <div className="mx-auto max-w-2xl space-y-4">
               <h3 className="text-foreground font-semibold">New Module</h3>
@@ -344,13 +398,7 @@ export default function CourseContentPage() {
                     </div>
                   )}
                   <div className="border-t pt-4">
-                    <Button
-                      variant="outline"
-                      onClick={() => {
-                        setActiveModuleId(activeModule.id);
-                        startAddLesson();
-                      }}
-                    >
+                    <Button variant="outline" onClick={() => handleStartAddLesson(activeModule.id)}>
                       <Plus className="mr-1.5 size-4" />
                       Add Lesson
                     </Button>

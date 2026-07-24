@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ChevronLeft, Moon, Sun, User, ChevronDown, LogOut } from "lucide-react";
+import { Moon, Sun, User, ChevronDown, LogOut, PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -9,6 +9,7 @@ import useAuth from "@/features/auth/hooks/useAuth";
 interface TopBarProps {
   sidebarOpen: boolean;
   onToggleSidebar: () => void;
+  onOpenMobileSheet: () => void;
 }
 
 const userAvatarUrl = (seed: string) => `https://api.dicebear.com/9.x/fun-emoji/svg?seed=${seed}`;
@@ -17,7 +18,7 @@ function UserInitials(firstName: string, lastName: string): string {
   return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
 }
 
-export default function TopBar({ sidebarOpen, onToggleSidebar }: TopBarProps) {
+export default function TopBar({ sidebarOpen, onToggleSidebar, onOpenMobileSheet }: TopBarProps) {
   const { isDarkMode, toggleDarkMode } = useDarkMode();
   const { user, logout } = useAuth();
   const [userMenuOpen, setUserMenuOpen] = useState(false);
@@ -32,12 +33,21 @@ export default function TopBar({ sidebarOpen, onToggleSidebar }: TopBarProps) {
       <Button
         variant="ghost"
         size="icon"
+        className="hidden md:flex"
         onClick={onToggleSidebar}
-        aria-label={sidebarOpen ? "Close sidebar" : "Open sidebar"}
+        aria-label={sidebarOpen ? "Collapse sidebar" : "Expand sidebar"}
       >
-        <ChevronLeft
-          className={`size-5 transition-transform duration-200 ${sidebarOpen ? "" : "rotate-180"}`}
-        />
+        {sidebarOpen ? <PanelLeftClose className="size-5" /> : <PanelLeftOpen className="size-5" />}
+      </Button>
+
+      <Button
+        variant="ghost"
+        size="icon"
+        className="md:hidden"
+        onClick={onOpenMobileSheet}
+        aria-label="Open navigation menu"
+      >
+        <PanelLeftOpen className="size-5" />
       </Button>
 
       <div className="flex-1" />
