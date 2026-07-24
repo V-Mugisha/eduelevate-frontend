@@ -42,6 +42,11 @@ export default function AssessmentEditor({ lessonId }: AssessmentEditorProps) {
           setIsGraded(a.isGraded);
           return assessmentService.getQuestionsOwner(a.id);
         }
+        setAssessment(null);
+        setTitle("");
+        setInstructions("");
+        setIsGraded(true);
+        setShowCreateForm(false);
         return [];
       })
       .then((qs) => setQuestions(qs))
@@ -271,21 +276,74 @@ export default function AssessmentEditor({ lessonId }: AssessmentEditorProps) {
 
       <div className="space-y-2">
         <div className="flex items-center justify-between">
-          <h4 className="text-foreground text-sm font-medium">Questions ({questions.length})</h4>
-          {!showCreateForm && !editQuestionId && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => {
-                setShowCreateForm(true);
-                resetQuestionForm();
-              }}
-            >
-              <Plus className="mr-1.5 size-3" />
-              Add Question
-            </Button>
-          )}
+          <h4 className="text-sm font-medium text-foreground">Questions ({questions.length})</h4>
         </div>
+
+        {!editQuestionId && (
+          <div className="space-y-3 rounded-lg border p-3">
+            <div className="space-y-1">
+              <Label className="text-xs">Question</Label>
+              <Textarea
+                value={qTitle}
+                onChange={(e) => setQTitle(e.target.value)}
+                placeholder="Enter the question..."
+              />
+            </div>
+            <div className="space-y-1">
+              <Label className="text-xs">Answer Options</Label>
+              {qOptions.map((opt, i) => (
+                <div key={i} className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    checked={qCorrect.has(opt)}
+                    onChange={() => handleToggleOptionCorrect(opt)}
+                    className="size-3.5"
+                  />
+                  <Input
+                    value={opt}
+                    onChange={(e) => {
+                      const next = [...qOptions];
+                      next[i] = e.target.value;
+                      setQOptions(next);
+                    }}
+                    placeholder={`Option ${i + 1}`}
+                    className="text-sm"
+                  />
+                  {qOptions.length > 2 && (
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => setQOptions(qOptions.filter((_, j) => j !== i))}
+                    >
+                      <X className="size-3" />
+                    </Button>
+                  )}
+                </div>
+              ))}
+              <Button variant="ghost" size="sm" onClick={() => setQOptions([...qOptions, ""])}>
+                <Plus className="mr-1 size-3" /> Add Option
+              </Button>
+            </div>
+            <div className="space-y-1">
+              <Label className="text-xs">Grade (points)</Label>
+              <Input
+                type="number"
+                min={1}
+                value={qGrade}
+                onChange={(e) => setQGrade(parseInt(e.target.value, 10) || 1)}
+                className="w-24 text-sm"
+              />
+            </div>
+            <div className="flex gap-2">
+              <Button size="sm" onClick={handleCreateQuestion} disabled={isSaving}>
+                <Check className="mr-1 size-3" /> Add Question
+              </Button>
+              <Button size="sm" variant="outline" onClick={resetQuestionForm}>
+                Clear
+              </Button>
+            </div>
+          </div>
+        )}
 
         {questions.map((q) => (
           <div key={q.id} className="rounded-lg border p-3">
@@ -386,78 +444,6 @@ export default function AssessmentEditor({ lessonId }: AssessmentEditorProps) {
           </div>
         ))}
 
-        {showCreateForm && !editQuestionId && (
-          <div className="space-y-3 rounded-lg border p-3">
-            <div className="space-y-1">
-              <Label className="text-xs">Question</Label>
-              <Textarea
-                value={qTitle}
-                onChange={(e) => setQTitle(e.target.value)}
-                placeholder="Enter the question..."
-              />
-            </div>
-            <div className="space-y-1">
-              <Label className="text-xs">Answer Options</Label>
-              {qOptions.map((opt, i) => (
-                <div key={i} className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    checked={qCorrect.has(opt)}
-                    onChange={() => handleToggleOptionCorrect(opt)}
-                    className="size-3.5"
-                  />
-                  <Input
-                    value={opt}
-                    onChange={(e) => {
-                      const next = [...qOptions];
-                      next[i] = e.target.value;
-                      setQOptions(next);
-                    }}
-                    placeholder={`Option ${i + 1}`}
-                    className="text-sm"
-                  />
-                  {qOptions.length > 2 && (
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => setQOptions(qOptions.filter((_, j) => j !== i))}
-                    >
-                      <X className="size-3" />
-                    </Button>
-                  )}
-                </div>
-              ))}
-              <Button variant="ghost" size="sm" onClick={() => setQOptions([...qOptions, ""])}>
-                <Plus className="mr-1 size-3" /> Add Option
-              </Button>
-            </div>
-            <div className="space-y-1">
-              <Label className="text-xs">Grade (points)</Label>
-              <Input
-                type="number"
-                min={1}
-                value={qGrade}
-                onChange={(e) => setQGrade(parseInt(e.target.value, 10) || 1)}
-                className="w-24 text-sm"
-              />
-            </div>
-            <div className="flex gap-2">
-              <Button size="sm" onClick={handleCreateQuestion} disabled={isSaving}>
-                <Check className="mr-1 size-3" /> Add
-              </Button>
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => {
-                  setShowCreateForm(false);
-                  resetQuestionForm();
-                }}
-              >
-                Cancel
-              </Button>
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );

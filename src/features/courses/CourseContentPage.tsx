@@ -12,6 +12,7 @@ import {
   PanelLeftOpen,
   Send,
   EyeOff,
+  ClipboardList,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -20,7 +21,6 @@ import { Label } from "@/components/ui/label";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import LoadingBubbles from "@/components/shared/LoadingBubbles";
 import SectionsEditor from "@/components/shared/SectionsEditor";
-import AssessmentEditor from "./components/AssessmentEditor";
 import useModules from "./hooks/useModules";
 import type { Module, Lesson } from "./services/contentService";
 import { getCourse, publishCourse } from "./services/coursesService";
@@ -557,7 +557,14 @@ export default function CourseContentPage() {
                     ),
                   )}
                   <div className="mt-8 border-t pt-6">
-                    <AssessmentEditor lessonId={activeLessonId} />
+                    <Link
+                      to={`/courses/${courseId}/content/assessment/${activeLessonId}`}
+                    >
+                      <Button variant="outline" size="sm">
+                        <ClipboardList className="mr-1.5 size-4" />
+                        Manage Assessment
+                      </Button>
+                    </Link>
                   </div>
                   <div className="mt-12 border-t pt-6">
                     <Button disabled title="Progress tracking coming soon">

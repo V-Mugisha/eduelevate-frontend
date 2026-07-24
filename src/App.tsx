@@ -19,6 +19,7 @@ import CourseDetailPage from "@/features/courses/CourseDetailPage";
 import CourseContentPage from "@/features/courses/CourseContentPage";
 import CourseLearnPage from "@/features/courses/CourseLearnPage";
 import AssessmentPage from "@/features/courses/AssessmentPage";
+import AssessmentEditorPage from "@/features/courses/AssessmentEditorPage";
 import CourseStudentsPage from "@/features/courses/CourseStudentsPage";
 import StudentDetailPage from "@/features/courses/StudentDetailPage";
 import CreateCoursePage from "@/features/courses/CreateCoursePage";
@@ -82,6 +83,10 @@ export default function App() {
             <Route path="/courses/create" element={<CreateCoursePage />} />
             <Route path="/courses/:id" element={<CourseDetailPage />} />
             <Route path="/courses/:id/content" element={<CourseContentPage />} />
+            <Route
+              path="/courses/:id/content/assessment/:lessonId"
+              element={<AssessmentEditorPage />}
+            />
             <Route path="/courses/:id/learn" element={<CourseLearnPage />} />
             <Route
               path="/courses/:id/learn/assessment/:lessonId"
