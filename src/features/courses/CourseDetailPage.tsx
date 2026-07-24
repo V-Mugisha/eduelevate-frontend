@@ -1,10 +1,21 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
-import { ArrowLeft, BookOpen, Clock, User, Shield, Play, Users } from "lucide-react";
+import {
+  ArrowLeft,
+  BookOpen,
+  Clock,
+  User,
+  Shield,
+  Play,
+  Users,
+  Send,
+  EyeOff,
+  Loader2,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import LoadingBubbles from "@/components/shared/LoadingBubbles";
 import useAuth from "@/features/auth/hooks/useAuth";
-import { getCourse } from "./services/coursesService";
+import { getCourse, publishCourse } from "./services/coursesService";
 import type { Course } from "./types/coursesTypes";
 import useEnrollment from "./hooks/useEnrollment";
 import EnrollmentModal from "./components/EnrollmentModal";
@@ -31,6 +42,8 @@ export default function CourseDetailPage() {
   const { isEnrolled, progress, handleEnroll, fetchEnrollment } = useEnrollment(id ?? "");
   const [showEnrollModal, setShowEnrollModal] = useState(false);
   const [isEnrolling, setIsEnrolling] = useState(false);
+  const [showUnpublishConfirm, setShowUnpublishConfirm] = useState(false);
+  const [isPublishing, setIsPublishing] = useState(false);
 
   useEffect(() => {
     if (!id) return;
@@ -40,7 +53,7 @@ export default function CourseDetailPage() {
       .finally(() => setIsLoading(false));
   }, [id]);
 
-  const isOwner = user?.id === course?.creator?.id;
+  const isOwner = user?.id === course?.creator?.id || user?.role === "admin";
 
   async function confirmEnroll() {
     setIsEnrolling(true);
@@ -52,6 +65,37 @@ export default function CourseDetailPage() {
       // error handled by hook
     } finally {
       setIsEnrolling(false);
+    }
+  }
+
+  async function handlePublish() {
+    if (!id || !course) return;
+    if (course.isPublished) {
+      setShowUnpublishConfirm(true);
+      return;
+    }
+    setIsPublishing(true);
+    try {
+      const updated = await publishCourse(id, true);
+      setCourse(updated);
+    } catch {
+      // error silently handled
+    } finally {
+      setIsPublishing(false);
+    }
+  }
+
+  async function confirmUnpublish() {
+    if (!id || !course) return;
+    setIsPublishing(true);
+    setShowUnpublishConfirm(false);
+    try {
+      const updated = await publishCourse(id, false);
+      setCourse(updated);
+    } catch {
+      // error silently handled
+    } finally {
+      setIsPublishing(false);
     }
   }
 
@@ -133,10 +177,21 @@ export default function CourseDetailPage() {
                 <BookOpen className="text-muted-foreground size-4" />
                 <span className="text-muted-foreground">{course.category.name}</span>
               </div>
+              {course.maxStudents && (
+                <div className="flex items-center gap-2 text-sm">
+                  <Users className="text-muted-foreground size-4" />
+                  <span className="text-muted-foreground">{course.maxStudents} max students</span>
+                </div>
+              )}
             </div>
             <div className="mt-4 border-t pt-4">
               {isOwner ? (
                 <div className="space-y-2">
+                  {!course.isPublished && (
+                    <span className="inline-block rounded-full bg-yellow-500/10 px-2 py-0.5 text-xs text-yellow-600 dark:text-yellow-400">
+                      Draft — not visible to students
+                    </span>
+                  )}
                   <Link to={`/courses/${course.id}/content`}>
                     <Button className="w-full">Manage Content</Button>
                   </Link>
@@ -146,7 +201,26 @@ export default function CourseDetailPage() {
                       Manage Students
                     </Button>
                   </Link>
+                  <Button
+                    variant="ghost"
+                    className="w-full"
+                    onClick={handlePublish}
+                    disabled={isPublishing}
+                  >
+                    {isPublishing ? (
+                      <Loader2 className="mr-1.5 size-4 animate-spin" />
+                    ) : course.isPublished ? (
+                      <EyeOff className="mr-1.5 size-4" />
+                    ) : (
+                      <Send className="mr-1.5 size-4" />
+                    )}
+                    {course.isPublished ? "Unpublish" : "Publish Course"}
+                  </Button>
                 </div>
+              ) : !course.isPublished ? (
+                <p className="text-sm text-muted-foreground">
+                  This course is not yet available for enrollment.
+                </p>
               ) : isEnrolled ? (
                 <div>
                   {progress > 0 && (
@@ -187,6 +261,29 @@ export default function CourseDetailPage() {
         onCancel={() => setShowEnrollModal(false)}
         isLoading={isEnrolling}
       />
+
+      {showUnpublishConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="mx-4 w-full max-w-sm rounded-xl border bg-card p-6 shadow-lg">
+            <h3 className="text-lg font-semibold text-foreground">Unpublish Course</h3>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Unpublishing will hide this course from the catalog. Students who are already enrolled
+              will retain access, but no new students will be able to enroll.
+            </p>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Are you sure you want to continue?
+            </p>
+            <div className="mt-6 flex justify-end gap-3">
+              <Button variant="outline" onClick={() => setShowUnpublishConfirm(false)}>
+                Cancel
+              </Button>
+              <Button variant="destructive" onClick={confirmUnpublish} disabled={isPublishing}>
+                {isPublishing ? "Unpublishing..." : "Unpublish"}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

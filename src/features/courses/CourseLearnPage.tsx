@@ -185,7 +185,7 @@ export default function CourseLearnPage() {
 
   return (
     <div className="flex h-[calc(100dvh-3.5rem)] min-w-0 flex-col overflow-x-hidden">
-      <header className="bg-background flex min-w-0 items-start gap-3 border-b px-4 py-3 sm:px-6">
+      <header className="bg-background flex min-w-0 items-center gap-3 border-b px-4 py-3 sm:px-6">
         <div>
           <Link
             to={`/courses/${courseId}`}

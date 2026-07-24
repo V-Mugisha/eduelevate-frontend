@@ -65,6 +65,7 @@ export default function MyLearningPage() {
                 level: e.course.level,
                 duration: e.course.duration,
                 isPublished: true,
+                maxStudents: null,
                 createdAt: "",
                 updatedAt: "",
                 category: {

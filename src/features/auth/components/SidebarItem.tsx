@@ -18,6 +18,16 @@ interface SidebarItemProps {
   children?: SidebarItemChild[];
 }
 
+function findBestMatch(pathname: string, children: SidebarItemChild[]): SidebarItemChild | null {
+  let best: SidebarItemChild | null = null;
+  for (const child of children) {
+    if (pathname.startsWith(child.href) && (!best || child.href.length > best.href.length)) {
+      best = child;
+    }
+  }
+  return best;
+}
+
 export default function SidebarItem({
   icon: Icon,
   label,
@@ -32,10 +42,11 @@ export default function SidebarItem({
   );
 
   const isGroup = children && children.length > 0;
+  const bestChildMatch = isGroup ? findBestMatch(location.pathname, children!) : null;
   const isActive = isGroup
-    ? children!.some((c) => location.pathname === c.href)
+    ? bestChildMatch !== null
     : href
-      ? location.pathname === href
+      ? location.pathname.startsWith(href)
       : false;
 
   const itemClassName = cn(
@@ -78,7 +89,7 @@ export default function SidebarItem({
         {!collapsed && expanded && (
           <div className="ml-5 space-y-0.5 border-l pl-2">
             {children!.map((child) => {
-              const childActive = location.pathname === child.href;
+              const childActive = bestChildMatch?.href === child.href;
               return (
                 <Link
                   key={child.href}

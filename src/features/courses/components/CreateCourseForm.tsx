@@ -25,6 +25,7 @@ export default function CreateCourseForm() {
   const [categoryId, setCategoryId] = useState("");
   const [level, setLevel] = useState("beginner");
   const [duration, setDuration] = useState("");
+  const [maxStudents, setMaxStudents] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -46,6 +47,7 @@ export default function CreateCourseForm() {
       categoryId,
       level,
       duration: duration || undefined,
+      maxStudents: maxStudents ? parseInt(maxStudents, 10) : undefined,
     });
 
     if (!result.success) {
@@ -141,6 +143,21 @@ export default function CreateCourseForm() {
           onChange={(event) => setDuration(event.target.value)}
           placeholder="e.g. 6 weeks, 10 hours"
         />
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="course-max-students">Maximum Students (optional)</Label>
+        <Input
+          id="course-max-students"
+          type="number"
+          min={1}
+          value={maxStudents}
+          onChange={(event) => setMaxStudents(event.target.value)}
+          placeholder="Leave empty for unlimited seats"
+        />
+        <p className="text-xs text-muted-foreground">
+          Set a limit on how many students can enroll. Leave empty for no limit.
+        </p>
       </div>
 
       <div className="flex gap-3">

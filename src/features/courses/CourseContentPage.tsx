@@ -10,6 +10,8 @@ import {
   ArrowLeft,
   PanelLeftClose,
   PanelLeftOpen,
+  Send,
+  EyeOff,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -20,7 +22,7 @@ import LoadingBubbles from "@/components/shared/LoadingBubbles";
 import SectionsEditor from "@/components/shared/SectionsEditor";
 import useModules from "./hooks/useModules";
 import type { Module, Lesson } from "./services/contentService";
-import { getCourse } from "./services/coursesService";
+import { getCourse, publishCourse } from "./services/coursesService";
 import { createSection } from "./services/contentService";
 
 export default function CourseContentPage() {
@@ -60,6 +62,9 @@ export default function CourseContentPage() {
 
   const [courseTitle, setCourseTitle] = useState("");
   const [courseSubtitle, setCourseSubtitle] = useState<string | null>(null);
+  const [courseIsPublished, setCourseIsPublished] = useState(false);
+  const [showUnpublishConfirm, setShowUnpublishConfirm] = useState(false);
+  const [isPublishing, setIsPublishing] = useState(false);
 
   useEffect(() => {
     if (!courseId) return;
@@ -67,6 +72,7 @@ export default function CourseContentPage() {
       .then((c) => {
         setCourseTitle(c.title);
         setCourseSubtitle(c.subtitle);
+        setCourseIsPublished(c.isPublished);
       })
       .catch(() => {});
   }, [courseId]);
@@ -177,6 +183,37 @@ export default function CourseContentPage() {
     setIsEditingLesson(false);
   }
 
+  async function handlePublish() {
+    if (!courseId) return;
+    if (courseIsPublished) {
+      setShowUnpublishConfirm(true);
+      return;
+    }
+    setIsPublishing(true);
+    try {
+      const updated = await publishCourse(courseId, true);
+      setCourseIsPublished(updated.isPublished);
+    } catch {
+      // error silently handled
+    } finally {
+      setIsPublishing(false);
+    }
+  }
+
+  async function confirmUnpublish() {
+    if (!courseId) return;
+    setIsPublishing(true);
+    setShowUnpublishConfirm(false);
+    try {
+      const updated = await publishCourse(courseId, false);
+      setCourseIsPublished(updated.isPublished);
+    } catch {
+      // error silently handled
+    } finally {
+      setIsPublishing(false);
+    }
+  }
+
   const activeModule = modules.find((m) => m.id === activeModuleId) ?? null;
 
   function renderSidebarContent() {
@@ -235,7 +272,7 @@ export default function CourseContentPage() {
 
   return (
     <div className="flex h-[calc(100dvh-3.5rem)] min-w-0 flex-col overflow-x-hidden">
-      <header className="bg-background flex items-start gap-3 border-b px-4 py-3 sm:px-6">
+      <header className="bg-background flex items-center gap-3 border-b px-4 py-3 sm:px-6">
         <Link
           to="/courses"
           className="text-muted-foreground hover:text-foreground mt-0.5 flex shrink-0 items-center gap-1 text-sm"
@@ -256,12 +293,39 @@ export default function CourseContentPage() {
           )}
         </Button>
         <div className="min-w-0 flex-1">
-          <h2 className="text-foreground truncate text-lg font-semibold">
+          <h2 className="truncate text-lg font-semibold text-foreground">
             {courseTitle || "Course Content"}
           </h2>
           {courseSubtitle && (
-            <p className="text-muted-foreground truncate text-sm">{courseSubtitle}</p>
+            <p className="truncate text-sm text-muted-foreground">{courseSubtitle}</p>
           )}
+          {!courseIsPublished && (
+            <span className="mt-1 inline-block rounded-full bg-yellow-500/10 px-2 py-0.5 text-xs text-yellow-600 dark:text-yellow-400">
+              Draft
+            </span>
+          )}
+        </div>
+        <div className="flex shrink-0 items-center gap-2">
+          <Button
+            variant={courseIsPublished ? "outline" : "default"}
+            size="sm"
+            onClick={handlePublish}
+            disabled={isPublishing}
+          >
+            {isPublishing ? (
+              <LoadingBubbles size="sm" />
+            ) : courseIsPublished ? (
+              <>
+                <EyeOff className="mr-1.5 size-4" />
+                Unpublish
+              </>
+            ) : (
+              <>
+                <Send className="mr-1.5 size-4" />
+                Publish
+              </>
+            )}
+          </Button>
         </div>
       </header>
 
@@ -512,6 +576,27 @@ export default function CourseContentPage() {
           )}
         </div>
       </div>
+
+      {showUnpublishConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="mx-4 w-full max-w-sm rounded-xl border bg-card p-6 shadow-lg">
+            <h3 className="text-lg font-semibold text-foreground">Unpublish Course</h3>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Unpublishing will hide this course from the catalog. Students who are already enrolled
+              will retain access, but no new students will be able to enroll.
+            </p>
+            <p className="mt-2 text-sm text-muted-foreground">Are you sure you want to continue?</p>
+            <div className="mt-6 flex justify-end gap-3">
+              <Button variant="outline" onClick={() => setShowUnpublishConfirm(false)}>
+                Cancel
+              </Button>
+              <Button variant="destructive" onClick={confirmUnpublish} disabled={isPublishing}>
+                {isPublishing ? <LoadingBubbles size="sm" /> : "Unpublish"}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

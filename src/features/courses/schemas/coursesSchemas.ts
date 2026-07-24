@@ -9,6 +9,7 @@ export const createCourseSchema = z.object({
     message: "Level must be beginner, intermediate, or advanced",
   }),
   duration: z.string().max(100).optional(),
+  maxStudents: z.number().int().min(1).optional(),
 });
 
 export type CreateCourseFormValues = z.infer<typeof createCourseSchema>;

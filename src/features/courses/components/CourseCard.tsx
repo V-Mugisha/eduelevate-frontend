@@ -31,9 +31,16 @@ export default function CourseCard({ course }: CourseCardProps) {
         <BookOpen className="size-10 text-white/70" />
       </div>
       <div className="p-5">
-        <span className="bg-primary/10 text-primary inline-block rounded-full px-2 py-0.5 text-xs font-medium">
-          {course.category.name}
-        </span>
+        <div className="flex items-center gap-2">
+          <span className="inline-block rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
+            {course.category.name}
+          </span>
+          {!course.isPublished && (
+            <span className="inline-block rounded-full bg-yellow-500/10 px-2 py-0.5 text-xs text-yellow-600 dark:text-yellow-400">
+              Draft
+            </span>
+          )}
+        </div>
         <h3 className="text-foreground group-hover:text-primary mt-2 line-clamp-2 text-base font-semibold">
           {course.title}
         </h3>

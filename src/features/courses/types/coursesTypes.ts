@@ -12,6 +12,7 @@ export interface Course {
   level: string;
   duration: string | null;
   isPublished: boolean;
+  maxStudents: number | null;
   createdAt: string;
   updatedAt: string;
   category: Category;

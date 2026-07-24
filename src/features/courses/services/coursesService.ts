@@ -36,7 +36,13 @@ export async function createCourse(data: {
   categoryId: string;
   level: string;
   duration?: string;
+  maxStudents?: number;
 }): Promise<Course> {
   const response = await apiClient.post<{ data: Course }>("/courses", data);
+  return response.data.data;
+}
+
+export async function publishCourse(id: string, publish: boolean): Promise<Course> {
+  const response = await apiClient.patch<{ data: Course }>(`/courses/${id}/publish`, { publish });
   return response.data.data;
 }
