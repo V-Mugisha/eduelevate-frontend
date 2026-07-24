@@ -20,7 +20,6 @@ export default function MyCoursesPage() {
     setCategoryId,
     level,
     setLevel,
-    showMyCourses,
     setShowMyCourses,
   } = useCourses();
   const isEducatorOrAdmin = user?.role === "educator" || user?.role === "admin";
