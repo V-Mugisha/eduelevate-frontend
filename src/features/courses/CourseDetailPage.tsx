@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import { ArrowLeft, BookOpen, Clock, User, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import LoadingBubbles from "@/components/shared/LoadingBubbles";
+import useAuth from "@/features/auth/hooks/useAuth";
 import { getCourse } from "./services/coursesService";
 import type { Course } from "./types/coursesTypes";
 
@@ -21,9 +22,12 @@ function gradientFromId(id: string): string {
 export default function CourseDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [course, setCourse] = useState<Course | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const isOwner = user?.id === course?.creator?.id;
 
   useEffect(() => {
     if (!id) return;
@@ -115,6 +119,17 @@ export default function CourseDetailPage() {
                 <BookOpen className="text-muted-foreground size-4" />
                 <span className="text-muted-foreground">{course.category.name}</span>
               </div>
+            </div>
+            <div className="mt-4 border-t pt-4">
+              {isOwner ? (
+                <Link to={`/courses/${course.id}/content`}>
+                  <Button className="w-full">Manage Content</Button>
+                </Link>
+              ) : (
+                <Link to={`/courses/${course.id}/learn`}>
+                  <Button className="w-full">Start Learning</Button>
+                </Link>
+              )}
             </div>
           </div>
         </div>

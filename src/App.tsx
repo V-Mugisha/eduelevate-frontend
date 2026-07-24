@@ -14,6 +14,8 @@ import EditProfilePage from "@/features/profile/EditProfilePage";
 import ChangePasswordPage from "@/features/profile/ChangePasswordPage";
 import CoursesCatalogPage from "@/features/courses/CoursesCatalogPage";
 import CourseDetailPage from "@/features/courses/CourseDetailPage";
+import CourseContentPage from "@/features/courses/CourseContentPage";
+import CourseLearnPage from "@/features/courses/CourseLearnPage";
 import CreateCoursePage from "@/features/courses/CreateCoursePage";
 import NotFoundPage from "@/pages/NotFoundPage";
 
@@ -72,6 +74,8 @@ export default function App() {
             <Route path="/courses" element={<CoursesCatalogPage />} />
             <Route path="/courses/create" element={<CreateCoursePage />} />
             <Route path="/courses/:id" element={<CourseDetailPage />} />
+            <Route path="/courses/:id/content" element={<CourseContentPage />} />
+            <Route path="/courses/:id/learn" element={<CourseLearnPage />} />
             <Route path="*" element={<NotFoundPage />} />
           </Route>
         </Routes>
