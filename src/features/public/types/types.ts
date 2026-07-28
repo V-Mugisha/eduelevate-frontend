@@ -37,7 +37,7 @@ export interface EducatorSignupFormValues {
   organizationName: string;
   expertiseAreas: string[];
   yearsOfExperience: string;
-  bio: string;
+  bio?: string;
 }
 
 export interface LoginFormValues {

@@ -13,11 +13,14 @@ import {
   Loader2,
   Award,
   Download,
+  Trash2,
 } from "lucide-react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import LoadingBubbles from "@/components/shared/LoadingBubbles";
 import useAuth from "@/features/auth/hooks/useAuth";
-import { getCourse, publishCourse } from "./services/coursesService";
+import { getCourse, publishCourse, deleteCourse } from "./services/coursesService";
 import type { Course } from "./types/coursesTypes";
 import useEnrollment from "./hooks/useEnrollment";
 import { generateCertificate, getCertificateByCourse } from "./services/certificateService";
@@ -47,11 +50,15 @@ export default function CourseDetailPage() {
   const { isEnrolled, progress, handleEnroll, fetchEnrollment } = useEnrollment(id ?? "");
   const [showEnrollModal, setShowEnrollModal] = useState(false);
   const [isEnrolling, setIsEnrolling] = useState(false);
+  const [showPublishConfirm, setShowPublishConfirm] = useState(false);
   const [showUnpublishConfirm, setShowUnpublishConfirm] = useState(false);
   const [isPublishing, setIsPublishing] = useState(false);
   const [activeTab, setActiveTab] = useState<"overview" | "certificate">("overview");
   const [certificate, setCertificate] = useState<Certificate | null>(null);
   const [isGeneratingCert, setIsGeneratingCert] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleteConfirmation, setDeleteConfirmation] = useState("");
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     if (!id) return;
@@ -76,25 +83,32 @@ export default function CourseDetailPage() {
       await handleEnroll();
       await fetchEnrollment();
       setShowEnrollModal(false);
+      toast.success("Successfully enrolled in this course.");
     } catch {
-      // error handled by hook
+      toast.error("Failed to enroll. Please try again.");
     } finally {
       setIsEnrolling(false);
     }
   }
 
-  async function handlePublish() {
-    if (!id || !course) return;
-    if (course.isPublished) {
+  async function handlePublishClick() {
+    if (course?.isPublished) {
       setShowUnpublishConfirm(true);
-      return;
+    } else {
+      setShowPublishConfirm(true);
     }
+  }
+
+  async function confirmPublish() {
+    if (!id) return;
     setIsPublishing(true);
+    setShowPublishConfirm(false);
     try {
       const updated = await publishCourse(id, true);
       setCourse(updated);
+      toast.success("Course published successfully.");
     } catch {
-      // error silently handled
+      toast.error("Failed to publish course.");
     } finally {
       setIsPublishing(false);
     }
@@ -107,10 +121,26 @@ export default function CourseDetailPage() {
     try {
       const updated = await publishCourse(id, false);
       setCourse(updated);
+      toast.success("Course unpublished.");
     } catch {
-      // error silently handled
+      toast.error("Failed to unpublish course.");
     } finally {
       setIsPublishing(false);
+    }
+  }
+
+  async function handleDeleteCourse() {
+    if (!id || !course) return;
+    setIsDeleting(true);
+    try {
+      await deleteCourse(id);
+      toast.success("Course deleted successfully.");
+      navigate("/courses/my-courses");
+    } catch {
+      toast.error("Failed to delete course.");
+    } finally {
+      setIsDeleting(false);
+      setShowDeleteConfirm(false);
     }
   }
 
@@ -120,8 +150,9 @@ export default function CourseDetailPage() {
     try {
       const cert = await generateCertificate(id);
       setCertificate(cert);
+      toast.success("Certificate generated successfully.");
     } catch {
-      // error handled silently
+      toast.error("Failed to generate certificate.");
     } finally {
       setIsGeneratingCert(false);
     }
@@ -154,6 +185,127 @@ export default function CourseDetailPage() {
     );
   }
 
+  function renderOverviewContent(course: Course) {
+    return (
+      <>
+        <span className="inline-block rounded-full bg-primary/10 px-3 py-1 text-sm font-medium text-primary">
+          {course.category.name}
+        </span>
+        <h1 className="mt-3 text-3xl font-bold text-foreground">{course.title}</h1>
+        {course.subtitle && (
+          <p className="mt-2 text-lg text-muted-foreground">{course.subtitle}</p>
+        )}
+        <div className="mt-6 flex flex-wrap gap-2">
+          <span
+            className={`rounded-full px-3 py-1 text-sm font-medium ${levelColors[course.level]}`}
+          >
+            {course.level}
+          </span>
+          {course.duration && (
+            <span className="flex items-center gap-1 rounded-full bg-muted px-3 py-1 text-sm text-muted-foreground">
+              <Clock className="size-3.5" /> {course.duration}
+            </span>
+          )}
+        </div>
+        <div className="mt-8">
+          <h2 className="text-lg font-semibold text-foreground">About this course</h2>
+          <p className="mt-3 leading-relaxed whitespace-pre-line text-muted-foreground">
+            {course.description}
+          </p>
+        </div>
+      </>
+    );
+  }
+
+  function renderCertificateTabContent(course: Course) {
+    return (
+      <div>
+        {!isEnrolled || isOwner ? (
+          <div className="flex flex-col items-center justify-center py-20 text-center">
+            <Award className="size-12 text-muted-foreground" />
+            <p className="mt-4 text-muted-foreground">
+              Enroll and complete this course to earn a certificate.
+            </p>
+          </div>
+        ) : certificate ? (
+          <div className="space-y-4">
+            <div className="rounded-xl border bg-card p-6">
+              <div className="flex items-center gap-2">
+                <Award className="size-5 text-primary" />
+                <span className="text-sm font-medium text-foreground">Certificate Earned</span>
+              </div>
+              <p className="mt-2 text-sm text-muted-foreground">
+                You earned this certificate on{" "}
+                {new Date(certificate.issuedAt).toLocaleDateString("en-US", {
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
+                })}
+                .
+              </p>
+              <div className="mt-4 flex flex-wrap gap-2">
+                <Link to={`/certificates/${certificate.id}`}>
+                  <Button variant="outline" size="sm">
+                    View Certificate
+                  </Button>
+                </Link>
+                <Button variant="default" size="sm" onClick={handleDownloadCert}>
+                  <Download className="mr-1.5 size-4" />
+                  Download PDF
+                </Button>
+              </div>
+            </div>
+          </div>
+        ) : progress === 100 ? (
+          <div className="flex flex-col items-center justify-center py-20 text-center">
+            <Award className="size-12 text-primary" />
+            <p className="mt-4 text-lg font-medium text-foreground">
+              Congratulations! You have completed this course.
+            </p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Generate your certificate now.
+            </p>
+            <Button
+              className="mt-6"
+              onClick={handleGenerateCertificate}
+              disabled={isGeneratingCert}
+            >
+              <Award className="mr-2 size-4" />
+              {isGeneratingCert ? "Generating..." : "Generate Certificate"}
+            </Button>
+          </div>
+        ) : (
+          <div className="flex flex-col items-center justify-center py-20 text-center">
+            <Award className="size-12 text-muted-foreground" />
+            <p className="mt-4 text-lg font-medium text-foreground">
+              Complete all lessons to earn your certificate
+            </p>
+            <div className="mt-4 w-full max-w-xs">
+              <div className="flex items-center justify-between text-xs text-muted-foreground">
+                <span>Progress</span>
+                <span>{progress}%</span>
+              </div>
+              <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-muted">
+                <div
+                  className="h-full rounded-full bg-primary transition-all"
+                  style={{ width: `${progress}%` }}
+                />
+              </div>
+            </div>
+            {isEnrolled && (
+              <Link to={`/courses/${course.id}/learn`} className="mt-6">
+                <Button size="sm">
+                  <Play className="mr-1.5 size-4" />
+                  Continue Learning
+                </Button>
+              </Link>
+            )}
+          </div>
+        )}
+      </div>
+    );
+  }
+
   return (
     <div className="mx-auto w-full max-w-7xl px-6 py-10 lg:px-8">
       <Button variant="ghost" onClick={() => navigate("/courses")} className="mb-6 -ml-3">
@@ -168,190 +320,79 @@ export default function CourseDetailPage() {
         <BookOpen className="size-12 text-white/50" />
       </div>
 
-      <div className="mt-8 border-b">
-        <nav className="flex gap-6">
-          <button
-            onClick={() => setActiveTab("overview")}
-            className={`border-b-2 pb-2 text-sm font-medium transition-colors ${
-              activeTab === "overview"
-                ? "border-primary text-primary"
-                : "text-muted-foreground hover:text-foreground border-transparent"
-            }`}
-          >
-            Overview
-          </button>
-          <button
-            onClick={() => setActiveTab("certificate")}
-            className={`border-b-2 pb-2 text-sm font-medium transition-colors ${
-              activeTab === "certificate"
-                ? "border-primary text-primary"
-                : "text-muted-foreground hover:text-foreground border-transparent"
-            }`}
-          >
-            Certificate
-          </button>
-        </nav>
-      </div>
+      {!isOwner && (
+        <div className="mt-8 border-b">
+          <nav className="flex gap-6">
+            <button
+              onClick={() => setActiveTab("overview")}
+              className={`border-b-2 pb-2 text-sm font-medium transition-colors ${
+                activeTab === "overview"
+                  ? "border-primary text-primary"
+                  : "border-transparent text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              Overview
+            </button>
+            <button
+              onClick={() => setActiveTab("certificate")}
+              className={`border-b-2 pb-2 text-sm font-medium transition-colors ${
+                activeTab === "certificate"
+                  ? "border-primary text-primary"
+                  : "border-transparent text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              Certificate
+            </button>
+          </nav>
+        </div>
+      )}
 
       <div className="mt-8 grid gap-10 lg:grid-cols-3">
         <div className="lg:col-span-2">
-          {activeTab === "overview" ? (
-            <>
-              <span className="bg-primary/10 text-primary inline-block rounded-full px-3 py-1 text-sm font-medium">
-                {course.category.name}
-              </span>
-              <h1 className="text-foreground mt-3 text-3xl font-bold">{course.title}</h1>
-              {course.subtitle && (
-                <p className="text-muted-foreground mt-2 text-lg">{course.subtitle}</p>
-              )}
-              <div className="mt-6 flex flex-wrap gap-2">
-                <span
-                  className={`rounded-full px-3 py-1 text-sm font-medium ${levelColors[course.level]}`}
-                >
-                  {course.level}
-                </span>
-                {course.duration && (
-                  <span className="bg-muted text-muted-foreground flex items-center gap-1 rounded-full px-3 py-1 text-sm">
-                    <Clock className="size-3.5" /> {course.duration}
-                  </span>
-                )}
-              </div>
-              <div className="mt-8">
-                <h2 className="text-foreground text-lg font-semibold">About this course</h2>
-                <p className="text-muted-foreground mt-3 leading-relaxed whitespace-pre-line">
-                  {course.description}
-                </p>
-              </div>
-            </>
-          ) : (
-            <div>
-              {!isEnrolled || isOwner ? (
-                <div className="flex flex-col items-center justify-center py-20 text-center">
-                  <Award className="text-muted-foreground size-12" />
-                  <p className="text-muted-foreground mt-4">
-                    Enroll and complete this course to earn a certificate.
-                  </p>
-                </div>
-              ) : certificate ? (
-                <div className="space-y-4">
-                  <div className="bg-card rounded-xl border p-6">
-                    <div className="flex items-center gap-2">
-                      <Award className="text-primary size-5" />
-                      <span className="text-foreground text-sm font-medium">
-                        Certificate Earned
-                      </span>
-                    </div>
-                    <p className="text-muted-foreground mt-2 text-sm">
-                      You earned this certificate on{" "}
-                      {new Date(certificate.issuedAt).toLocaleDateString("en-US", {
-                        year: "numeric",
-                        month: "long",
-                        day: "numeric",
-                      })}
-                      .
-                    </p>
-                    <div className="mt-4 flex flex-wrap gap-2">
-                      <Link to={`/certificates/${certificate.id}`}>
-                        <Button variant="outline" size="sm">
-                          View Certificate
-                        </Button>
-                      </Link>
-                      <Button variant="default" size="sm" onClick={handleDownloadCert}>
-                        <Download className="mr-1.5 size-4" />
-                        Download PDF
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              ) : progress === 100 ? (
-                <div className="flex flex-col items-center justify-center py-20 text-center">
-                  <Award className="text-primary size-12" />
-                  <p className="text-foreground mt-4 text-lg font-medium">
-                    Congratulations! You have completed this course.
-                  </p>
-                  <p className="text-muted-foreground mt-1 text-sm">
-                    Generate your certificate now.
-                  </p>
-                  <Button
-                    className="mt-6"
-                    onClick={handleGenerateCertificate}
-                    disabled={isGeneratingCert}
-                  >
-                    <Award className="mr-2 size-4" />
-                    {isGeneratingCert ? "Generating..." : "Generate Certificate"}
-                  </Button>
-                </div>
-              ) : (
-                <div className="flex flex-col items-center justify-center py-20 text-center">
-                  <Award className="text-muted-foreground size-12" />
-                  <p className="text-foreground mt-4 text-lg font-medium">
-                    Complete all lessons to earn your certificate
-                  </p>
-                  <div className="mt-4 w-full max-w-xs">
-                    <div className="text-muted-foreground flex items-center justify-between text-xs">
-                      <span>Progress</span>
-                      <span>{progress}%</span>
-                    </div>
-                    <div className="bg-muted mt-1 h-1.5 w-full overflow-hidden rounded-full">
-                      <div
-                        className="bg-primary h-full rounded-full transition-all"
-                        style={{ width: `${progress}%` }}
-                      />
-                    </div>
-                  </div>
-                  {isEnrolled && (
-                    <Link to={`/courses/${course.id}/learn`} className="mt-6">
-                      <Button size="sm">
-                        <Play className="mr-1.5 size-4" />
-                        Continue Learning
-                      </Button>
-                    </Link>
-                  )}
-                </div>
-              )}
-            </div>
-          )}
+          {isOwner || activeTab === "overview"
+            ? renderOverviewContent(course)
+            : renderCertificateTabContent(course)}
         </div>
 
         <div className="lg:col-span-1">
-          <div className="bg-card sticky top-20 rounded-xl border p-6 shadow-sm">
-            <h3 className="text-foreground font-semibold">Course Info</h3>
+          <div className="sticky top-20 rounded-xl border bg-card p-6 shadow-sm">
+            <h3 className="font-semibold text-foreground">Course Info</h3>
             <div className="mt-4 space-y-3">
               <div className="flex items-center gap-2 text-sm">
-                <User className="text-muted-foreground size-4" />
+                <User className="size-4 text-muted-foreground" />
                 <span className="text-muted-foreground">
                   {course.creator.firstName} {course.creator.lastName}
                 </span>
               </div>
               <div className="flex items-center gap-2 text-sm">
-                <Shield className="text-muted-foreground size-4" />
+                <Shield className="size-4 text-muted-foreground" />
                 <span className={`font-medium capitalize ${levelColors[course.level]}`}>
                   {course.level}
                 </span>
               </div>
               {course.duration && (
                 <div className="flex items-center gap-2 text-sm">
-                  <Clock className="text-muted-foreground size-4" />
+                  <Clock className="size-4 text-muted-foreground" />
                   <span className="text-muted-foreground">{course.duration}</span>
                 </div>
               )}
               <div className="flex items-center gap-2 text-sm">
-                <BookOpen className="text-muted-foreground size-4" />
+                <BookOpen className="size-4 text-muted-foreground" />
                 <span className="text-muted-foreground">{course.category.name}</span>
               </div>
               {course.maxStudents && (
                 <div className="flex items-center gap-2 text-sm">
-                  <Users className="text-muted-foreground size-4" />
+                  <Users className="size-4 text-muted-foreground" />
                   <span className="text-muted-foreground">{course.maxStudents} max students</span>
                 </div>
               )}
             </div>
             <div className="mt-4 border-t pt-4">
               {isOwner ? (
-                <div className="space-y-2">
+                <div className="space-y-3">
                   {!course.isPublished && (
                     <span className="inline-block rounded-full bg-yellow-500/10 px-2 py-0.5 text-xs text-yellow-600 dark:text-yellow-400">
-                      Draft — not visible to students
+                      Draft. Not visible to students
                     </span>
                   )}
                   <Link to={`/courses/${course.id}/content`}>
@@ -366,7 +407,7 @@ export default function CourseDetailPage() {
                   <Button
                     variant="ghost"
                     className="w-full"
-                    onClick={handlePublish}
+                    onClick={handlePublishClick}
                     disabled={isPublishing}
                   >
                     {isPublishing ? (
@@ -378,22 +419,30 @@ export default function CourseDetailPage() {
                     )}
                     {course.isPublished ? "Unpublish" : "Publish Course"}
                   </Button>
+                  <Button
+                    variant="ghost"
+                    className="w-full text-destructive hover:bg-destructive/10 hover:text-destructive"
+                    onClick={() => setShowDeleteConfirm(true)}
+                  >
+                    <Trash2 className="mr-1.5 size-4" />
+                    Delete Course
+                  </Button>
                 </div>
               ) : !course.isPublished ? (
-                <p className="text-muted-foreground text-sm">
+                <p className="text-sm text-muted-foreground">
                   This course is not yet available for enrollment.
                 </p>
               ) : isEnrolled ? (
                 <div>
                   {progress > 0 && (
                     <div className="mb-3">
-                      <div className="text-muted-foreground flex items-center justify-between text-xs">
+                      <div className="flex items-center justify-between text-xs text-muted-foreground">
                         <span>Progress</span>
                         <span>{progress}%</span>
                       </div>
-                      <div className="bg-muted mt-1 h-1.5 w-full overflow-hidden rounded-full">
+                      <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-muted">
                         <div
-                          className="bg-primary h-full rounded-full transition-all"
+                          className="h-full rounded-full bg-primary transition-all"
                           style={{ width: `${Math.min(progress, 100)}%` }}
                         />
                       </div>
@@ -424,21 +473,86 @@ export default function CourseDetailPage() {
         isLoading={isEnrolling}
       />
 
+      {showPublishConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="mx-4 w-full max-w-sm rounded-xl border bg-card p-6 shadow-lg">
+            <h3 className="text-lg font-semibold text-foreground">Publish Course</h3>
+            <p className="mt-2 text-sm text-muted-foreground">
+              This course will become visible to students in the course catalog. Students will be
+              able to find and enroll in it.
+            </p>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Are you sure you want to publish this course?
+            </p>
+            <div className="mt-6 flex justify-end gap-3">
+              <Button variant="outline" onClick={() => setShowPublishConfirm(false)}>
+                Cancel
+              </Button>
+              <Button onClick={confirmPublish} disabled={isPublishing}>
+                {isPublishing ? "Publishing..." : "Publish"}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {showUnpublishConfirm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-          <div className="bg-card mx-4 w-full max-w-sm rounded-xl border p-6 shadow-lg">
-            <h3 className="text-foreground text-lg font-semibold">Unpublish Course</h3>
-            <p className="text-muted-foreground mt-2 text-sm">
+          <div className="mx-4 w-full max-w-sm rounded-xl border bg-card p-6 shadow-lg">
+            <h3 className="text-lg font-semibold text-foreground">Unpublish Course</h3>
+            <p className="mt-2 text-sm text-muted-foreground">
               Unpublishing will hide this course from the catalog. Students who are already enrolled
               will retain access, but no new students will be able to enroll.
             </p>
-            <p className="text-muted-foreground mt-2 text-sm">Are you sure you want to continue?</p>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Are you sure you want to continue?
+            </p>
             <div className="mt-6 flex justify-end gap-3">
               <Button variant="outline" onClick={() => setShowUnpublishConfirm(false)}>
                 Cancel
               </Button>
               <Button variant="destructive" onClick={confirmUnpublish} disabled={isPublishing}>
                 {isPublishing ? "Unpublishing..." : "Unpublish"}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="mx-4 w-full max-w-md rounded-xl border bg-card p-6 shadow-lg">
+            <h3 className="text-lg font-semibold text-destructive">Delete Course</h3>
+            <p className="mt-2 text-sm text-muted-foreground">
+              This action cannot be undone. All enrolled students, their progress, certificates, and
+              all course content will be permanently deleted.
+            </p>
+            <p className="mt-4 text-sm text-muted-foreground">
+              To confirm, type <span className="font-medium text-foreground">{course.title}</span>{" "}
+              below:
+            </p>
+            <Input
+              className="mt-2"
+              value={deleteConfirmation}
+              onChange={(e) => setDeleteConfirmation(e.target.value)}
+              placeholder={course.title}
+            />
+            <div className="mt-6 flex justify-end gap-3">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setShowDeleteConfirm(false);
+                  setDeleteConfirmation("");
+                }}
+              >
+                Cancel
+              </Button>
+              <Button
+                variant="destructive"
+                onClick={handleDeleteCourse}
+                disabled={isDeleting || deleteConfirmation !== course.title}
+              >
+                {isDeleting ? "Deleting..." : "Delete Course"}
               </Button>
             </div>
           </div>

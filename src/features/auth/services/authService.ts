@@ -19,7 +19,7 @@ export interface EducatorRegisterPayload {
   organizationName?: string;
   expertiseAreas: string[];
   yearsOfExperience?: number;
-  bio: string;
+  bio?: string;
 }
 
 export interface LoginPayload {

@@ -16,7 +16,7 @@ export default function CreateCoursePage() {
       <div className="bg-card rounded-xl border p-6 shadow-sm sm:p-8">
         <h1 className="text-foreground text-xl font-bold">Create a New Course</h1>
         <p className="text-muted-foreground mt-1 text-sm">
-          Fill in the details below to publish a new course to the catalog.
+          Fill in the details below to create a new course. Courses are saved as drafts by default.
         </p>
         <div className="mt-8">
           <CreateCourseForm />

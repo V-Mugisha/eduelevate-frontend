@@ -46,3 +46,7 @@ export async function publishCourse(id: string, publish: boolean): Promise<Cours
   const response = await apiClient.patch<{ data: Course }>(`/courses/${id}/publish`, { publish });
   return response.data.data;
 }
+
+export async function deleteCourse(id: string): Promise<void> {
+  await apiClient.delete(`/courses/${id}`);
+}

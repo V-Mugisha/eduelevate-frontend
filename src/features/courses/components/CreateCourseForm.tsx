@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -25,9 +26,7 @@ export default function CreateCourseForm() {
   const [categoryId, setCategoryId] = useState("");
   const [level, setLevel] = useState("beginner");
   const [duration, setDuration] = useState("");
-  const [maxStudents, setMaxStudents] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     coursesService
@@ -38,7 +37,6 @@ export default function CreateCourseForm() {
 
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
-    setError(null);
 
     const result = createCourseSchema.safeParse({
       title,
@@ -47,20 +45,20 @@ export default function CreateCourseForm() {
       categoryId,
       level,
       duration: duration || undefined,
-      maxStudents: maxStudents ? parseInt(maxStudents, 10) : undefined,
     });
 
     if (!result.success) {
-      setError(result.error.issues.map((i) => i.message).join(", "));
+      toast.error(result.error.issues.map((i) => i.message).join(", "));
       return;
     }
 
     setIsSubmitting(true);
     try {
       await coursesService.createCourse(result.data);
-      navigate("/courses");
+      toast.success("Course created successfully. You can add content and publish it when ready.");
+      navigate("/courses/my-courses");
     } catch {
-      setError("Failed to create course. Please try again.");
+      toast.error("Failed to create course. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -73,12 +71,6 @@ export default function CreateCourseForm() {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
-      {error && (
-        <div className="border-destructive/50 bg-destructive/10 text-destructive rounded-lg border px-4 py-3 text-sm">
-          {error}
-        </div>
-      )}
-
       <div className="space-y-2">
         <Label htmlFor="course-title">Title</Label>
         <Input
@@ -143,21 +135,6 @@ export default function CreateCourseForm() {
           onChange={(event) => setDuration(event.target.value)}
           placeholder="e.g. 6 weeks, 10 hours"
         />
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="course-max-students">Maximum Students (optional)</Label>
-        <Input
-          id="course-max-students"
-          type="number"
-          min={1}
-          value={maxStudents}
-          onChange={(event) => setMaxStudents(event.target.value)}
-          placeholder="Leave empty for unlimited seats"
-        />
-        <p className="text-muted-foreground text-xs">
-          Set a limit on how many students can enroll. Leave empty for no limit.
-        </p>
       </div>
 
       <div className="flex gap-3">

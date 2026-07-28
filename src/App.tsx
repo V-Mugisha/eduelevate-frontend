@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { Toaster } from "sonner";
 import AuthProvider from "@/features/auth/context/AuthProvider";
 import ProtectedRoute from "@/features/auth/components/ProtectedRoute";
 import GuestRoute from "@/features/auth/components/GuestRoute";
@@ -30,6 +31,7 @@ import NotFoundPage from "@/pages/NotFoundPage";
 export default function App() {
   return (
     <BrowserRouter>
+      <Toaster />
       <AuthProvider>
         <Routes>
           <Route element={<GuestLayout />}>

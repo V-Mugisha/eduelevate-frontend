@@ -26,7 +26,7 @@ export const educatorSignupSchema = z
       .array(z.string().min(1, "Expertise cannot be empty").max(200))
       .min(1, "At least one area of expertise is required"),
     yearsOfExperience: z.string().optional(),
-    bio: z.string().min(1, "Bio is required").max(2000, "Bio must be at most 2000 characters"),
+    bio: z.string().max(2000, "Bio must be at most 2000 characters").optional(),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "Passwords do not match",
