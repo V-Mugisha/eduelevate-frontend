@@ -31,7 +31,7 @@ import NotFoundPage from "@/pages/NotFoundPage";
 export default function App() {
   return (
     <BrowserRouter>
-      <Toaster />
+      <Toaster position="top-right" />
       <AuthProvider>
         <Routes>
           <Route element={<GuestLayout />}>

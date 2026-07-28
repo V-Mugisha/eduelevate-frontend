@@ -1,30 +1,28 @@
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
+import { toast } from "sonner";
 import {
-  Plus,
-  ChevronDown,
-  ChevronRight,
-  Trash2,
-  Pencil,
-  CheckCircle,
   ArrowLeft,
   PanelLeftClose,
   PanelLeftOpen,
   Send,
   EyeOff,
-  ClipboardList,
+  Pencil,
+  Trash2,
+  Plus,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import LoadingBubbles from "@/components/shared/LoadingBubbles";
-import SectionsEditor from "@/components/shared/SectionsEditor";
+import ModuleSidebar from "./components/ModuleSidebar";
+import ModuleForm from "./components/ModuleForm";
+import LessonForm from "./components/LessonForm";
+import LessonPreview from "./components/LessonPreview";
+import ActionsDropdown from "./components/ActionsDropdown";
 import useModules from "./hooks/useModules";
 import type { Module, Lesson } from "./services/contentService";
 import { getCourse, publishCourse } from "./services/coursesService";
-import { createSection } from "./services/contentService";
+import { createSection, updateSection } from "./services/contentService";
 
 export default function CourseContentPage() {
   const { id: courseId } = useParams<{ id: string }>();
@@ -87,7 +85,7 @@ export default function CourseContentPage() {
     });
   }
 
-  function openModulePreview(mod: Module) {
+  function openModuleForm(mod: Module) {
     setActiveModuleId(mod.id);
     setActiveLessonId(null);
     setIsEditingModule(false);
@@ -109,7 +107,7 @@ export default function CourseContentPage() {
 
   function handleModuleClick(mod: Module) {
     toggleModule(mod.id);
-    openModulePreview(mod);
+    openModuleForm(mod);
     setMobileSheetOpen(false);
   }
 
@@ -118,24 +116,24 @@ export default function CourseContentPage() {
     setMobileSheetOpen(false);
   }
 
-  function startAddLesson() {
-    setIsAddingLesson(true);
-    setActiveLessonId(null);
-    setLessonTitle("");
-    setLessonSubtitle("");
-    setLessonSections([{ title: "", content: "" }]);
-  }
-
   function handleStartAddModule() {
     setShowAddModule(true);
     setActiveModuleId(null);
     setActiveLessonId(null);
     setMobileSheetOpen(false);
+    setModuleTitle("");
+    setModuleSubtitle("");
+    setModuleDescription("");
+    setModulePrereq("");
   }
 
   function handleStartAddLesson(moduleId: string) {
     setActiveModuleId(moduleId);
-    startAddLesson();
+    setIsAddingLesson(true);
+    setActiveLessonId(null);
+    setLessonTitle("");
+    setLessonSubtitle("");
+    setLessonSections([{ title: "", content: "" }]);
     setMobileSheetOpen(false);
   }
 
@@ -158,6 +156,10 @@ export default function CourseContentPage() {
       description: moduleDescription || undefined,
     });
     setShowAddModule(false);
+    setModuleTitle("");
+    setModuleSubtitle("");
+    setModuleDescription("");
+    setModulePrereq("");
   }
 
   async function handleAddLesson() {
@@ -166,9 +168,9 @@ export default function CourseContentPage() {
       title: lessonTitle,
       subtitle: lessonSubtitle || undefined,
     });
-    for (const s of lessonSections) {
-      if (s.content.trim())
-        await createSection(lesson.id, { title: s.title || undefined, content: s.content });
+    const validSections = lessonSections.filter((s) => s.title.trim() || s.content.trim());
+    for (const s of validSections) {
+      await createSection(lesson.id, { title: s.title || undefined, content: s.content });
     }
     setIsAddingLesson(false);
     await fetchModules();
@@ -194,8 +196,9 @@ export default function CourseContentPage() {
     try {
       const updated = await publishCourse(courseId, true);
       setCourseIsPublished(updated.isPublished);
+      toast.success("Course published successfully.");
     } catch {
-      // error silently handled
+      toast.error("Failed to publish course.");
     } finally {
       setIsPublishing(false);
     }
@@ -208,66 +211,29 @@ export default function CourseContentPage() {
     try {
       const updated = await publishCourse(courseId, false);
       setCourseIsPublished(updated.isPublished);
+      toast.success("Course unpublished.");
     } catch {
-      // error silently handled
+      toast.error("Failed to unpublish course.");
     } finally {
       setIsPublishing(false);
     }
   }
 
-  const activeModule = modules.find((m) => m.id === activeModuleId) ?? null;
-
-  function renderSidebarContent() {
-    return (
-      <>
-        <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-foreground font-semibold">Modules</h2>
-          <Button variant="ghost" size="icon" onClick={handleStartAddModule} title="Add Module">
-            <Plus className="size-4" />
-          </Button>
-        </div>
-        <div className="space-y-1">
-          {modules.map((mod) => {
-            const isOpen = expandedModules.has(mod.id);
-            return (
-              <div key={mod.id}>
-                <button
-                  onClick={() => handleModuleClick(mod)}
-                  className={`flex w-full items-center gap-1 rounded-lg px-2 py-1.5 text-left text-sm ${activeModuleId === mod.id && !activeLessonId ? "bg-primary/10 text-primary" : "hover:bg-muted"}`}
-                >
-                  {isOpen ? (
-                    <ChevronDown className="size-4 shrink-0" />
-                  ) : (
-                    <ChevronRight className="size-4 shrink-0" />
-                  )}
-                  <span className="truncate">{mod.title}</span>
-                </button>
-                {isOpen && (
-                  <div className="ml-5 space-y-0.5 border-l pl-2">
-                    {mod.lessons.map((l) => (
-                      <button
-                        key={l.id}
-                        onClick={() => handleLessonClick(l)}
-                        className={`block w-full rounded px-2 py-1 text-left text-sm ${activeLessonId === l.id ? "bg-primary/5 text-primary" : "text-muted-foreground hover:bg-muted"}`}
-                      >
-                        {l.title}
-                      </button>
-                    ))}
-                    <button
-                      onClick={() => handleStartAddLesson(mod.id)}
-                      className="text-muted-foreground hover:bg-muted flex w-full items-center gap-1 rounded px-2 py-1 text-sm"
-                    >
-                      <Plus className="size-3" /> Add Lesson
-                    </button>
-                  </div>
-                )}
-              </div>
-            );
-          })}
-        </div>
-      </>
-    );
+  async function handleUpdateSection(
+    lessonId: string,
+    sectionId: string,
+    data: { title?: string; content?: string },
+  ) {
+    try {
+      await updateSection(lessonId, sectionId, data);
+      await fetchModules();
+      toast.success("Section updated.");
+    } catch {
+      toast.error("Failed to update section.");
+    }
   }
+
+  const activeModule = modules.find((m) => m.id === activeModuleId) ?? null;
 
   if (!courseId || isLoading) return <LoadingBubbles size="lg" />;
 
@@ -275,7 +241,7 @@ export default function CourseContentPage() {
     <div className="flex h-[calc(100dvh-3.5rem)] min-w-0 flex-col overflow-x-hidden">
       <header className="bg-background flex items-center gap-3 border-b px-4 py-3 sm:px-6">
         <Link
-          to="/courses"
+          to="/courses/my-courses"
           className="text-muted-foreground hover:text-foreground mt-0.5 flex shrink-0 items-center gap-1 text-sm"
         >
           <ArrowLeft className="size-4" /> Courses
@@ -336,7 +302,18 @@ export default function CourseContentPage() {
             sidebarOpen ? "w-72" : "w-0 border-r-0"
           }`}
         >
-          <div className="w-72 overflow-y-auto p-4">{renderSidebarContent()}</div>
+          <div className="w-72 overflow-y-auto p-4">
+            <ModuleSidebar
+              modules={modules}
+              expandedModules={expandedModules}
+              activeModuleId={activeModuleId}
+              activeLessonId={activeLessonId}
+              onSelectModule={handleModuleClick}
+              onSelectLesson={handleLessonClick}
+              onAddModule={handleStartAddModule}
+              onAddLesson={handleStartAddLesson}
+            />
+          </div>
         </aside>
 
         <Sheet open={mobileSheetOpen} onOpenChange={setMobileSheetOpen}>
@@ -344,7 +321,16 @@ export default function CourseContentPage() {
             <SheetHeader>
               <SheetTitle>Modules</SheetTitle>
             </SheetHeader>
-            {renderSidebarContent()}
+            <ModuleSidebar
+              modules={modules}
+              expandedModules={expandedModules}
+              activeModuleId={activeModuleId}
+              activeLessonId={activeLessonId}
+              onSelectModule={handleModuleClick}
+              onSelectLesson={handleLessonClick}
+              onAddModule={handleStartAddModule}
+              onAddLesson={handleStartAddLesson}
+            />
           </SheetContent>
         </Sheet>
 
@@ -357,72 +343,39 @@ export default function CourseContentPage() {
           </div>
 
           {showAddModule && (
-            <div className="mx-auto max-w-2xl space-y-4">
-              <h3 className="text-foreground font-semibold">New Module</h3>
-              <div className="space-y-2">
-                <Label>Title</Label>
-                <Input value={moduleTitle} onChange={(e) => setModuleTitle(e.target.value)} />
-              </div>
-              <div className="space-y-2">
-                <Label>Subtitle (optional)</Label>
-                <Input value={moduleSubtitle} onChange={(e) => setModuleSubtitle(e.target.value)} />
-              </div>
-              <div className="space-y-2">
-                <Label>Description (optional)</Label>
-                <Textarea
-                  value={moduleDescription}
-                  onChange={(e) => setModuleDescription(e.target.value)}
-                />
-              </div>
-              <div className="flex gap-3">
-                <Button onClick={handleAddModule}>Create Module</Button>
-                <Button variant="outline" onClick={() => setShowAddModule(false)}>
-                  Cancel
-                </Button>
-              </div>
-            </div>
+            <ModuleForm
+              title={moduleTitle}
+              subtitle={moduleSubtitle}
+              description={moduleDescription}
+              prerequisites={modulePrereq}
+              isEditing={false}
+              onTitleChange={setModuleTitle}
+              onSubtitleChange={setModuleSubtitle}
+              onDescriptionChange={setModuleDescription}
+              onPrerequisitesChange={setModulePrereq}
+              onSave={handleAddModule}
+              onCancel={() => setShowAddModule(false)}
+            />
           )}
 
           {activeModule && !showAddModule && !activeLessonId && !isAddingLesson && (
-            <div className="mx-auto max-w-2xl">
+            <>
               {isEditingModule ? (
-                <div className="space-y-4">
-                  <h3 className="text-foreground font-semibold">Edit Module</h3>
-                  <div className="space-y-2">
-                    <Label>Title</Label>
-                    <Input value={moduleTitle} onChange={(e) => setModuleTitle(e.target.value)} />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Subtitle (optional)</Label>
-                    <Input
-                      value={moduleSubtitle}
-                      onChange={(e) => setModuleSubtitle(e.target.value)}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Description (optional)</Label>
-                    <Textarea
-                      value={moduleDescription}
-                      onChange={(e) => setModuleDescription(e.target.value)}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Prerequisites (comma-separated)</Label>
-                    <Input
-                      value={modulePrereq}
-                      onChange={(e) => setModulePrereq(e.target.value)}
-                      placeholder="e.g. Basic HTML, CSS Fundamentals"
-                    />
-                  </div>
-                  <div className="flex gap-3">
-                    <Button onClick={handleSaveModule}>Save Module</Button>
-                    <Button variant="outline" onClick={() => setIsEditingModule(false)}>
-                      Cancel
-                    </Button>
-                  </div>
-                </div>
+                <ModuleForm
+                  title={moduleTitle}
+                  subtitle={moduleSubtitle}
+                  description={moduleDescription}
+                  prerequisites={modulePrereq}
+                  isEditing
+                  onTitleChange={setModuleTitle}
+                  onSubtitleChange={setModuleSubtitle}
+                  onDescriptionChange={setModuleDescription}
+                  onPrerequisitesChange={setModulePrereq}
+                  onSave={handleSaveModule}
+                  onCancel={() => setIsEditingModule(false)}
+                />
               ) : (
-                <div>
+                <div className="mx-auto max-w-2xl">
                   <div className="mb-6 flex items-start justify-between">
                     <div>
                       <h1 className="text-foreground text-2xl font-bold">{activeModule.title}</h1>
@@ -430,22 +383,24 @@ export default function CourseContentPage() {
                         <p className="text-muted-foreground mt-1">{activeModule.subtitle}</p>
                       )}
                     </div>
-                    <div className="flex gap-2">
-                      <Button variant="outline" size="sm" onClick={() => setIsEditingModule(true)}>
-                        <Pencil className="mr-1.5 size-4" />
-                        Edit
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => {
-                          removeModule(activeModule.id);
-                          setActiveModuleId(null);
-                        }}
-                      >
-                        <Trash2 className="text-destructive size-4" />
-                      </Button>
-                    </div>
+                    <ActionsDropdown
+                      actions={[
+                        {
+                          label: "Edit",
+                          icon: <Pencil className="size-4" />,
+                          onClick: () => setIsEditingModule(true),
+                        },
+                        {
+                          label: "Delete",
+                          icon: <Trash2 className="size-4" />,
+                          onClick: () => {
+                            removeModule(activeModule.id);
+                            setActiveModuleId(null);
+                          },
+                          destructive: true,
+                        },
+                      ]}
+                    />
                   </div>
                   {activeModule.description && (
                     <p className="text-muted-foreground mb-6 leading-relaxed">
@@ -470,112 +425,56 @@ export default function CourseContentPage() {
                   </div>
                 </div>
               )}
-            </div>
+            </>
           )}
 
           {isAddingLesson && activeModuleId && (
-            <div className="mx-auto max-w-2xl space-y-4">
-              <h3 className="text-foreground font-semibold">New Lesson</h3>
-              <div className="space-y-2">
-                <Label>Title</Label>
-                <Input value={lessonTitle} onChange={(e) => setLessonTitle(e.target.value)} />
-              </div>
-              <div className="space-y-2">
-                <Label>Subtitle (optional)</Label>
-                <Input value={lessonSubtitle} onChange={(e) => setLessonSubtitle(e.target.value)} />
-              </div>
-              <div className="space-y-2">
-                <Label>Sections</Label>
-                <SectionsEditor sections={lessonSections} onChange={setLessonSections} />
-              </div>
-              <div className="flex gap-3">
-                <Button onClick={handleAddLesson}>Create Lesson</Button>
-                <Button variant="outline" onClick={() => setIsAddingLesson(false)}>
-                  Cancel
-                </Button>
-              </div>
-            </div>
+            <LessonForm
+              title={lessonTitle}
+              subtitle={lessonSubtitle}
+              sections={lessonSections}
+              onTitleChange={setLessonTitle}
+              onSubtitleChange={setLessonSubtitle}
+              onSectionsChange={setLessonSections}
+              onSave={handleAddLesson}
+              onCancel={() => setIsAddingLesson(false)}
+            />
           )}
 
           {activeLessonId && activeModule && !isAddingLesson && (
-            <div className="mx-auto max-w-2xl">
-              {isEditingLesson ? (
-                <div className="space-y-4">
-                  <h3 className="text-foreground font-semibold">Edit Lesson</h3>
-                  <div className="space-y-2">
-                    <Label>Title</Label>
-                    <Input value={lessonTitle} onChange={(e) => setLessonTitle(e.target.value)} />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Subtitle (optional)</Label>
-                    <Input
-                      value={lessonSubtitle}
-                      onChange={(e) => setLessonSubtitle(e.target.value)}
-                    />
-                  </div>
-                  <div className="flex gap-3">
-                    <Button onClick={handleSaveLesson}>Save Lesson</Button>
-                    <Button variant="outline" onClick={() => setIsEditingLesson(false)}>
-                      Cancel
-                    </Button>
-                  </div>
-                </div>
-              ) : (
-                <div>
-                  <div className="mb-8 flex items-start justify-between">
-                    <div>
-                      <h1 className="text-foreground text-2xl font-bold">{lessonTitle}</h1>
-                      {lessonSubtitle && (
-                        <p className="text-muted-foreground mt-1">{lessonSubtitle}</p>
-                      )}
-                    </div>
-                    <div className="flex gap-2">
-                      <Button variant="outline" size="sm" onClick={() => setIsEditingLesson(true)}>
-                        <Pencil className="mr-1.5 size-4" />
-                        Edit
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => {
-                          removeLesson(activeLessonId, activeModule.id);
-                          setActiveLessonId(null);
-                        }}
-                      >
-                        <Trash2 className="text-destructive size-4" />
-                      </Button>
-                    </div>
-                  </div>
-                  {(activeModule.lessons.find((l) => l.id === activeLessonId)?.sections ?? []).map(
-                    (s) => (
-                      <div key={s.id} className="mb-6">
-                        {s.title && (
-                          <h3 className="text-foreground text-lg font-semibold">{s.title}</h3>
-                        )}
-                        <p className="text-muted-foreground whitespace-pre-line">{s.content}</p>
-                      </div>
-                    ),
-                  )}
-                  <div className="mt-8 border-t pt-6">
-                    <Link to={`/courses/${courseId}/content/assessment/${activeLessonId}`}>
-                      <Button variant="outline" size="sm">
-                        <ClipboardList className="mr-1.5 size-4" />
-                        Manage Assessment
-                      </Button>
-                    </Link>
-                  </div>
-                  <div className="mt-12 border-t pt-6">
-                    <Button disabled title="Progress tracking coming soon">
-                      <CheckCircle className="mr-1.5 size-4" />
-                      Mark as Complete
-                    </Button>
-                    <p className="text-muted-foreground mt-1 text-xs">
-                      Progress tracking coming soon
-                    </p>
-                  </div>
-                </div>
-              )}
-            </div>
+            <LessonPreview
+              lesson={
+                activeModule.lessons.find((l) => l.id === activeLessonId) ?? {
+                  id: activeLessonId,
+                  moduleId: activeModule.id,
+                  title: lessonTitle,
+                  subtitle: lessonSubtitle || null,
+                  createdAt: "",
+                  updatedAt: "",
+                  sections: [],
+                }
+              }
+              courseId={courseId!}
+              isEditing={isEditingLesson}
+              title={lessonTitle}
+              subtitle={lessonSubtitle}
+              onTitleChange={setLessonTitle}
+              onSubtitleChange={setLessonSubtitle}
+              onSaveEdit={handleSaveLesson}
+              onCancelEdit={() => setIsEditingLesson(false)}
+              onStartEdit={() => setIsEditingLesson(true)}
+              onDelete={() => {
+                removeLesson(activeLessonId, activeModule.id);
+                setActiveLessonId(null);
+              }}
+              onUpdateSection={(sectionId, data) =>
+                handleUpdateSection(
+                  activeModule.lessons.find((l) => l.id === activeLessonId)?.id ?? activeLessonId,
+                  sectionId,
+                  data,
+                )
+              }
+            />
           )}
 
           {!showAddModule && !activeModuleId && !activeLessonId && !isAddingLesson && (

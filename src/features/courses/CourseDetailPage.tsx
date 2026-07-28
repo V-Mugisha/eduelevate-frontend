@@ -188,13 +188,11 @@ export default function CourseDetailPage() {
   function renderOverviewContent(course: Course) {
     return (
       <>
-        <span className="inline-block rounded-full bg-primary/10 px-3 py-1 text-sm font-medium text-primary">
+        <span className="bg-primary/10 text-primary inline-block rounded-full px-3 py-1 text-sm font-medium">
           {course.category.name}
         </span>
-        <h1 className="mt-3 text-3xl font-bold text-foreground">{course.title}</h1>
-        {course.subtitle && (
-          <p className="mt-2 text-lg text-muted-foreground">{course.subtitle}</p>
-        )}
+        <h1 className="text-foreground mt-3 text-3xl font-bold">{course.title}</h1>
+        {course.subtitle && <p className="text-muted-foreground mt-2 text-lg">{course.subtitle}</p>}
         <div className="mt-6 flex flex-wrap gap-2">
           <span
             className={`rounded-full px-3 py-1 text-sm font-medium ${levelColors[course.level]}`}
@@ -202,14 +200,14 @@ export default function CourseDetailPage() {
             {course.level}
           </span>
           {course.duration && (
-            <span className="flex items-center gap-1 rounded-full bg-muted px-3 py-1 text-sm text-muted-foreground">
+            <span className="bg-muted text-muted-foreground flex items-center gap-1 rounded-full px-3 py-1 text-sm">
               <Clock className="size-3.5" /> {course.duration}
             </span>
           )}
         </div>
         <div className="mt-8">
-          <h2 className="text-lg font-semibold text-foreground">About this course</h2>
-          <p className="mt-3 leading-relaxed whitespace-pre-line text-muted-foreground">
+          <h2 className="text-foreground text-lg font-semibold">About this course</h2>
+          <p className="text-muted-foreground mt-3 leading-relaxed whitespace-pre-line">
             {course.description}
           </p>
         </div>
@@ -222,19 +220,19 @@ export default function CourseDetailPage() {
       <div>
         {!isEnrolled || isOwner ? (
           <div className="flex flex-col items-center justify-center py-20 text-center">
-            <Award className="size-12 text-muted-foreground" />
-            <p className="mt-4 text-muted-foreground">
+            <Award className="text-muted-foreground size-12" />
+            <p className="text-muted-foreground mt-4">
               Enroll and complete this course to earn a certificate.
             </p>
           </div>
         ) : certificate ? (
           <div className="space-y-4">
-            <div className="rounded-xl border bg-card p-6">
+            <div className="bg-card rounded-xl border p-6">
               <div className="flex items-center gap-2">
-                <Award className="size-5 text-primary" />
-                <span className="text-sm font-medium text-foreground">Certificate Earned</span>
+                <Award className="text-primary size-5" />
+                <span className="text-foreground text-sm font-medium">Certificate Earned</span>
               </div>
-              <p className="mt-2 text-sm text-muted-foreground">
+              <p className="text-muted-foreground mt-2 text-sm">
                 You earned this certificate on{" "}
                 {new Date(certificate.issuedAt).toLocaleDateString("en-US", {
                   year: "numeric",
@@ -258,13 +256,11 @@ export default function CourseDetailPage() {
           </div>
         ) : progress === 100 ? (
           <div className="flex flex-col items-center justify-center py-20 text-center">
-            <Award className="size-12 text-primary" />
-            <p className="mt-4 text-lg font-medium text-foreground">
+            <Award className="text-primary size-12" />
+            <p className="text-foreground mt-4 text-lg font-medium">
               Congratulations! You have completed this course.
             </p>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Generate your certificate now.
-            </p>
+            <p className="text-muted-foreground mt-1 text-sm">Generate your certificate now.</p>
             <Button
               className="mt-6"
               onClick={handleGenerateCertificate}
@@ -276,18 +272,18 @@ export default function CourseDetailPage() {
           </div>
         ) : (
           <div className="flex flex-col items-center justify-center py-20 text-center">
-            <Award className="size-12 text-muted-foreground" />
-            <p className="mt-4 text-lg font-medium text-foreground">
+            <Award className="text-muted-foreground size-12" />
+            <p className="text-foreground mt-4 text-lg font-medium">
               Complete all lessons to earn your certificate
             </p>
             <div className="mt-4 w-full max-w-xs">
-              <div className="flex items-center justify-between text-xs text-muted-foreground">
+              <div className="text-muted-foreground flex items-center justify-between text-xs">
                 <span>Progress</span>
                 <span>{progress}%</span>
               </div>
-              <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-muted">
+              <div className="bg-muted mt-1 h-1.5 w-full overflow-hidden rounded-full">
                 <div
-                  className="h-full rounded-full bg-primary transition-all"
+                  className="bg-primary h-full rounded-full transition-all"
                   style={{ width: `${progress}%` }}
                 />
               </div>
@@ -308,7 +304,7 @@ export default function CourseDetailPage() {
 
   return (
     <div className="mx-auto w-full max-w-7xl px-6 py-10 lg:px-8">
-      <Button variant="ghost" onClick={() => navigate("/courses")} className="mb-6 -ml-3">
+      <Button variant="ghost" onClick={() => navigate(isOwner ? "/courses/my-courses" : "/courses")} className="mb-6 -ml-3">
         <ArrowLeft className="mr-1.5 size-4" />
         Back to Courses
       </Button>
@@ -328,7 +324,7 @@ export default function CourseDetailPage() {
               className={`border-b-2 pb-2 text-sm font-medium transition-colors ${
                 activeTab === "overview"
                   ? "border-primary text-primary"
-                  : "border-transparent text-muted-foreground hover:text-foreground"
+                  : "text-muted-foreground hover:text-foreground border-transparent"
               }`}
             >
               Overview
@@ -338,7 +334,7 @@ export default function CourseDetailPage() {
               className={`border-b-2 pb-2 text-sm font-medium transition-colors ${
                 activeTab === "certificate"
                   ? "border-primary text-primary"
-                  : "border-transparent text-muted-foreground hover:text-foreground"
+                  : "text-muted-foreground hover:text-foreground border-transparent"
               }`}
             >
               Certificate
@@ -355,41 +351,41 @@ export default function CourseDetailPage() {
         </div>
 
         <div className="lg:col-span-1">
-          <div className="sticky top-20 rounded-xl border bg-card p-6 shadow-sm">
-            <h3 className="font-semibold text-foreground">Course Info</h3>
+          <div className="bg-card sticky top-20 rounded-xl border p-6 shadow-sm">
+            <h3 className="text-foreground font-semibold">Course Info</h3>
             <div className="mt-4 space-y-3">
               <div className="flex items-center gap-2 text-sm">
-                <User className="size-4 text-muted-foreground" />
+                <User className="text-muted-foreground size-4" />
                 <span className="text-muted-foreground">
                   {course.creator.firstName} {course.creator.lastName}
                 </span>
               </div>
               <div className="flex items-center gap-2 text-sm">
-                <Shield className="size-4 text-muted-foreground" />
+                <Shield className="text-muted-foreground size-4" />
                 <span className={`font-medium capitalize ${levelColors[course.level]}`}>
                   {course.level}
                 </span>
               </div>
               {course.duration && (
                 <div className="flex items-center gap-2 text-sm">
-                  <Clock className="size-4 text-muted-foreground" />
+                  <Clock className="text-muted-foreground size-4" />
                   <span className="text-muted-foreground">{course.duration}</span>
                 </div>
               )}
               <div className="flex items-center gap-2 text-sm">
-                <BookOpen className="size-4 text-muted-foreground" />
+                <BookOpen className="text-muted-foreground size-4" />
                 <span className="text-muted-foreground">{course.category.name}</span>
               </div>
               {course.maxStudents && (
                 <div className="flex items-center gap-2 text-sm">
-                  <Users className="size-4 text-muted-foreground" />
+                  <Users className="text-muted-foreground size-4" />
                   <span className="text-muted-foreground">{course.maxStudents} max students</span>
                 </div>
               )}
             </div>
             <div className="mt-4 border-t pt-4">
               {isOwner ? (
-                <div className="space-y-3">
+                <div className="flex flex-col gap-2">
                   {!course.isPublished && (
                     <span className="inline-block rounded-full bg-yellow-500/10 px-2 py-0.5 text-xs text-yellow-600 dark:text-yellow-400">
                       Draft. Not visible to students
@@ -421,7 +417,7 @@ export default function CourseDetailPage() {
                   </Button>
                   <Button
                     variant="ghost"
-                    className="w-full text-destructive hover:bg-destructive/10 hover:text-destructive"
+                    className="text-destructive hover:bg-destructive/10 hover:text-destructive w-full"
                     onClick={() => setShowDeleteConfirm(true)}
                   >
                     <Trash2 className="mr-1.5 size-4" />
@@ -429,20 +425,20 @@ export default function CourseDetailPage() {
                   </Button>
                 </div>
               ) : !course.isPublished ? (
-                <p className="text-sm text-muted-foreground">
+                <p className="text-muted-foreground text-sm">
                   This course is not yet available for enrollment.
                 </p>
               ) : isEnrolled ? (
                 <div>
                   {progress > 0 && (
                     <div className="mb-3">
-                      <div className="flex items-center justify-between text-xs text-muted-foreground">
+                      <div className="text-muted-foreground flex items-center justify-between text-xs">
                         <span>Progress</span>
                         <span>{progress}%</span>
                       </div>
-                      <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-muted">
+                      <div className="bg-muted mt-1 h-1.5 w-full overflow-hidden rounded-full">
                         <div
-                          className="h-full rounded-full bg-primary transition-all"
+                          className="bg-primary h-full rounded-full transition-all"
                           style={{ width: `${Math.min(progress, 100)}%` }}
                         />
                       </div>
@@ -475,13 +471,13 @@ export default function CourseDetailPage() {
 
       {showPublishConfirm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-          <div className="mx-4 w-full max-w-sm rounded-xl border bg-card p-6 shadow-lg">
-            <h3 className="text-lg font-semibold text-foreground">Publish Course</h3>
-            <p className="mt-2 text-sm text-muted-foreground">
+          <div className="bg-card mx-4 w-full max-w-sm rounded-xl border p-6 shadow-lg">
+            <h3 className="text-foreground text-lg font-semibold">Publish Course</h3>
+            <p className="text-muted-foreground mt-2 text-sm">
               This course will become visible to students in the course catalog. Students will be
               able to find and enroll in it.
             </p>
-            <p className="mt-2 text-sm text-muted-foreground">
+            <p className="text-muted-foreground mt-2 text-sm">
               Are you sure you want to publish this course?
             </p>
             <div className="mt-6 flex justify-end gap-3">
@@ -498,15 +494,13 @@ export default function CourseDetailPage() {
 
       {showUnpublishConfirm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-          <div className="mx-4 w-full max-w-sm rounded-xl border bg-card p-6 shadow-lg">
-            <h3 className="text-lg font-semibold text-foreground">Unpublish Course</h3>
-            <p className="mt-2 text-sm text-muted-foreground">
+          <div className="bg-card mx-4 w-full max-w-sm rounded-xl border p-6 shadow-lg">
+            <h3 className="text-foreground text-lg font-semibold">Unpublish Course</h3>
+            <p className="text-muted-foreground mt-2 text-sm">
               Unpublishing will hide this course from the catalog. Students who are already enrolled
               will retain access, but no new students will be able to enroll.
             </p>
-            <p className="mt-2 text-sm text-muted-foreground">
-              Are you sure you want to continue?
-            </p>
+            <p className="text-muted-foreground mt-2 text-sm">Are you sure you want to continue?</p>
             <div className="mt-6 flex justify-end gap-3">
               <Button variant="outline" onClick={() => setShowUnpublishConfirm(false)}>
                 Cancel
@@ -521,14 +515,14 @@ export default function CourseDetailPage() {
 
       {showDeleteConfirm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-          <div className="mx-4 w-full max-w-md rounded-xl border bg-card p-6 shadow-lg">
-            <h3 className="text-lg font-semibold text-destructive">Delete Course</h3>
-            <p className="mt-2 text-sm text-muted-foreground">
+          <div className="bg-card mx-4 w-full max-w-md rounded-xl border p-6 shadow-lg">
+            <h3 className="text-destructive text-lg font-semibold">Delete Course</h3>
+            <p className="text-muted-foreground mt-2 text-sm">
               This action cannot be undone. All enrolled students, their progress, certificates, and
               all course content will be permanently deleted.
             </p>
-            <p className="mt-4 text-sm text-muted-foreground">
-              To confirm, type <span className="font-medium text-foreground">{course.title}</span>{" "}
+            <p className="text-muted-foreground mt-4 text-sm">
+              To confirm, type <span className="text-foreground font-medium">{course.title}</span>{" "}
               below:
             </p>
             <Input

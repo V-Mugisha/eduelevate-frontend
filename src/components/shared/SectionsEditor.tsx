@@ -15,6 +15,8 @@ interface SectionsEditorProps {
 
 export default function SectionsEditor({ sections, onChange }: SectionsEditorProps) {
   function handleAdd() {
+    const last = sections[sections.length - 1];
+    if (last && !last.title.trim() && !last.content.trim()) return;
     onChange([...sections, { title: "", content: "" }]);
   }
 

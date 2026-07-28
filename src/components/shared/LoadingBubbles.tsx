@@ -14,9 +14,9 @@ export default function LoadingBubbles({ size = "md" }: LoadingBubblesProps) {
   return (
     <div className={`flex items-center justify-center ${container}`}>
       <div className={`flex ${gap}`}>
-        <div className={`${dot} bg-current animate-bounce rounded-full [animation-delay:0ms]`} />
-        <div className={`${dot} bg-current animate-bounce rounded-full [animation-delay:150ms]`} />
-        <div className={`${dot} bg-current animate-bounce rounded-full [animation-delay:300ms]`} />
+        <div className={`${dot} animate-bounce rounded-full bg-current [animation-delay:0ms]`} />
+        <div className={`${dot} animate-bounce rounded-full bg-current [animation-delay:150ms]`} />
+        <div className={`${dot} animate-bounce rounded-full bg-current [animation-delay:300ms]`} />
       </div>
     </div>
   );
