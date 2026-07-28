@@ -7,8 +7,18 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import LoadingBubbles from "@/components/shared/LoadingBubbles";
 import useAuth from "@/features/auth/hooks/useAuth";
-import { getEducator, applyForMentorship, listMentorships, endMentorship, listMyApplications } from "./services/mentorshipService";
-import type { EducatorListing, Mentorship, MentorshipApplication } from "./services/mentorshipService";
+import {
+  getEducator,
+  applyForMentorship,
+  listMentorships,
+  endMentorship,
+  listMyApplications,
+} from "./services/mentorshipService";
+import type {
+  EducatorListing,
+  Mentorship,
+  MentorshipApplication,
+} from "./services/mentorshipService";
 
 export default function MentorshipEducatorPage() {
   const { userId } = useParams<{ userId: string }>();
@@ -64,7 +74,10 @@ export default function MentorshipEducatorPage() {
       toast.success("Application submitted successfully.");
       navigate("/mentorship");
     } catch (e: unknown) {
-      toast.error((e as { response?: { data?: { message?: string } } })?.response?.data?.message ?? "Failed to apply");
+      toast.error(
+        (e as { response?: { data?: { message?: string } } })?.response?.data?.message ??
+          "Failed to apply",
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -85,7 +98,12 @@ export default function MentorshipEducatorPage() {
   }
 
   if (isLoading) return <LoadingBubbles size="lg" />;
-  if (!educator) return <div className="flex items-center justify-center px-4 py-20"><p className="text-muted-foreground">Educator not found.</p></div>;
+  if (!educator)
+    return (
+      <div className="flex items-center justify-center px-4 py-20">
+        <p className="text-muted-foreground">Educator not found.</p>
+      </div>
+    );
 
   return (
     <div className="mx-auto w-full max-w-3xl px-4 py-8 sm:px-6 lg:px-8">
@@ -93,26 +111,31 @@ export default function MentorshipEducatorPage() {
         <ArrowLeft className="mr-1.5 size-4" /> Back to Mentorship Hub
       </Button>
 
-      <div className="rounded-xl border bg-card p-6">
+      <div className="bg-card rounded-xl border p-6">
         <div className="flex items-center gap-3">
-          <div className="flex size-14 items-center justify-center rounded-full bg-primary/10 text-lg font-bold text-primary">
-            {educator.firstName[0]}{educator.lastName[0]}
+          <div className="bg-primary/10 text-primary flex size-14 items-center justify-center rounded-full text-lg font-bold">
+            {educator.firstName[0]}
+            {educator.lastName[0]}
           </div>
           <div>
-            <h1 className="text-xl font-bold text-foreground">{educator.firstName} {educator.lastName}</h1>
-            <p className="text-sm text-muted-foreground">{educator.email}</p>
+            <h1 className="text-foreground text-xl font-bold">
+              {educator.firstName} {educator.lastName}
+            </h1>
+            <p className="text-muted-foreground text-sm">{educator.email}</p>
           </div>
         </div>
 
         {educator.mentorshipProfile.bio && (
-          <p className="mt-4 text-sm text-muted-foreground">{educator.mentorshipProfile.bio}</p>
+          <p className="text-muted-foreground mt-4 text-sm">{educator.mentorshipProfile.bio}</p>
         )}
 
         <div className="mt-4">
-          <h3 className="text-sm font-medium text-foreground">Mentorship Topics</h3>
+          <h3 className="text-foreground text-sm font-medium">Mentorship Topics</h3>
           <div className="mt-2 flex flex-wrap gap-2">
             {educator.mentorshipProfile.topics.map((t) => (
-              <span key={t} className="rounded-full bg-primary/10 px-3 py-1 text-xs text-primary">{t}</span>
+              <span key={t} className="bg-primary/10 text-primary rounded-full px-3 py-1 text-xs">
+                {t}
+              </span>
             ))}
           </div>
         </div>
@@ -120,13 +143,22 @@ export default function MentorshipEducatorPage() {
         <div className="mt-8 border-t pt-6">
           {activeMentorship ? (
             <div className="rounded-lg border border-green-500/30 bg-green-500/5 p-4">
-              <p className="text-sm font-medium text-foreground">Active mentorship with {educator.firstName}</p>
-              <p className="mt-1 text-xs text-muted-foreground">You are currently being mentored by this educator.</p>
+              <p className="text-foreground text-sm font-medium">
+                Active mentorship with {educator.firstName}
+              </p>
+              <p className="text-muted-foreground mt-1 text-xs">
+                You are currently being mentored by this educator.
+              </p>
               <div className="mt-4 flex gap-2">
                 <Button onClick={() => navigate(`/mentorship/${activeMentorship.id}`)}>
                   <MessageSquare className="mr-2 size-4" /> Open Chat
                 </Button>
-                <Button variant="outline" className="text-destructive" onClick={handleEnd} disabled={isEnding}>
+                <Button
+                  variant="outline"
+                  className="text-destructive"
+                  onClick={handleEnd}
+                  disabled={isEnding}
+                >
                   <XCircle className="mr-2 size-4" />
                   {isEnding ? "Ending..." : "End Mentorship"}
                 </Button>
@@ -134,14 +166,15 @@ export default function MentorshipEducatorPage() {
             </div>
           ) : pendingApplication ? (
             <div className="rounded-lg border border-yellow-500/30 bg-yellow-500/5 p-4">
-              <p className="text-sm font-medium text-foreground">Application pending</p>
-              <p className="mt-1 text-xs text-muted-foreground">
-                You have already applied for mentorship. Awaiting response from {educator.firstName}.
+              <p className="text-foreground text-sm font-medium">Application pending</p>
+              <p className="text-muted-foreground mt-1 text-xs">
+                You have already applied for mentorship. Awaiting response from {educator.firstName}
+                .
               </p>
             </div>
           ) : isStudent ? (
             <>
-              <h3 className="text-lg font-semibold text-foreground">Apply for Mentorship</h3>
+              <h3 className="text-foreground text-lg font-semibold">Apply for Mentorship</h3>
               <div className="mt-4 space-y-4">
                 <div className="space-y-2">
                   <Label>Message</Label>
@@ -173,4 +206,3 @@ export default function MentorshipEducatorPage() {
     </div>
   );
 }
-

@@ -304,7 +304,11 @@ export default function CourseDetailPage() {
 
   return (
     <div className="mx-auto w-full max-w-7xl px-6 py-10 lg:px-8">
-      <Button variant="ghost" onClick={() => navigate(isOwner ? "/courses/my-courses" : "/courses")} className="mb-6 -ml-3">
+      <Button
+        variant="ghost"
+        onClick={() => navigate(isOwner ? "/courses/my-courses" : "/courses")}
+        className="mb-6 -ml-3"
+      >
         <ArrowLeft className="mr-1.5 size-4" />
         Back to Courses
       </Button>

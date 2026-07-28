@@ -1,6 +1,15 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Search, Handshake, ChevronRight, Plus, X as XIcon, CheckCircle, Star, MessageSquare } from "lucide-react";
+import {
+  Search,
+  Handshake,
+  ChevronRight,
+  Plus,
+  X as XIcon,
+  CheckCircle,
+  Star,
+  MessageSquare,
+} from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,7 +18,11 @@ import { Label } from "@/components/ui/label";
 import LoadingBubbles from "@/components/shared/LoadingBubbles";
 import useAuth from "@/features/auth/hooks/useAuth";
 import * as mentorshipService from "./services/mentorshipService";
-import type { EducatorListing, MentorshipApplication, Mentorship } from "./services/mentorshipService";
+import type {
+  EducatorListing,
+  MentorshipApplication,
+  Mentorship,
+} from "./services/mentorshipService";
 
 export default function MentorshipHubPage() {
   const navigate = useNavigate();
@@ -32,7 +45,8 @@ export default function MentorshipHubPage() {
   const [rejectingId, setRejectingId] = useState<string | null>(null);
 
   useEffect(() => {
-    mentorshipService.searchEducators(search || undefined)
+    mentorshipService
+      .searchEducators(search || undefined)
       .then((results) => {
         setEducators(results);
         if (isEducatorOrAdmin && user) {
@@ -42,7 +56,7 @@ export default function MentorshipHubPage() {
       })
       .catch(() => setEducators([]))
       .finally(() => setIsLoading(false));
-  }, [search]);
+  }, [isEducatorOrAdmin, search, user]);
 
   async function handleSearch() {
     setIsLoading(true);
@@ -124,7 +138,10 @@ export default function MentorshipHubPage() {
       loadApplications();
       loadActive();
     } catch (e: unknown) {
-      toast.error((e as { response?: { data?: { message?: string } } })?.response?.data?.message ?? "Failed to accept.");
+      toast.error(
+        (e as { response?: { data?: { message?: string } } })?.response?.data?.message ??
+          "Failed to accept.",
+      );
     }
   }
 
@@ -154,27 +171,27 @@ export default function MentorshipHubPage() {
   return (
     <div className="mx-auto w-full max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-foreground sm:text-3xl">Mentorship Hub</h1>
-        <p className="mt-1 text-muted-foreground">Connect with educators and get guidance</p>
+        <h1 className="text-foreground text-2xl font-bold sm:text-3xl">Mentorship Hub</h1>
+        <p className="text-muted-foreground mt-1">Connect with educators and get guidance</p>
       </div>
 
       <div className="mb-6 border-b">
         <nav className="flex gap-6">
           <button
             onClick={() => handleTabChange("hub")}
-            className={`border-b-2 pb-2 text-sm font-medium ${activeTab === "hub" ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-foreground"}`}
+            className={`border-b-2 pb-2 text-sm font-medium ${activeTab === "hub" ? "border-primary text-primary" : "text-muted-foreground hover:text-foreground border-transparent"}`}
           >
             Browse Educators
           </button>
           <button
             onClick={() => handleTabChange("applications")}
-            className={`border-b-2 pb-2 text-sm font-medium ${activeTab === "applications" ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-foreground"}`}
+            className={`border-b-2 pb-2 text-sm font-medium ${activeTab === "applications" ? "border-primary text-primary" : "text-muted-foreground hover:text-foreground border-transparent"}`}
           >
             {isEducatorOrAdmin ? "Received" : "My"} Applications
           </button>
           <button
             onClick={() => handleTabChange("active")}
-            className={`border-b-2 pb-2 text-sm font-medium ${activeTab === "active" ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-foreground"}`}
+            className={`border-b-2 pb-2 text-sm font-medium ${activeTab === "active" ? "border-primary text-primary" : "text-muted-foreground hover:text-foreground border-transparent"}`}
           >
             Active
           </button>
@@ -190,24 +207,35 @@ export default function MentorshipHubPage() {
                   <div className="flex items-center gap-3">
                     <CheckCircle className="size-5 text-green-500" />
                     <div>
-                      <p className="text-sm font-medium text-foreground">Mentorship profile active</p>
-                      <p className="text-xs text-muted-foreground">Students can find and apply to be mentored by you.</p>
+                      <p className="text-foreground text-sm font-medium">
+                        Mentorship profile active
+                      </p>
+                      <p className="text-muted-foreground text-xs">
+                        Students can find and apply to be mentored by you.
+                      </p>
                     </div>
                   </div>
                   <div className="flex gap-2">
                     <Button variant="outline" size="sm" onClick={() => setShowOptIn(!showOptIn)}>
                       Edit
                     </Button>
-                    <Button variant="ghost" size="sm" className="text-destructive" onClick={handleOptOut}>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="text-destructive"
+                      onClick={handleOptOut}
+                    >
                       Opt Out
                     </Button>
                   </div>
                 </div>
               ) : (
-                <div className="flex items-center justify-between rounded-lg border bg-muted/30 p-4">
+                <div className="bg-muted/30 flex items-center justify-between rounded-lg border p-4">
                   <div>
-                    <p className="text-sm font-medium text-foreground">Become a mentor</p>
-                    <p className="text-xs text-muted-foreground">Opt in to be discoverable by students seeking mentorship.</p>
+                    <p className="text-foreground text-sm font-medium">Become a mentor</p>
+                    <p className="text-muted-foreground text-xs">
+                      Opt in to be discoverable by students seeking mentorship.
+                    </p>
                   </div>
                   <Button size="sm" onClick={() => setShowOptIn(true)}>
                     <Plus className="mr-1.5 size-4" /> Opt In
@@ -231,7 +259,11 @@ export default function MentorshipHubPage() {
                           placeholder={`Topic ${i + 1}`}
                         />
                         {topics.length > 1 && (
-                          <Button variant="ghost" size="icon" onClick={() => setTopics(topics.filter((_, j) => j !== i))}>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => setTopics(topics.filter((_, j) => j !== i))}
+                          >
                             <XIcon className="size-3" />
                           </Button>
                         )}
@@ -243,13 +275,19 @@ export default function MentorshipHubPage() {
                   </div>
                   <div className="space-y-2">
                     <Label>Bio (optional)</Label>
-                    <Textarea value={bio} onChange={(e) => setBio(e.target.value)} placeholder="Tell students about yourself..." />
+                    <Textarea
+                      value={bio}
+                      onChange={(e) => setBio(e.target.value)}
+                      placeholder="Tell students about yourself..."
+                    />
                   </div>
                   <div className="flex gap-2">
                     <Button size="sm" onClick={handleOptIn} disabled={isSaving}>
                       {isSaving ? "Saving..." : "Save"}
                     </Button>
-                    <Button size="sm" variant="outline" onClick={() => setShowOptIn(false)}>Cancel</Button>
+                    <Button size="sm" variant="outline" onClick={() => setShowOptIn(false)}>
+                      Cancel
+                    </Button>
                   </div>
                 </div>
               )}
@@ -272,8 +310,8 @@ export default function MentorshipHubPage() {
             <LoadingBubbles size="md" />
           ) : educators.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-16 text-center">
-              <Handshake className="size-12 text-muted-foreground" />
-              <p className="mt-4 text-muted-foreground">No educators found.</p>
+              <Handshake className="text-muted-foreground size-12" />
+              <p className="text-muted-foreground mt-4">No educators found.</p>
             </div>
           ) : (
             <div className="grid gap-4 sm:grid-cols-2">
@@ -283,17 +321,18 @@ export default function MentorshipHubPage() {
                   <Link
                     key={e.id}
                     to={`/mentorship/educators/${e.id}`}
-                    className="group rounded-xl border bg-card p-5 transition-shadow hover:shadow-md"
+                    className="group bg-card rounded-xl border p-5 transition-shadow hover:shadow-md"
                   >
                     <div className="flex items-center gap-3">
-                      <div className="flex size-10 items-center justify-center rounded-full bg-primary/10 text-sm font-bold text-primary">
-                        {e.firstName[0]}{e.lastName[0]}
+                      <div className="bg-primary/10 text-primary flex size-10 items-center justify-center rounded-full text-sm font-bold">
+                        {e.firstName[0]}
+                        {e.lastName[0]}
                       </div>
                       <div className="flex-1">
-                        <p className="text-sm font-medium text-foreground group-hover:text-primary">
+                        <p className="text-foreground group-hover:text-primary text-sm font-medium">
                           {e.firstName} {e.lastName}
                         </p>
-                        <p className="text-xs text-muted-foreground">{e.email}</p>
+                        <p className="text-muted-foreground text-xs">{e.email}</p>
                         {e.rating && e.rating.average !== null && (
                           <p className="mt-0.5 flex items-center gap-1 text-xs">
                             <Star className="size-3 text-yellow-500" />
@@ -302,14 +341,21 @@ export default function MentorshipHubPage() {
                           </p>
                         )}
                       </div>
-                      <ChevronRight className="size-4 text-muted-foreground" />
+                      <ChevronRight className="text-muted-foreground size-4" />
                     </div>
                     <div className="mt-3 flex flex-wrap gap-1">
                       {e.mentorshipProfile.topics.slice(0, 3).map((t) => (
-                        <span key={t} className="rounded-full bg-primary/10 px-2 py-0.5 text-xs text-primary">{t}</span>
+                        <span
+                          key={t}
+                          className="bg-primary/10 text-primary rounded-full px-2 py-0.5 text-xs"
+                        >
+                          {t}
+                        </span>
                       ))}
                       {e.mentorshipProfile.topics.length > 3 && (
-                        <span className="rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">+{e.mentorshipProfile.topics.length - 3}</span>
+                        <span className="bg-muted text-muted-foreground rounded-full px-2 py-0.5 text-xs">
+                          +{e.mentorshipProfile.topics.length - 3}
+                        </span>
                       )}
                     </div>
                   </Link>
@@ -323,28 +369,36 @@ export default function MentorshipHubPage() {
         <div>
           {applications.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-16 text-center">
-              <Handshake className="size-12 text-muted-foreground" />
-              <p className="mt-4 text-muted-foreground">No applications.</p>
+              <Handshake className="text-muted-foreground size-12" />
+              <p className="text-muted-foreground mt-4">No applications.</p>
             </div>
           ) : (
-            <div className="divide-y rounded-xl border bg-card">
+            <div className="bg-card divide-y rounded-xl border">
               {applications.map((app) => (
                 <div key={app.id} className="p-4">
                   <div className="flex items-start justify-between">
                     <div>
-                      <p className="text-sm font-medium text-foreground">
-                        {isEducatorOrAdmin ? `${app.student?.firstName} ${app.student?.lastName}` : `${app.educator?.firstName} ${app.educator?.lastName}`}
+                      <p className="text-foreground text-sm font-medium">
+                        {isEducatorOrAdmin
+                          ? `${app.student?.firstName} ${app.student?.lastName}`
+                          : `${app.educator?.firstName} ${app.educator?.lastName}`}
                       </p>
                       {isEducatorOrAdmin && app.student?.email && (
-                        <p className="text-xs text-muted-foreground">{app.student.email}</p>
+                        <p className="text-muted-foreground text-xs">{app.student.email}</p>
                       )}
-                      <p className="mt-1 text-sm text-muted-foreground">{app.message}</p>
-                      {app.topic && <p className="text-xs text-muted-foreground">Topic: {app.topic}</p>}
-                      <span className={`mt-1 inline-block rounded-full px-2 py-0.5 text-xs ${
-                        app.status === "pending" ? "bg-yellow-500/10 text-yellow-600" :
-                        app.status === "accepted" ? "bg-green-500/10 text-green-600" :
-                        "bg-red-500/10 text-red-600"
-                      }`}>
+                      <p className="text-muted-foreground mt-1 text-sm">{app.message}</p>
+                      {app.topic && (
+                        <p className="text-muted-foreground text-xs">Topic: {app.topic}</p>
+                      )}
+                      <span
+                        className={`mt-1 inline-block rounded-full px-2 py-0.5 text-xs ${
+                          app.status === "pending"
+                            ? "bg-yellow-500/10 text-yellow-600"
+                            : app.status === "accepted"
+                              ? "bg-green-500/10 text-green-600"
+                              : "bg-red-500/10 text-red-600"
+                        }`}
+                      >
                         {app.status}
                         {app.rejectionReason && ` — ${app.rejectionReason}`}
                       </span>
@@ -359,17 +413,33 @@ export default function MentorshipHubPage() {
                               value={rejectionReason}
                               onChange={(e) => setRejectionReason(e.target.value)}
                             />
-                            <Button size="sm" variant="destructive" onClick={() => handleReject(app.id)}>
+                            <Button
+                              size="sm"
+                              variant="destructive"
+                              onClick={() => handleReject(app.id)}
+                            >
                               Confirm
                             </Button>
-                            <Button size="sm" variant="outline" onClick={() => setRejectingId(null)}>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => setRejectingId(null)}
+                            >
                               Cancel
                             </Button>
                           </div>
                         ) : (
                           <>
-                            <Button size="sm" onClick={() => handleAccept(app.id)}>Accept</Button>
-                            <Button size="sm" variant="outline" onClick={() => setRejectingId(app.id)}>Reject</Button>
+                            <Button size="sm" onClick={() => handleAccept(app.id)}>
+                              Accept
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => setRejectingId(app.id)}
+                            >
+                              Reject
+                            </Button>
                           </>
                         )}
                       </div>
@@ -386,21 +456,22 @@ export default function MentorshipHubPage() {
         <div>
           {activeMentorships.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-16 text-center">
-              <Handshake className="size-12 text-muted-foreground" />
-              <p className="mt-4 text-muted-foreground">No active mentorships.</p>
+              <Handshake className="text-muted-foreground size-12" />
+              <p className="text-muted-foreground mt-4">No active mentorships.</p>
             </div>
           ) : (
-            <div className="divide-y rounded-xl border bg-card">
+            <div className="bg-card divide-y rounded-xl border">
               {activeMentorships.map((m) => {
                 const otherPerson = m.studentId === user?.id ? m.educator : m.student;
                 return (
                   <div key={m.id} className="flex items-center justify-between p-4">
                     <div>
-                      <p className="text-sm font-medium text-foreground">
+                      <p className="text-foreground text-sm font-medium">
                         {otherPerson.firstName} {otherPerson.lastName}
                       </p>
-                      <p className="text-xs text-muted-foreground">
-                        {m.studentId === user?.id ? "Educator" : "Student"} • Since {new Date(m.startedAt).toLocaleDateString()}
+                      <p className="text-muted-foreground text-xs">
+                        {m.studentId === user?.id ? "Educator" : "Student"} • Since{" "}
+                        {new Date(m.startedAt).toLocaleDateString()}
                       </p>
                       {m.endedAt && (
                         <span className="mt-1 inline-block rounded-full bg-red-500/10 px-2 py-0.5 text-xs text-red-600">
@@ -410,10 +481,18 @@ export default function MentorshipHubPage() {
                     </div>
                     {!m.endedAt && (
                       <div className="flex gap-2">
-                        <Button variant="outline" size="sm" onClick={() => navigate(`/mentorship/${m.id}`)}>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => navigate(`/mentorship/${m.id}`)}
+                        >
                           <MessageSquare className="mr-1 size-3" /> Chat
                         </Button>
-                        <Button variant="outline" size="sm" onClick={() => handleEndMentorship(m.id)}>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleEndMentorship(m.id)}
+                        >
                           End
                         </Button>
                       </div>

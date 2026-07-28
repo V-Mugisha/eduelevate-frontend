@@ -26,10 +26,7 @@ export default function MentorshipChatPage() {
 
   useEffect(() => {
     if (!id) return;
-    Promise.all([
-      mentorshipService.listMessages(id),
-      mentorshipService.listMentorships(),
-    ])
+    Promise.all([mentorshipService.listMessages(id), mentorshipService.listMentorships()])
       .then(([msgs, mentorships]) => {
         setMessages(msgs);
         const m = mentorships.find((ment: Mentorship) => ment.id === id);
@@ -51,7 +48,10 @@ export default function MentorshipChatPage() {
       setMessages((prev) => [...prev, msg]);
       setNewMessage("");
     } catch (e: unknown) {
-      toast.error((e as { response?: { data?: { message?: string } } })?.response?.data?.message ?? "Failed to send message");
+      toast.error(
+        (e as { response?: { data?: { message?: string } } })?.response?.data?.message ??
+          "Failed to send message",
+      );
     } finally {
       setIsSending(false);
     }
@@ -61,7 +61,15 @@ export default function MentorshipChatPage() {
     if (!id || !confirm("End this mentorship?")) return;
     try {
       await mentorshipService.endMentorship(id);
-      setMentorship((prev: Mentorship | null) => prev ? { ...prev, endedAt: new Date().toISOString(), endedBy: user?.id === prev.studentId ? "student" : "educator" } : null);
+      setMentorship((prev: Mentorship | null) =>
+        prev
+          ? {
+              ...prev,
+              endedAt: new Date().toISOString(),
+              endedBy: user?.id === prev.studentId ? "student" : "educator",
+            }
+          : null,
+      );
       toast.success("Mentorship ended.");
     } catch {
       toast.error("Failed to end mentorship.");
@@ -83,10 +91,17 @@ export default function MentorshipChatPage() {
   }
 
   if (isLoading) return <LoadingBubbles size="lg" />;
-  if (!mentorship) return <div className="flex items-center justify-center px-4 py-20"><p className="text-muted-foreground">Mentorship not found.</p></div>;
+  if (!mentorship)
+    return (
+      <div className="flex items-center justify-center px-4 py-20">
+        <p className="text-muted-foreground">Mentorship not found.</p>
+      </div>
+    );
 
   const isStudent = mentorship.studentId === user?.id;
-  const otherPerson: { id: string; firstName: string; lastName: string; email?: string } = isStudent ? mentorship.educator : mentorship.student;
+  const otherPerson: { id: string; firstName: string; lastName: string; email?: string } = isStudent
+    ? mentorship.educator
+    : mentorship.student;
   const isEnded = !!mentorship.endedAt;
   const hasRated = !!mentorship.rating;
   const showRating = isEnded && isStudent && !hasRated;
@@ -98,29 +113,43 @@ export default function MentorshipChatPage() {
           <ArrowLeft className="size-5" />
         </Button>
         <div>
-          <p className="text-sm font-medium text-foreground">{otherPerson.firstName} {otherPerson.lastName}</p>
-          <p className="text-xs text-muted-foreground">{isEnded ? "Mentorship ended" : "Active mentorship"}</p>
+          <p className="text-foreground text-sm font-medium">
+            {otherPerson.firstName} {otherPerson.lastName}
+          </p>
+          <p className="text-muted-foreground text-xs">
+            {isEnded ? "Mentorship ended" : "Active mentorship"}
+          </p>
         </div>
       </div>
 
       <div className="flex flex-1 gap-6 overflow-hidden">
-        <div className="flex flex-1 flex-col rounded-xl border bg-card">
+        <div className="bg-card flex flex-1 flex-col rounded-xl border">
           <div className="flex-1 space-y-3 overflow-y-auto p-4 [&::-webkit-scrollbar]:hidden">
             {messages.length === 0 ? (
-              <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
+              <div className="text-muted-foreground flex h-full items-center justify-center text-sm">
                 No messages yet. Start the conversation.
               </div>
             ) : (
               messages.map((msg) => {
                 const isSender = msg.senderId === user?.id;
                 return (
-                  <div key={msg.id} className={`flex ${isSender ? "justify-end" : "justify-start"}`}>
-                    <div className={`max-w-[75%] rounded-lg px-4 py-2 text-sm ${
-                      isSender ? "bg-primary text-primary-foreground" : "bg-muted text-foreground"
-                    }`}>
+                  <div
+                    key={msg.id}
+                    className={`flex ${isSender ? "justify-end" : "justify-start"}`}
+                  >
+                    <div
+                      className={`max-w-[75%] rounded-lg px-4 py-2 text-sm ${
+                        isSender ? "bg-primary text-primary-foreground" : "bg-muted text-foreground"
+                      }`}
+                    >
                       <p className="whitespace-pre-wrap">{msg.content}</p>
-                      <p className={`mt-1 text-right text-[10px] ${isSender ? "text-primary-foreground/70" : "text-muted-foreground"}`}>
-                        {new Date(msg.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                      <p
+                        className={`mt-1 text-right text-[10px] ${isSender ? "text-primary-foreground/70" : "text-muted-foreground"}`}
+                      >
+                        {new Date(msg.createdAt).toLocaleTimeString([], {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
                       </p>
                     </div>
                   </div>
@@ -146,24 +175,29 @@ export default function MentorshipChatPage() {
         </div>
 
         <div className="hidden w-64 shrink-0 flex-col gap-4 sm:flex">
-          <div className="rounded-xl border bg-card p-4">
+          <div className="bg-card rounded-xl border p-4">
             <div className="flex items-center gap-2">
-              <div className="flex size-8 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">
-                {otherPerson.firstName[0]}{otherPerson.lastName[0]}
+              <div className="bg-primary/10 text-primary flex size-8 items-center justify-center rounded-full text-xs font-bold">
+                {otherPerson.firstName[0]}
+                {otherPerson.lastName[0]}
               </div>
               <div>
-                <p className="text-sm font-medium text-foreground">{otherPerson.firstName} {otherPerson.lastName}</p>
-                <p className="text-xs text-muted-foreground">{isStudent ? "Educator" : "Student"}</p>
+                <p className="text-foreground text-sm font-medium">
+                  {otherPerson.firstName} {otherPerson.lastName}
+                </p>
+                <p className="text-muted-foreground text-xs">
+                  {isStudent ? "Educator" : "Student"}
+                </p>
               </div>
             </div>
             {otherPerson.email && (
-              <p className="mt-2 text-xs text-muted-foreground">{otherPerson.email}</p>
+              <p className="text-muted-foreground mt-2 text-xs">{otherPerson.email}</p>
             )}
           </div>
 
           {showRating && (
-            <div className="rounded-xl border bg-card p-4">
-              <p className="text-sm font-medium text-foreground">Rate your experience</p>
+            <div className="bg-card rounded-xl border p-4">
+              <p className="text-foreground text-sm font-medium">Rate your experience</p>
               <div className="mt-2 flex gap-1">
                 {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((star) => (
                   <button
@@ -181,15 +215,18 @@ export default function MentorshipChatPage() {
                 ))}
               </div>
               {rating && (
-                <p className="mt-1 text-xs text-muted-foreground">
-                  You rated {rating}/10
-                </p>
+                <p className="text-muted-foreground mt-1 text-xs">You rated {rating}/10</p>
               )}
             </div>
           )}
 
           {!isEnded && (
-            <Button variant="outline" size="sm" className="w-full text-destructive" onClick={handleEndMentorship}>
+            <Button
+              variant="outline"
+              size="sm"
+              className="text-destructive w-full"
+              onClick={handleEndMentorship}
+            >
               End Mentorship
             </Button>
           )}

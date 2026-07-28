@@ -54,12 +54,18 @@ export async function getEducator(userId: string): Promise<EducatorListing> {
   return res.data.data;
 }
 
-export async function createProfile(data: { topics: string[]; bio?: string }): Promise<MentorshipProfile> {
+export async function createProfile(data: {
+  topics: string[];
+  bio?: string;
+}): Promise<MentorshipProfile> {
   const res = await apiClient.post<{ data: MentorshipProfile }>("/mentorship/profile", data);
   return res.data.data;
 }
 
-export async function updateProfile(data: { topics?: string[]; bio?: string }): Promise<MentorshipProfile> {
+export async function updateProfile(data: {
+  topics?: string[];
+  bio?: string;
+}): Promise<MentorshipProfile> {
   const res = await apiClient.put<{ data: MentorshipProfile }>("/mentorship/profile", data);
   return res.data.data;
 }
@@ -73,8 +79,14 @@ export async function getMyProfile(): Promise<MentorshipProfile> {
   return res.data.data;
 }
 
-export async function applyForMentorship(educatorId: string, data: { message: string; topic?: string }): Promise<MentorshipApplication> {
-  const res = await apiClient.post<{ data: MentorshipApplication }>(`/mentorship/apply/${educatorId}`, data);
+export async function applyForMentorship(
+  educatorId: string,
+  data: { message: string; topic?: string },
+): Promise<MentorshipApplication> {
+  const res = await apiClient.post<{ data: MentorshipApplication }>(
+    `/mentorship/apply/${educatorId}`,
+    data,
+  );
   return res.data.data;
 }
 
@@ -84,7 +96,9 @@ export async function listMyApplications(): Promise<MentorshipApplication[]> {
 }
 
 export async function listReceivedApplications(): Promise<MentorshipApplication[]> {
-  const res = await apiClient.get<{ data: MentorshipApplication[] }>("/mentorship/applications/received");
+  const res = await apiClient.get<{ data: MentorshipApplication[] }>(
+    "/mentorship/applications/received",
+  );
   return res.data.data;
 }
 
@@ -93,8 +107,14 @@ export async function acceptApplication(id: string): Promise<Mentorship> {
   return res.data.data;
 }
 
-export async function rejectApplication(id: string, rejectionReason?: string): Promise<MentorshipApplication> {
-  const res = await apiClient.post<{ data: MentorshipApplication }>(`/mentorship/applications/${id}/reject`, { rejectionReason });
+export async function rejectApplication(
+  id: string,
+  rejectionReason?: string,
+): Promise<MentorshipApplication> {
+  const res = await apiClient.post<{ data: MentorshipApplication }>(
+    `/mentorship/applications/${id}/reject`,
+    { rejectionReason },
+  );
   return res.data.data;
 }
 
@@ -123,12 +143,20 @@ export interface MentorshipRatingData {
 }
 
 export async function listMessages(mentorshipId: string): Promise<MentorshipMessage[]> {
-  const res = await apiClient.get<{ data: MentorshipMessage[] }>(`/mentorship/${mentorshipId}/messages`);
+  const res = await apiClient.get<{ data: MentorshipMessage[] }>(
+    `/mentorship/${mentorshipId}/messages`,
+  );
   return res.data.data;
 }
 
-export async function sendMessage(mentorshipId: string, content: string): Promise<MentorshipMessage> {
-  const res = await apiClient.post<{ data: MentorshipMessage }>(`/mentorship/${mentorshipId}/messages`, { content });
+export async function sendMessage(
+  mentorshipId: string,
+  content: string,
+): Promise<MentorshipMessage> {
+  const res = await apiClient.post<{ data: MentorshipMessage }>(
+    `/mentorship/${mentorshipId}/messages`,
+    { content },
+  );
   return res.data.data;
 }
 
@@ -137,6 +165,8 @@ export async function rateEducator(mentorshipId: string, rating: number): Promis
 }
 
 export async function getEducatorRating(educatorId: string): Promise<MentorshipRatingData> {
-  const res = await apiClient.get<{ data: MentorshipRatingData }>(`/mentorship/educators/${educatorId}/ratings`);
+  const res = await apiClient.get<{ data: MentorshipRatingData }>(
+    `/mentorship/educators/${educatorId}/ratings`,
+  );
   return res.data.data;
 }
