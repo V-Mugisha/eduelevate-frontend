@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { LayoutDashboard, BookOpen, Code, Users, Settings, Award } from "lucide-react";
+import { LayoutDashboard, BookOpen, Users, Settings, Award, Handshake } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import useAuth from "@/features/auth/hooks/useAuth";
 import SidebarItem from "./SidebarItem";
@@ -21,7 +21,7 @@ const studentItems = [
     ],
   },
   { icon: Award, label: "Certificates", href: "/certificates" },
-  { icon: Code, label: "Exercises", href: "/exercises", disabled: true },
+  { icon: Handshake, label: "Mentorship", href: "/mentorship" },
 ];
 
 const educatorItems = [
@@ -34,7 +34,7 @@ const educatorItems = [
       { label: "My Courses", href: "/courses/my-courses" },
     ],
   },
-  { icon: Code, label: "Review Submissions", href: "/exercises", disabled: true },
+  { icon: Handshake, label: "Mentorship", href: "/mentorship" },
 ];
 
 const adminItems = [
@@ -47,6 +47,7 @@ const adminItems = [
       { label: "My Courses", href: "/courses/my-courses" },
     ],
   },
+  { icon: Handshake, label: "Mentorship", href: "/mentorship" },
   { icon: Users, label: "User Management", href: "/users", disabled: true },
   { icon: Settings, label: "Settings", href: "/settings", disabled: true },
 ];

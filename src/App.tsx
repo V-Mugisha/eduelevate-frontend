@@ -26,6 +26,9 @@ import CertificateDetailPage from "@/features/courses/CertificateDetailPage";
 import CourseStudentsPage from "@/features/courses/CourseStudentsPage";
 import StudentDetailPage from "@/features/courses/StudentDetailPage";
 import CreateCoursePage from "@/features/courses/CreateCoursePage";
+import MentorshipHubPage from "@/features/mentorship/MentorshipHubPage";
+import MentorshipEducatorPage from "@/features/mentorship/MentorshipEducatorPage";
+import MentorshipChatPage from "@/features/mentorship/MentorshipChatPage";
 import NotFoundPage from "@/pages/NotFoundPage";
 
 export default function App() {
@@ -83,6 +86,9 @@ export default function App() {
             <Route path="/profile/change-password" element={<ChangePasswordPage />} />
             <Route path="/certificates" element={<CertificatesPage />} />
             <Route path="/certificates/:id" element={<CertificateDetailPage />} />
+            <Route path="/mentorship" element={<MentorshipHubPage />} />
+            <Route path="/mentorship/educators/:userId" element={<MentorshipEducatorPage />} />
+            <Route path="/mentorship/:id" element={<MentorshipChatPage />} />
             <Route path="/courses" element={<CoursesCatalogPage />} />
             <Route path="/courses/my-courses" element={<MyCoursesPage />} />
             <Route path="/my-learning" element={<MyLearningPage />} />
