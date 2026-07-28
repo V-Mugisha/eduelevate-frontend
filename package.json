@@ -13,8 +13,7 @@
     "format": "prettier --check \"src/**/*.{ts,tsx,js,jsx,json,css,md}\"",
     "format:fix": "prettier --write \"src/**/*.{ts,tsx,js,jsx,json,css,md}\"",
     "check": "npm run lint && npm run format",
-    "check:fix": "npm run lint:fix && npm run format:fix",
-    "prepare": "husky"
+    "check:fix": "npm run lint:fix && npm run format:fix"
   },
   "lint-staged": {
     "*.{ts,tsx}": [
