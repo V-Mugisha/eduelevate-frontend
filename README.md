@@ -12,6 +12,9 @@ React + TypeScript frontend for the EduElevate learning platform, built with Vit
 1. Clone the repository:
 
    ```bash
+   # HTTPS
+   git clone https://github.com/V-Mugisha/eduelevate-frontend.git
+   # SSH
    git clone git@github.com:V-Mugisha/eduelevate-frontend.git
    cd eduelevate-frontend
    ```
