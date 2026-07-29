@@ -1,10 +1,10 @@
 import { Link } from "react-router-dom";
-import { ChevronRight, ShieldCheck } from "lucide-react";
+import { ChevronRight, ScrollText } from "lucide-react";
 import LoadingBubbles from "@/components/shared/LoadingBubbles";
-import type { UserSummary } from "../types/usersTypes";
+import type { AuditLogEntry } from "../types/auditLogTypes";
 
-interface UsersTableProps {
-  users: UserSummary[];
+interface AuditLogTableProps {
+  logs: AuditLogEntry[];
   isLoading: boolean;
   totalPages: number;
   page: number;
@@ -13,21 +13,15 @@ interface UsersTableProps {
   onPageChange: (page: number) => void;
 }
 
-function roleBadgeStyles(role: string) {
-  if (role === "admin") return "bg-purple-500/10 text-purple-600";
-  if (role === "educator") return "bg-blue-500/10 text-blue-600";
-  return "bg-green-500/10 text-green-600";
-}
-
-export default function UsersTable({
-  users,
+export default function AuditLogTable({
+  logs,
   isLoading,
   totalPages,
   page,
   limit,
   total,
   onPageChange,
-}: UsersTableProps) {
+}: AuditLogTableProps) {
   if (isLoading) {
     return (
       <div className="flex justify-center py-16">
@@ -36,11 +30,11 @@ export default function UsersTable({
     );
   }
 
-  if (users.length === 0) {
+  if (logs.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-16 text-center">
-        <ShieldCheck className="text-muted-foreground mb-4 size-12" />
-        <h3 className="text-foreground text-lg font-semibold">No users found</h3>
+        <ScrollText className="text-muted-foreground mb-4 size-12" />
+        <h3 className="text-foreground text-lg font-semibold">No audit logs found</h3>
         <p className="text-muted-foreground mt-1 text-sm">
           Try adjusting your search or filters.
         </p>
@@ -55,19 +49,16 @@ export default function UsersTable({
           <thead>
             <tr className="bg-muted/30 border-b text-left">
               <th className="px-5 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Name
+                Action
               </th>
               <th className="px-5 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Email
-              </th>
-              <th className="px-5 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Role
+                Performed By
               </th>
               <th className="px-5 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Status
               </th>
               <th className="px-5 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Joined
+                Date
               </th>
               <th className="px-5 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Actions
@@ -75,44 +66,34 @@ export default function UsersTable({
             </tr>
           </thead>
           <tbody className="divide-y">
-            {users.map((u) => (
-              <tr key={u.id} className="hover:bg-muted/20 transition-colors">
+            {logs.map((log) => (
+              <tr key={log.id} className="hover:bg-muted/20 transition-colors">
                 <td className="px-5 py-4">
-                  <div className="flex items-center gap-2">
-                    <div className="bg-primary/10 text-primary flex size-8 shrink-0 items-center justify-center rounded-full text-xs font-bold">
-                      {u.firstName[0]}
-                      {u.lastName[0]}
-                    </div>
-                    <span className="text-foreground font-medium whitespace-nowrap">
-                      {u.firstName} {u.lastName}
-                    </span>
-                  </div>
+                  <span className="text-foreground text-xs font-medium">{log.action}</span>
                 </td>
-                <td className="text-muted-foreground px-5 py-4 text-xs">{u.email}</td>
-                <td className="px-5 py-4">
-                  <span
-                    className={`inline-block rounded-full px-2 py-0.5 text-xs font-medium capitalize whitespace-nowrap ${roleBadgeStyles(u.role.name)}`}
-                  >
-                    {u.role.name}
-                  </span>
+                <td className="text-muted-foreground px-5 py-4 text-xs">
+                  {log.performer
+                    ? `${log.performer.firstName} ${log.performer.lastName}`
+                    : <span className="italic opacity-50">System</span>}
                 </td>
                 <td className="px-5 py-4">
                   <span
-                    className={`inline-block rounded-full px-2 py-0.5 text-xs font-medium whitespace-nowrap ${
-                      u.isActive
+                    className={`inline-block rounded-full px-2 py-0.5 text-xs font-medium ${
+                      log.status === "success"
                         ? "bg-green-500/10 text-green-600"
                         : "bg-red-500/10 text-red-600"
                     }`}
                   >
-                    {u.isActive ? "Active" : "Disabled"}
+                    {log.status}
                   </span>
                 </td>
                 <td className="text-muted-foreground px-5 py-4 text-xs whitespace-nowrap">
-                  {new Date(u.createdAt).toLocaleDateString()}
+                  {new Date(log.createdAt).toLocaleDateString()}{" "}
+                  {new Date(log.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
                 </td>
                 <td className="px-5 py-4 text-right">
                   <Link
-                    to={`/admin/users/${u.id}`}
+                    to={`/admin/audit-logs/${log.id}`}
                     className="text-muted-foreground hover:text-primary inline-flex items-center gap-1 text-xs"
                   >
                     View
@@ -128,7 +109,7 @@ export default function UsersTable({
       {totalPages > 1 && (
         <div className="flex items-center justify-between">
           <p className="text-muted-foreground text-xs">
-            Showing {(page - 1) * limit + 1}–{Math.min(page * limit, total)} of {total} users
+            Showing {(page - 1) * limit + 1}–{Math.min(page * limit, total)} of {total} logs
           </p>
           <div className="flex gap-1">
             <button

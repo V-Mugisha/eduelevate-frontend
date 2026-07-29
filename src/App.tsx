@@ -34,6 +34,8 @@ import UserManagementPage from "@/features/users/UserManagementPage";
 import UserDetailPage from "@/features/users/UserDetailPage";
 import CreateUserPage from "@/features/users/CreateUserPage";
 import EditUserPage from "@/features/users/EditUserPage";
+import AuditLogsPage from "@/features/audit-logs/AuditLogsPage";
+import AuditLogDetailPage from "@/features/audit-logs/AuditLogDetailPage";
 import NotFoundPage from "@/pages/NotFoundPage";
 
 export default function App() {
@@ -137,6 +139,22 @@ export default function App() {
               element={
                 <AdminRoute>
                   <EditUserPage />
+                </AdminRoute>
+              }
+            />
+            <Route
+              path="/admin/audit-logs"
+              element={
+                <AdminRoute>
+                  <AuditLogsPage />
+                </AdminRoute>
+              }
+            />
+            <Route
+              path="/admin/audit-logs/:id"
+              element={
+                <AdminRoute>
+                  <AuditLogDetailPage />
                 </AdminRoute>
               }
             />

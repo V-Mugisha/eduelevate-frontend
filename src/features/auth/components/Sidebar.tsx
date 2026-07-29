@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { LayoutDashboard, BookOpen, Users, Settings, Award, Handshake } from "lucide-react";
+import { LayoutDashboard, BookOpen, Users, ScrollText, Award, Handshake } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import useAuth from "@/features/auth/hooks/useAuth";
 import SidebarItem from "./SidebarItem";
@@ -49,7 +49,7 @@ const adminItems = [
   },
   { icon: Handshake, label: "Mentorship", href: "/mentorship" },
   { icon: Users, label: "User Management", href: "/admin/users" },
-  { icon: Settings, label: "Settings", href: "/settings", disabled: true },
+  { icon: ScrollText, label: "Audit Logs", href: "/admin/audit-logs" },
 ];
 
 export default function Sidebar({ collapsed, onToggle, variant = "desktop" }: SidebarProps) {
