@@ -41,9 +41,7 @@ export default function UsersTable({
       <div className="flex flex-col items-center justify-center py-16 text-center">
         <ShieldCheck className="text-muted-foreground mb-4 size-12" />
         <h3 className="text-foreground text-lg font-semibold">No users found</h3>
-        <p className="text-muted-foreground mt-1 text-sm">
-          Try adjusting your search or filters.
-        </p>
+        <p className="text-muted-foreground mt-1 text-sm">Try adjusting your search or filters.</p>
       </div>
     );
   }
@@ -54,22 +52,22 @@ export default function UsersTable({
         <table className="w-full text-sm">
           <thead>
             <tr className="bg-muted/30 border-b text-left">
-              <th className="px-5 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-5 py-3 text-xs font-medium tracking-wider text-gray-500 uppercase">
                 Name
               </th>
-              <th className="px-5 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-5 py-3 text-xs font-medium tracking-wider text-gray-500 uppercase">
                 Email
               </th>
-              <th className="px-5 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-5 py-3 text-xs font-medium tracking-wider text-gray-500 uppercase">
                 Role
               </th>
-              <th className="px-5 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-5 py-3 text-xs font-medium tracking-wider text-gray-500 uppercase">
                 Status
               </th>
-              <th className="px-5 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-5 py-3 text-xs font-medium tracking-wider text-gray-500 uppercase">
                 Joined
               </th>
-              <th className="px-5 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-5 py-3 text-right text-xs font-medium tracking-wider text-gray-500 uppercase">
                 Actions
               </th>
             </tr>
@@ -91,7 +89,7 @@ export default function UsersTable({
                 <td className="text-muted-foreground px-5 py-4 text-xs">{u.email}</td>
                 <td className="px-5 py-4">
                   <span
-                    className={`inline-block rounded-full px-2 py-0.5 text-xs font-medium capitalize whitespace-nowrap ${roleBadgeStyles(u.role.name)}`}
+                    className={`inline-block rounded-full px-2 py-0.5 text-xs font-medium whitespace-nowrap capitalize ${roleBadgeStyles(u.role.name)}`}
                   >
                     {u.role.name}
                   </span>
@@ -99,9 +97,7 @@ export default function UsersTable({
                 <td className="px-5 py-4">
                   <span
                     className={`inline-block rounded-full px-2 py-0.5 text-xs font-medium whitespace-nowrap ${
-                      u.isActive
-                        ? "bg-green-500/10 text-green-600"
-                        : "bg-red-500/10 text-red-600"
+                      u.isActive ? "bg-green-500/10 text-green-600" : "bg-red-500/10 text-red-600"
                     }`}
                   >
                     {u.isActive ? "Active" : "Disabled"}

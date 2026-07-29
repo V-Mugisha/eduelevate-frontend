@@ -41,8 +41,8 @@ export default function WelcomeCard({ user }: WelcomeCardProps) {
 
   return (
     <div className="bg-card relative overflow-hidden rounded-xl border p-6 sm:p-8">
-      <div className="absolute top-0 right-0 h-32 w-32 translate-x-8 -translate-y-8 rounded-full bg-primary/5" />
-      <div className="absolute right-12 bottom-0 h-24 w-24 translate-y-8 rounded-full bg-primary/5" />
+      <div className="bg-primary/5 absolute top-0 right-0 h-32 w-32 translate-x-8 -translate-y-8 rounded-full" />
+      <div className="bg-primary/5 absolute right-12 bottom-0 h-24 w-24 translate-y-8 rounded-full" />
 
       <div className="relative flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-4">
@@ -67,7 +67,7 @@ export default function WelcomeCard({ user }: WelcomeCardProps) {
 
         <div className="bg-muted/50 flex items-center gap-3 self-start rounded-xl border px-5 py-3 sm:self-center">
           <Clock className="text-primary size-5" />
-          <span className="text-foreground text-2xl font-mono font-semibold tracking-wider tabular-nums">
+          <span className="text-foreground font-mono text-2xl font-semibold tracking-wider tabular-nums">
             {clock}
           </span>
         </div>

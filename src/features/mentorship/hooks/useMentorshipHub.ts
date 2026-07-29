@@ -115,24 +115,21 @@ export default function useMentorshipHub() {
     [loadApplications, loadActive],
   );
 
-  const handleAccept = useCallback(
-    async (id: string) => {
-      try {
-        await mentorshipService.acceptApplication(id);
-        toast.success("Application accepted.");
-        setApplicationsLoaded(false);
-        setActiveLoaded(false);
-        setApplications([]);
-        setActiveMentorships([]);
-      } catch (e: unknown) {
-        toast.error(
-          (e as { response?: { data?: { message?: string } } })?.response?.data?.message ??
-            "Failed to accept.",
-        );
-      }
-    },
-    [],
-  );
+  const handleAccept = useCallback(async (id: string) => {
+    try {
+      await mentorshipService.acceptApplication(id);
+      toast.success("Application accepted.");
+      setApplicationsLoaded(false);
+      setActiveLoaded(false);
+      setApplications([]);
+      setActiveMentorships([]);
+    } catch (e: unknown) {
+      toast.error(
+        (e as { response?: { data?: { message?: string } } })?.response?.data?.message ??
+          "Failed to accept.",
+      );
+    }
+  }, []);
 
   const handleReject = useCallback(
     async (id: string) => {

@@ -50,7 +50,7 @@ export default function StudentDashboard() {
           <h2 className="text-foreground text-lg font-semibold">Continue Learning</h2>
           <Link
             to="/my-learning"
-            className="text-primary hover:underline inline-flex items-center gap-1 text-sm"
+            className="text-primary inline-flex items-center gap-1 text-sm hover:underline"
           >
             View all
             <ArrowRight className="size-3" />
@@ -61,10 +61,7 @@ export default function StudentDashboard() {
           <div className="flex flex-col items-center justify-center py-12 text-center">
             <BookOpen className="text-muted-foreground mb-3 size-10" />
             <p className="text-muted-foreground text-sm">No courses yet.</p>
-            <Link
-              to="/courses"
-              className="text-primary hover:underline mt-2 text-sm"
-            >
+            <Link to="/courses" className="text-primary mt-2 text-sm hover:underline">
               Browse courses
             </Link>
           </div>

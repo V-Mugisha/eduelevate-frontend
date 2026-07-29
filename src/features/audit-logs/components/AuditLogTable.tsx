@@ -35,9 +35,7 @@ export default function AuditLogTable({
       <div className="flex flex-col items-center justify-center py-16 text-center">
         <ScrollText className="text-muted-foreground mb-4 size-12" />
         <h3 className="text-foreground text-lg font-semibold">No audit logs found</h3>
-        <p className="text-muted-foreground mt-1 text-sm">
-          Try adjusting your search or filters.
-        </p>
+        <p className="text-muted-foreground mt-1 text-sm">Try adjusting your search or filters.</p>
       </div>
     );
   }
@@ -48,19 +46,19 @@ export default function AuditLogTable({
         <table className="w-full text-sm">
           <thead>
             <tr className="bg-muted/30 border-b text-left">
-              <th className="px-5 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-5 py-3 text-xs font-medium tracking-wider text-gray-500 uppercase">
                 Action
               </th>
-              <th className="px-5 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-5 py-3 text-xs font-medium tracking-wider text-gray-500 uppercase">
                 Performed By
               </th>
-              <th className="px-5 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-5 py-3 text-xs font-medium tracking-wider text-gray-500 uppercase">
                 Status
               </th>
-              <th className="px-5 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-5 py-3 text-xs font-medium tracking-wider text-gray-500 uppercase">
                 Date
               </th>
-              <th className="px-5 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-5 py-3 text-right text-xs font-medium tracking-wider text-gray-500 uppercase">
                 Actions
               </th>
             </tr>
@@ -72,9 +70,11 @@ export default function AuditLogTable({
                   <span className="text-foreground text-xs font-medium">{log.action}</span>
                 </td>
                 <td className="text-muted-foreground px-5 py-4 text-xs">
-                  {log.performer
-                    ? `${log.performer.firstName} ${log.performer.lastName}`
-                    : <span className="italic opacity-50">System</span>}
+                  {log.performer ? (
+                    `${log.performer.firstName} ${log.performer.lastName}`
+                  ) : (
+                    <span className="italic opacity-50">System</span>
+                  )}
                 </td>
                 <td className="px-5 py-4">
                   <span
@@ -89,7 +89,10 @@ export default function AuditLogTable({
                 </td>
                 <td className="text-muted-foreground px-5 py-4 text-xs whitespace-nowrap">
                   {new Date(log.createdAt).toLocaleDateString()}{" "}
-                  {new Date(log.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                  {new Date(log.createdAt).toLocaleTimeString([], {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
                 </td>
                 <td className="px-5 py-4 text-right">
                   <Link

@@ -21,8 +21,14 @@ export default function useAuditLogs() {
   const [dateTo, setDateTo] = useState("");
 
   useEffect(() => {
-    auditLogService.listActions().then((r) => setActions(r.data)).catch(() => {});
-    auditLogService.listEntityTypes().then((r) => setEntityTypes(r.data)).catch(() => {});
+    auditLogService
+      .listActions()
+      .then((r) => setActions(r.data))
+      .catch(() => {});
+    auditLogService
+      .listEntityTypes()
+      .then((r) => setEntityTypes(r.data))
+      .catch(() => {});
   }, []);
 
   const fetchLogs = useCallback(async () => {
@@ -47,7 +53,16 @@ export default function useAuditLogs() {
     } finally {
       setIsLoading(false);
     }
-  }, [debouncedSearch, actionFilter, entityTypeFilter, statusFilter, dateFrom, dateTo, page, limit]);
+  }, [
+    debouncedSearch,
+    actionFilter,
+    entityTypeFilter,
+    statusFilter,
+    dateFrom,
+    dateTo,
+    page,
+    limit,
+  ]);
 
   useEffect(() => {
     fetchLogs();

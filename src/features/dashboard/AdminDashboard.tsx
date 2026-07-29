@@ -101,7 +101,7 @@ export default function AdminDashboard() {
           <h2 className="text-foreground text-lg font-semibold">Recent Activity</h2>
           <Link
             to="/admin/audit-logs"
-            className="text-primary hover:underline inline-flex items-center gap-1 text-sm"
+            className="text-primary inline-flex items-center gap-1 text-sm hover:underline"
           >
             View all
             <ArrowRight className="size-3" />
@@ -134,7 +134,10 @@ export default function AdminDashboard() {
                         : "System"}
                       {" · "}
                       {new Date(log.createdAt).toLocaleDateString()}{" "}
-                      {new Date(log.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                      {new Date(log.createdAt).toLocaleTimeString([], {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
                     </p>
                   </div>
                 </div>

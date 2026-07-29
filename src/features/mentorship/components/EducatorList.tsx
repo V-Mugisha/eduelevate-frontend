@@ -50,7 +50,7 @@ export default function EducatorList({
         </p>
         <Link
           to="/courses"
-          className="text-primary hover:underline mt-4 inline-flex items-center gap-1 text-sm"
+          className="text-primary mt-4 inline-flex items-center gap-1 text-sm hover:underline"
         >
           <BookOpen className="size-4" />
           Browse courses instead

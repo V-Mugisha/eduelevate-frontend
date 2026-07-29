@@ -23,7 +23,9 @@ export default function QuickLinkCard({
       className="bg-card group rounded-xl border p-5 shadow-sm transition-shadow hover:shadow-md"
     >
       <div className="flex items-start justify-between">
-        <div className={`flex size-10 items-center justify-center rounded-lg ${accent ?? "bg-primary/10 text-primary"}`}>
+        <div
+          className={`flex size-10 items-center justify-center rounded-lg ${accent ?? "bg-primary/10 text-primary"}`}
+        >
           <Icon className="size-5" />
         </div>
         <ChevronRight className="text-muted-foreground group-hover:text-primary size-4 transition-colors" />

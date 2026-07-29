@@ -22,7 +22,9 @@ export async function getUser(id: string): Promise<{ data: UserDetail }> {
   return res.data;
 }
 
-export async function createUser(payload: CreateUserPayload): Promise<{ message: string; data: UserDetail }> {
+export async function createUser(
+  payload: CreateUserPayload,
+): Promise<{ message: string; data: UserDetail }> {
   const res = await apiClient.post<{ message: string; data: UserDetail }>("/users", payload);
   return res.data;
 }

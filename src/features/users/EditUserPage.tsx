@@ -78,7 +78,9 @@ export default function EditUserPage() {
         if (u.educatorProfile) {
           setIsIndependent(u.educatorProfile.isIndependent);
           setOrganizationName(u.educatorProfile.organizationName ?? "");
-          setExpertiseAreas(u.educatorProfile.expertiseAreas.length > 0 ? u.educatorProfile.expertiseAreas : [""]);
+          setExpertiseAreas(
+            u.educatorProfile.expertiseAreas.length > 0 ? u.educatorProfile.expertiseAreas : [""],
+          );
           setYearsOfExperience(u.educatorProfile.yearsOfExperience?.toString() ?? "");
           setBio(u.educatorProfile.bio ?? "");
         }
@@ -120,8 +122,8 @@ export default function EditUserPage() {
     }
 
     updateUser(id, payload, () => {
-        setUser(null);
-        navigate("/admin/users");
+      setUser(null);
+      navigate("/admin/users");
     });
   }
 
@@ -210,7 +212,11 @@ export default function EditUserPage() {
               <h3 className="text-foreground text-sm font-medium">Student Profile</h3>
               <div className="space-y-2">
                 <Label>School Name</Label>
-                <Input value={schoolName} onChange={(e) => setSchoolName(e.target.value)} required />
+                <Input
+                  value={schoolName}
+                  onChange={(e) => setSchoolName(e.target.value)}
+                  required
+                />
               </div>
               <div className="space-y-2">
                 <Label>Grade</Label>
@@ -245,7 +251,10 @@ export default function EditUserPage() {
               {!isIndependent && (
                 <div className="space-y-2">
                   <Label>Organization Name</Label>
-                  <Input value={organizationName} onChange={(e) => setOrganizationName(e.target.value)} />
+                  <Input
+                    value={organizationName}
+                    onChange={(e) => setOrganizationName(e.target.value)}
+                  />
                 </div>
               )}
               <div className="space-y-2">

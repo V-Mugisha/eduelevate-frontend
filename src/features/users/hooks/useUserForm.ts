@@ -22,11 +22,7 @@ export default function useUserForm() {
     }
   }
 
-  async function updateUser(
-    id: string,
-    payload: UpdateUserPayload,
-    onSuccess: () => void,
-  ) {
+  async function updateUser(id: string, payload: UpdateUserPayload, onSuccess: () => void) {
     setIsSaving(true);
     try {
       await usersService.updateUser(id, payload);

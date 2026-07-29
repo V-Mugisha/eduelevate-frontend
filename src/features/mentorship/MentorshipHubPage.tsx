@@ -58,11 +58,7 @@ export default function MentorshipHubPage() {
             onBioChange={hub.setBio}
           />
 
-          <SearchBar
-            value={hub.search}
-            onChange={hub.setSearch}
-            isLoading={hub.isLoading}
-          />
+          <SearchBar value={hub.search} onChange={hub.setSearch} isLoading={hub.isLoading} />
 
           <EducatorList
             educators={hub.educators}

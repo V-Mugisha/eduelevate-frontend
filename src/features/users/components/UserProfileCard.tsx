@@ -93,9 +93,7 @@ export default function UserProfileCard({ userId }: UserProfileCardProps) {
               </span>
               <span
                 className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                  user.isActive
-                    ? "bg-green-500/10 text-green-600"
-                    : "bg-red-500/10 text-red-600"
+                  user.isActive ? "bg-green-500/10 text-green-600" : "bg-red-500/10 text-red-600"
                 }`}
               >
                 {user.isActive ? "Active" : "Disabled"}

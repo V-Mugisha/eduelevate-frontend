@@ -41,11 +41,15 @@ export default function AuditLogDetailPage() {
       <div className="bg-card rounded-xl border p-6">
         <div className="grid gap-6 sm:grid-cols-2">
           <div>
-            <span className="text-xs font-medium uppercase text-gray-500 tracking-wider">Action</span>
+            <span className="text-xs font-medium tracking-wider text-gray-500 uppercase">
+              Action
+            </span>
             <p className="text-foreground mt-1 text-sm font-semibold">{log.action}</p>
           </div>
           <div>
-            <span className="text-xs font-medium uppercase text-gray-500 tracking-wider">Status</span>
+            <span className="text-xs font-medium tracking-wider text-gray-500 uppercase">
+              Status
+            </span>
             <p className="mt-1 flex items-center gap-1.5">
               {log.status === "success" ? (
                 <>
@@ -61,39 +65,53 @@ export default function AuditLogDetailPage() {
             </p>
           </div>
           <div>
-            <span className="text-xs font-medium uppercase text-gray-500 tracking-wider">Entity Type</span>
+            <span className="text-xs font-medium tracking-wider text-gray-500 uppercase">
+              Entity Type
+            </span>
             <p className="text-foreground mt-1 text-sm">{log.entityType}</p>
           </div>
           <div>
-            <span className="text-xs font-medium uppercase text-gray-500 tracking-wider">Entity ID</span>
-            <p className="text-foreground mt-1 text-sm font-mono">
+            <span className="text-xs font-medium tracking-wider text-gray-500 uppercase">
+              Entity ID
+            </span>
+            <p className="text-foreground mt-1 font-mono text-sm">
               {log.entityId ?? <span className="text-muted-foreground italic">N/A</span>}
             </p>
           </div>
           <div>
-            <span className="text-xs font-medium uppercase text-gray-500 tracking-wider">Performed By</span>
+            <span className="text-xs font-medium tracking-wider text-gray-500 uppercase">
+              Performed By
+            </span>
             <p className="text-foreground mt-1 text-sm">
-              {log.performer
-                ? `${log.performer.firstName} ${log.performer.lastName} (${log.performer.email})`
-                : <span className="text-muted-foreground italic">System</span>}
+              {log.performer ? (
+                `${log.performer.firstName} ${log.performer.lastName} (${log.performer.email})`
+              ) : (
+                <span className="text-muted-foreground italic">System</span>
+              )}
             </p>
           </div>
           <div>
-            <span className="text-xs font-medium uppercase text-gray-500 tracking-wider">Timestamp</span>
+            <span className="text-xs font-medium tracking-wider text-gray-500 uppercase">
+              Timestamp
+            </span>
             <p className="text-foreground mt-1 text-sm">
               {new Date(log.createdAt).toLocaleString()}
             </p>
           </div>
           {log.ipAddress && (
             <div>
-              <span className="text-xs font-medium uppercase text-gray-500 tracking-wider">IP Address</span>
-              <p className="text-foreground mt-1 text-sm font-mono">{log.ipAddress}</p>
+              <span className="text-xs font-medium tracking-wider text-gray-500 uppercase">
+                IP Address
+              </span>
+              <p className="text-foreground mt-1 font-mono text-sm">{log.ipAddress}</p>
             </div>
           )}
           {log.userAgent && (
             <div>
-              <span className="text-xs font-medium uppercase text-gray-500 tracking-wider">User Agent</span>
-              <p className="text-muted-foreground mt-1 break-all text-xs">{log.userAgent}</p>
+              <span className="text-xs font-medium tracking-wider text-gray-500 uppercase">
+                User Agent
+              </span>
+              <p className="text-muted-foreground mt-1 text-xs break-all">{log.userAgent}</p>
             </div>
           )}
         </div>

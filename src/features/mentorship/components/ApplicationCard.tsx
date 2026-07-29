@@ -76,7 +76,7 @@ export default function ApplicationCard({
       </div>
 
       {application.message && (
-        <div className="bg-muted/30 mt-4 rounded-lg border-l-2 border-primary/30 py-3 pl-4 pr-3">
+        <div className="bg-muted/30 border-primary/30 mt-4 rounded-lg border-l-2 py-3 pr-3 pl-4">
           <p className="text-foreground/85 text-sm leading-relaxed italic">
             &ldquo;{application.message}&rdquo;
           </p>

@@ -43,22 +43,24 @@ export default function ActiveMentorshipCard({
             </p>
             <p className="text-muted-foreground text-xs">
               {roleLabel} &bull; Since {formatDate(mentorship.startedAt)}
-              {!isActive && mentorship.endedAt && <> &bull; Ended {formatDate(mentorship.endedAt)}</>}
+              {!isActive && mentorship.endedAt && (
+                <> &bull; Ended {formatDate(mentorship.endedAt)}</>
+              )}
             </p>
           </div>
         </div>
         <div className="text-right">
           <span
             className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-medium ${
-              isActive
-                ? "bg-green-500/10 text-green-600"
-                : "bg-red-500/10 text-red-600"
+              isActive ? "bg-green-500/10 text-green-600" : "bg-red-500/10 text-red-600"
             }`}
           >
             {isActive ? "Active" : "Ended"}
           </span>
           {mentorship.rating && (
-            <p className="text-muted-foreground mt-1 text-xs">Rated: {mentorship.rating.rating}/10</p>
+            <p className="text-muted-foreground mt-1 text-xs">
+              Rated: {mentorship.rating.rating}/10
+            </p>
           )}
         </div>
       </div>
