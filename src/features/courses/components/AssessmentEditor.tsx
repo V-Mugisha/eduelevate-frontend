@@ -294,6 +294,7 @@ export default function AssessmentEditor({ lessonId }: AssessmentEditorProps) {
                 value={qTitle}
                 onChange={setQTitle}
                 placeholder="Enter the question..."
+                toolbarSize="compact"
               />
             </div>
             <div className="space-y-1">
@@ -307,7 +308,7 @@ export default function AssessmentEditor({ lessonId }: AssessmentEditorProps) {
                     className="mt-2.5 size-3.5"
                   />
                   <div className="flex-1">
-                    <TiptapEditor value={opt} onChange={(v) => handleSetOption(i, v)} />
+                    <TiptapEditor value={opt} onChange={(v) => handleSetOption(i, v)} toolbarSize="compact" />
                   </div>
                   {qOptions.length > 2 && (
                     <Button
@@ -361,7 +362,7 @@ export default function AssessmentEditor({ lessonId }: AssessmentEditorProps) {
                         className="mt-2.5 size-3.5"
                       />
                       <div className="flex-1">
-                        <TiptapEditor value={opt} onChange={(v) => handleSetOption(i, v)} />
+                        <TiptapEditor value={opt} onChange={(v) => handleSetOption(i, v)} toolbarSize="compact" />
                       </div>
                       {qOptions.length > 2 && (
                         <Button

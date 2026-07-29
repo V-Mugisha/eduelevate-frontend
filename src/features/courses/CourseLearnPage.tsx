@@ -38,11 +38,6 @@ function findFlatLessonById(flat: FlatLesson[], lessonId: string): FlatLesson | 
   return flat.find((f) => f.lesson.id === lessonId);
 }
 
-function computeExpandedModuleIds(activeFlatLesson: FlatLesson | null): Set<string> {
-  if (!activeFlatLesson) return new Set();
-  return new Set([activeFlatLesson.module.id]);
-}
-
 export default function CourseLearnPage() {
   const { id: courseId } = useParams<{ id: string }>();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -54,6 +49,7 @@ export default function CourseLearnPage() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [mobileSheetOpen, setMobileSheetOpen] = useState(false);
   const [hasAssessment, setHasAssessment] = useState(false);
+  const [expandedModuleIds, setExpandedModuleIds] = useState<Set<string>>(new Set());
   const { isEnrolled, completedLessonIds, progress, handleCompleteLesson } = useEnrollment(
     courseId ?? "",
   );
@@ -65,12 +61,17 @@ export default function CourseLearnPage() {
     ? (findFlatLessonById(flatLessonList, lessonParam) ?? null)
     : null;
 
-  const expandedModuleIds = useMemo(
-    () => computeExpandedModuleIds(activeFlatLesson),
-    [activeFlatLesson],
-  );
-
   const activeLesson = activeFlatLesson?.lesson ?? null;
+
+  useEffect(() => {
+    if (activeFlatLesson) {
+      setExpandedModuleIds((prev) => {
+        const next = new Set(prev);
+        next.add(activeFlatLesson.module.id);
+        return next;
+      });
+    }
+  }, [activeFlatLesson?.module.id]);
 
   useEffect(() => {
     if (!courseId) return;
@@ -110,26 +111,17 @@ export default function CourseLearnPage() {
     [setSearchParams],
   );
 
-  const handleModuleToggle = useCallback(
-    (moduleId: string) => {
-      if (expandedModuleIds.has(moduleId)) {
-        setSearchParams(
-          (prev) => {
-            const next = new URLSearchParams(prev);
-            next.delete("lesson");
-            return next;
-          },
-          { replace: true },
-        );
+  const handleModuleToggle = useCallback((moduleId: string) => {
+    setExpandedModuleIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(moduleId)) {
+        next.delete(moduleId);
       } else {
-        const mod = modules.find((m) => m.id === moduleId);
-        if (mod && mod.lessons.length > 0) {
-          selectLesson(mod.lessons[0].id);
-        }
+        next.add(moduleId);
       }
-    },
-    [expandedModuleIds, modules, selectLesson, setSearchParams],
-  );
+      return next;
+    });
+  }, []);
 
   const handleMarkComplete = useCallback(async () => {
     if (!activeLesson) return;

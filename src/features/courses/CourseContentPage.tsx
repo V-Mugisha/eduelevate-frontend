@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useParams, Link } from "react-router-dom";
 import { toast } from "sonner";
 import {
@@ -83,19 +83,6 @@ export default function CourseContentPage() {
     });
   }
 
-  function openModuleForm(mod: Module) {
-    setActiveModuleId(mod.id);
-    setActiveLessonId(null);
-    setIsEditingModule(false);
-    setIsEditingLesson(false);
-    setIsAddingLesson(false);
-    setShowAddModule(false);
-    setModuleTitle(mod.title);
-    setModuleSubtitle(mod.subtitle ?? "");
-    setModuleDescription(mod.description ?? "");
-    setModulePrereq(mod.prerequisites.join(", "));
-  }
-
   function openLessonPreview(lesson: Lesson) {
     setActiveLessonId(lesson.id);
     setIsEditingLesson(false);
@@ -105,11 +92,27 @@ export default function CourseContentPage() {
 
   function handleModuleClick(mod: Module) {
     toggleModule(mod.id);
-    openModuleForm(mod);
+    setActiveModuleId(mod.id);
+    if (!activeLessonId) {
+      setIsEditingModule(false);
+      setIsEditingLesson(false);
+      setIsAddingLesson(false);
+      setShowAddModule(false);
+      setModuleTitle(mod.title);
+      setModuleSubtitle(mod.subtitle ?? "");
+      setModuleDescription(mod.description ?? "");
+      setModulePrereq(mod.prerequisites.join(", "));
+    }
     setMobileSheetOpen(false);
   }
 
   function handleLessonClick(lesson: Lesson) {
+    setActiveModuleId(lesson.moduleId);
+    setExpandedModules((prev) => {
+      const next = new Set(prev);
+      next.add(lesson.moduleId);
+      return next;
+    });
     openLessonPreview(lesson);
     setMobileSheetOpen(false);
   }
@@ -216,6 +219,15 @@ export default function CourseContentPage() {
   }
 
   const activeModule = modules.find((m) => m.id === activeModuleId) ?? null;
+
+  const activeLessonPair = useMemo(() => {
+    if (!activeLessonId) return null;
+    for (const mod of modules) {
+      const found = mod.lessons.find((l) => l.id === activeLessonId);
+      if (found) return { lesson: found, module: mod };
+    }
+    return null;
+  }, [modules, activeLessonId]);
 
   if (!courseId || isLoading) return <LoadingBubbles size="lg" />;
 
@@ -427,19 +439,9 @@ export default function CourseContentPage() {
             />
           )}
 
-          {activeLessonId && activeModule && !isAddingLesson && (
+          {activeLessonPair && !isAddingLesson && (
             <LessonPreview
-              lesson={
-                activeModule.lessons.find((l) => l.id === activeLessonId) ?? {
-                  id: activeLessonId,
-                  moduleId: activeModule.id,
-                  title: lessonTitle,
-                  subtitle: lessonSubtitle || null,
-                  content: null,
-                  createdAt: "",
-                  updatedAt: "",
-                }
-              }
+              lesson={activeLessonPair.lesson}
               courseId={courseId!}
               isEditing={isEditingLesson}
               title={lessonTitle}
@@ -451,18 +453,18 @@ export default function CourseContentPage() {
               onSaveEdit={handleSaveLesson}
               onCancelEdit={() => setIsEditingLesson(false)}
               onStartEdit={() => {
-                const currentLesson = activeModule.lessons.find((l) => l.id === activeLessonId);
-                setLessonContent(currentLesson?.content ?? "");
+                const currentLesson = activeLessonPair.lesson;
+                setLessonContent(currentLesson.content ?? "");
                 setIsEditingLesson(true);
               }}
               onDelete={() => {
-                removeLesson(activeLessonId, activeModule.id);
+                removeLesson(activeLessonPair.lesson.id, activeLessonPair.module.id);
                 setActiveLessonId(null);
               }}
             />
           )}
 
-          {!showAddModule && !activeModuleId && !activeLessonId && !isAddingLesson && (
+          {!showAddModule && !activeLessonPair && !activeModuleId && !isAddingLesson && (
             <div className="text-muted-foreground flex h-full items-center justify-center">
               Select a module from the sidebar or create a new one.
             </div>

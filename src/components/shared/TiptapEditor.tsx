@@ -1,4 +1,4 @@
-import { useCallback } from "react";
+import { useCallback, useEffect } from "react";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import ImageExtension from "@tiptap/extension-image";
@@ -29,6 +29,7 @@ interface TiptapEditorProps {
   onChange: (html: string) => void;
   placeholder?: string;
   readOnly?: boolean;
+  toolbarSize?: "full" | "compact";
 }
 
 function ToolbarButton({
@@ -66,21 +67,24 @@ export default function TiptapEditor({
   onChange,
   placeholder = "Start writing...",
   readOnly = false,
+  toolbarSize = "full",
 }: TiptapEditorProps) {
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
         heading: { levels: [1, 2, 3] },
-        codeBlock: false,
+        codeBlock: toolbarSize === "full" ? false : false,
         link: {
           openOnClick: false,
           HTMLAttributes: { target: "_blank", rel: "noopener noreferrer" },
         },
       }),
-      ImageExtension.configure({
-        allowBase64: false,
-      }),
-      CodeBlockLowlight.configure({ lowlight }),
+      ...(toolbarSize === "full"
+        ? [
+            ImageExtension.configure({ allowBase64: false }),
+            CodeBlockLowlight.configure({ lowlight }),
+          ]
+        : []),
       Placeholder.configure({ placeholder }),
     ],
     content: value,
@@ -91,10 +95,19 @@ export default function TiptapEditor({
     editorProps: {
       attributes: {
         class:
-          "prose prose-sm dark:prose-invert max-w-none min-h-[200px] px-4 py-3 focus:outline-none",
+          toolbarSize === "compact"
+            ? "prose prose-sm dark:prose-invert max-w-none min-h-[40px] px-3 py-1.5 focus:outline-none"
+            : "prose prose-sm dark:prose-invert max-w-none min-h-[200px] px-4 py-3 focus:outline-none",
       },
     },
   });
+
+  useEffect(() => {
+    if (!editor) return;
+    if (value !== editor.getHTML()) {
+      editor.commands.setContent(value);
+    }
+  }, [editor, value]);
 
   const handleImageUpload = useCallback(async () => {
     const input = document.createElement("input");
@@ -132,7 +145,7 @@ export default function TiptapEditor({
       className={`bg-background overflow-hidden rounded-lg border ${
         readOnly
           ? ""
-          : "focus-within:border-primary/50 focus-within:ring-primary/20 focus-within:ring-1"
+          : "focus-within:border-primary/50 focus-within:ring-1 focus-within:ring-primary/20"
       }`}
     >
       {!readOnly && (
@@ -159,37 +172,37 @@ export default function TiptapEditor({
             <Underline className="size-4" />
           </ToolbarButton>
 
+          {toolbarSize === "full" && (
+            <>
+              <span className="bg-border mx-1 h-5 w-px" />
+
+              <ToolbarButton
+                onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
+                isActive={editor.isActive("heading", { level: 1 })}
+                title="Heading 1"
+              >
+                <Heading1 className="size-4" />
+              </ToolbarButton>
+              <ToolbarButton
+                onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
+                isActive={editor.isActive("heading", { level: 2 })}
+                title="Heading 2"
+              >
+                <Heading2 className="size-4" />
+              </ToolbarButton>
+              <ToolbarButton
+                onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
+                isActive={editor.isActive("heading", { level: 3 })}
+                title="Heading 3"
+              >
+                <Heading3 className="size-4" />
+              </ToolbarButton>
+            </>
+          )}
+
           <span className="bg-border mx-1 h-5 w-px" />
 
-          <ToolbarButton
-            onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
-            isActive={editor.isActive("heading", { level: 1 })}
-            title="Heading 1"
-          >
-            <Heading1 className="size-4" />
-          </ToolbarButton>
-          <ToolbarButton
-            onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
-            isActive={editor.isActive("heading", { level: 2 })}
-            title="Heading 2"
-          >
-            <Heading2 className="size-4" />
-          </ToolbarButton>
-          <ToolbarButton
-            onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
-            isActive={editor.isActive("heading", { level: 3 })}
-            title="Heading 3"
-          >
-            <Heading3 className="size-4" />
-          </ToolbarButton>
-
-          <span className="bg-border mx-1 h-5 w-px" />
-
-          <ToolbarButton
-            onClick={handleAddLink}
-            isActive={editor.isActive("link")}
-            title="Add Link"
-          >
+          <ToolbarButton onClick={handleAddLink} isActive={editor.isActive("link")} title="Add Link">
             <Link className="size-4" />
           </ToolbarButton>
           <ToolbarButton
@@ -199,40 +212,45 @@ export default function TiptapEditor({
           >
             <Code className="size-4" />
           </ToolbarButton>
-          <ToolbarButton
-            onClick={() => editor.chain().focus().toggleCodeBlock().run()}
-            isActive={editor.isActive("codeBlock")}
-            title="Code Block"
-          >
-            <Code2 className="size-4" />
-          </ToolbarButton>
-          <ToolbarButton onClick={handleImageUpload} isActive={false} title="Insert Image">
-            <ImageIcon className="size-4" />
-          </ToolbarButton>
 
-          <span className="bg-border mx-1 h-5 w-px" />
+          {toolbarSize === "full" && (
+            <>
+              <ToolbarButton
+                onClick={() => editor.chain().focus().toggleCodeBlock().run()}
+                isActive={editor.isActive("codeBlock")}
+                title="Code Block"
+              >
+                <Code2 className="size-4" />
+              </ToolbarButton>
+              <ToolbarButton onClick={handleImageUpload} isActive={false} title="Insert Image">
+                <ImageIcon className="size-4" />
+              </ToolbarButton>
 
-          <ToolbarButton
-            onClick={() => editor.chain().focus().toggleBulletList().run()}
-            isActive={editor.isActive("bulletList")}
-            title="Bullet List"
-          >
-            <List className="size-4" />
-          </ToolbarButton>
-          <ToolbarButton
-            onClick={() => editor.chain().focus().toggleOrderedList().run()}
-            isActive={editor.isActive("orderedList")}
-            title="Ordered List"
-          >
-            <ListOrdered className="size-4" />
-          </ToolbarButton>
-          <ToolbarButton
-            onClick={() => editor.chain().focus().toggleBlockquote().run()}
-            isActive={editor.isActive("blockquote")}
-            title="Blockquote"
-          >
-            <Quote className="size-4" />
-          </ToolbarButton>
+              <span className="bg-border mx-1 h-5 w-px" />
+
+              <ToolbarButton
+                onClick={() => editor.chain().focus().toggleBulletList().run()}
+                isActive={editor.isActive("bulletList")}
+                title="Bullet List"
+              >
+                <List className="size-4" />
+              </ToolbarButton>
+              <ToolbarButton
+                onClick={() => editor.chain().focus().toggleOrderedList().run()}
+                isActive={editor.isActive("orderedList")}
+                title="Ordered List"
+              >
+                <ListOrdered className="size-4" />
+              </ToolbarButton>
+              <ToolbarButton
+                onClick={() => editor.chain().focus().toggleBlockquote().run()}
+                isActive={editor.isActive("blockquote")}
+                title="Blockquote"
+              >
+                <Quote className="size-4" />
+              </ToolbarButton>
+            </>
+          )}
         </div>
       )}
       <EditorContent editor={editor} />

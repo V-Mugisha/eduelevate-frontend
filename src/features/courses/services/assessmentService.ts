@@ -5,6 +5,7 @@ export interface AssessmentQuestion {
   title: string;
   answerOptions: string[];
   correctAnswers?: string[];
+  correctAnswerCount?: number;
   grade: number;
   order: number;
   isSubmitted?: boolean;

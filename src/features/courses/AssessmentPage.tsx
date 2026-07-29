@@ -129,7 +129,7 @@ export default function AssessmentPage() {
   }
 
   const isMultiPerQuestion = useMemo(
-    () => new Map(questions.map((q) => [q.id, (q.correctAnswers?.length ?? 0) > 1])),
+    () => new Map(questions.map((q) => [q.id, (q.correctAnswerCount ?? 1) > 1])),
     [questions],
   );
 
@@ -235,7 +235,12 @@ export default function AssessmentPage() {
                           className="size-3.5 shrink-0"
                         />
                       )}
-                      <span className={optionClass}>{option}</span>
+                      <span
+                        className={`${optionClass} prose-sm dark:prose-invert`}
+                        dangerouslySetInnerHTML={{
+                          __html: DOMPurify.sanitize(option),
+                        }}
+                      />
                       {showResult && isSelected && !isResultCorrect && (
                         <span className="text-muted-foreground ml-auto text-xs">
                           <XCircle className="text-destructive mr-1 inline-block size-3" />
