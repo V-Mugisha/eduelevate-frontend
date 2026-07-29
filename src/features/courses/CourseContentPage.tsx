@@ -18,7 +18,7 @@ import ModuleSidebar from "./components/ModuleSidebar";
 import ModuleForm from "./components/ModuleForm";
 import LessonForm from "./components/LessonForm";
 import LessonPreview from "./components/LessonPreview";
-import ActionsDropdown from "./components/ActionsDropdown";
+import ActionsDropdown from "@/components/shared/ActionsDropdown";
 import useModules from "./hooks/useModules";
 import type { Module, Lesson } from "./services/contentService";
 import { getCourse, publishCourse } from "./services/coursesService";

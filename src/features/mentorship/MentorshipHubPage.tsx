@@ -61,7 +61,6 @@ export default function MentorshipHubPage() {
           <SearchBar
             value={hub.search}
             onChange={hub.setSearch}
-            onSearch={hub.handleSearch}
             isLoading={hub.isLoading}
           />
 

@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Pencil, Trash2, ClipboardList, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import ActionsDropdown from "./ActionsDropdown";
+import ActionsDropdown from "@/components/shared/ActionsDropdown";
 import SectionEditModal from "./SectionEditModal";
 import type { Lesson, Section } from "../services/contentService";
 

@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { toast } from "sonner";
 import useAuth from "@/features/auth/hooks/useAuth";
+import useDebounce from "@/hooks/useDebounce";
 import * as mentorshipService from "../services/mentorshipService";
 import type {
   EducatorListing,
@@ -15,6 +16,7 @@ export default function useMentorshipHub() {
   const [activeTab, setActiveTab] = useState<"hub" | "applications" | "active">("hub");
   const [educators, setEducators] = useState<EducatorListing[]>([]);
   const [search, setSearch] = useState("");
+  const debouncedSearch = useDebounce(search, 300);
   const [isLoading, setIsLoading] = useState(true);
 
   const [showOptIn, setShowOptIn] = useState(false);
@@ -33,7 +35,7 @@ export default function useMentorshipHub() {
 
   useEffect(() => {
     mentorshipService
-      .searchEducators(search || undefined)
+      .searchEducators(debouncedSearch || undefined)
       .then((results) => {
         setEducators(results);
         if (isEducatorOrAdmin && user) {
@@ -43,19 +45,7 @@ export default function useMentorshipHub() {
       })
       .catch(() => setEducators([]))
       .finally(() => setIsLoading(false));
-  }, [isEducatorOrAdmin, search, user]);
-
-  const handleSearch = useCallback(async () => {
-    setIsLoading(true);
-    try {
-      const results = await mentorshipService.searchEducators(search || undefined);
-      setEducators(results);
-    } catch {
-      toast.error("Failed to search educators");
-    } finally {
-      setIsLoading(false);
-    }
-  }, [search]);
+  }, [isEducatorOrAdmin, debouncedSearch, user]);
 
   const handleOptIn = useCallback(async () => {
     const validTopics = topics.filter((t) => t.trim());
@@ -211,7 +201,6 @@ export default function useMentorshipHub() {
     setRejectionReason,
     rejectingId,
     setRejectingId,
-    handleSearch,
     handleOptIn,
     handleOptOut,
     handleTabChange,

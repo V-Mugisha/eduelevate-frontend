@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { Toaster } from "sonner";
 import AuthProvider from "@/features/auth/context/AuthProvider";
 import ProtectedRoute from "@/features/auth/components/ProtectedRoute";
+import AdminRoute from "@/features/auth/components/AdminRoute";
 import GuestRoute from "@/features/auth/components/GuestRoute";
 import GuestLayout from "@/features/auth/components/GuestLayout";
 import AuthenticatedLayout from "@/features/auth/components/AuthenticatedLayout";
@@ -29,6 +30,10 @@ import CreateCoursePage from "@/features/courses/CreateCoursePage";
 import MentorshipHubPage from "@/features/mentorship/MentorshipHubPage";
 import MentorshipEducatorPage from "@/features/mentorship/MentorshipEducatorPage";
 import MentorshipChatPage from "@/features/mentorship/MentorshipChatPage";
+import UserManagementPage from "@/features/users/UserManagementPage";
+import UserDetailPage from "@/features/users/UserDetailPage";
+import CreateUserPage from "@/features/users/CreateUserPage";
+import EditUserPage from "@/features/users/EditUserPage";
 import NotFoundPage from "@/pages/NotFoundPage";
 
 export default function App() {
@@ -103,6 +108,38 @@ export default function App() {
             <Route path="/courses/:id/learn/assessment/:lessonId" element={<AssessmentPage />} />
             <Route path="/courses/:id/students" element={<CourseStudentsPage />} />
             <Route path="/courses/:id/students/:userId" element={<StudentDetailPage />} />
+            <Route
+              path="/admin/users"
+              element={
+                <AdminRoute>
+                  <UserManagementPage />
+                </AdminRoute>
+              }
+            />
+            <Route
+              path="/admin/users/create"
+              element={
+                <AdminRoute>
+                  <CreateUserPage />
+                </AdminRoute>
+              }
+            />
+            <Route
+              path="/admin/users/:id"
+              element={
+                <AdminRoute>
+                  <UserDetailPage />
+                </AdminRoute>
+              }
+            />
+            <Route
+              path="/admin/users/:id/edit"
+              element={
+                <AdminRoute>
+                  <EditUserPage />
+                </AdminRoute>
+              }
+            />
             <Route path="*" element={<NotFoundPage />} />
           </Route>
         </Routes>

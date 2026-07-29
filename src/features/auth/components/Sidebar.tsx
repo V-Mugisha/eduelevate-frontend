@@ -48,7 +48,7 @@ const adminItems = [
     ],
   },
   { icon: Handshake, label: "Mentorship", href: "/mentorship" },
-  { icon: Users, label: "User Management", href: "/users", disabled: true },
+  { icon: Users, label: "User Management", href: "/admin/users" },
   { icon: Settings, label: "Settings", href: "/settings", disabled: true },
 ];
 
