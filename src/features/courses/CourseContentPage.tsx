@@ -108,6 +108,7 @@ export default function CourseContentPage() {
 
   function handleLessonClick(lesson: Lesson) {
     setActiveModuleId(lesson.moduleId);
+    setLessonContent(lesson.content ?? "");
     setExpandedModules((prev) => {
       const next = new Set(prev);
       next.add(lesson.moduleId);
@@ -140,13 +141,18 @@ export default function CourseContentPage() {
 
   async function handleSaveModule() {
     if (!activeModuleId) return;
-    await editModule(activeModuleId, {
-      title: moduleTitle,
-      subtitle: moduleSubtitle || undefined,
-      description: moduleDescription || undefined,
-      prerequisites: modulePrereq ? modulePrereq.split(",").map((s) => s.trim()) : undefined,
-    });
-    setIsEditingModule(false);
+    try {
+      await editModule(activeModuleId, {
+        title: moduleTitle,
+        subtitle: moduleSubtitle || undefined,
+        description: moduleDescription || undefined,
+        prerequisites: modulePrereq ? modulePrereq.split(",").map((s) => s.trim()) : undefined,
+      });
+      setIsEditingModule(false);
+      toast.success("Module updated.");
+    } catch {
+      toast.error("Failed to update module.");
+    }
   }
 
   async function handleAddModule() {
@@ -165,24 +171,36 @@ export default function CourseContentPage() {
 
   async function handleAddLesson() {
     if (!activeModuleId || !lessonTitle || !courseId) return;
-    const lesson = await addLesson(activeModuleId, {
-      title: lessonTitle,
-      subtitle: lessonSubtitle || undefined,
-      content: lessonContent || undefined,
-    });
-    setIsAddingLesson(false);
-    await fetchModules();
-    setActiveLessonId(lesson.id);
+    try {
+      const lesson = await addLesson(activeModuleId, {
+        title: lessonTitle,
+        subtitle: lessonSubtitle || undefined,
+        content: lessonContent || undefined,
+      });
+      setIsAddingLesson(false);
+      await fetchModules();
+      setActiveLessonId(lesson.id);
+      setLessonContent(lessonContent);
+      toast.success("Lesson created.");
+    } catch {
+      toast.error("Failed to create lesson.");
+    }
   }
 
   async function handleSaveLesson() {
-    if (!activeLessonId || !activeModuleId) return;
-    await editLesson(activeLessonId, activeModuleId, {
-      title: lessonTitle,
-      subtitle: lessonSubtitle || undefined,
-      content: lessonContent || undefined,
-    });
-    setIsEditingLesson(false);
+    if (!activeLessonId || !activeLessonPair) return;
+    try {
+      await editLesson(activeLessonId, activeLessonPair.module.id, {
+        title: lessonTitle,
+        subtitle: lessonSubtitle || undefined,
+        content: lessonContent || undefined,
+      });
+      await fetchModules();
+      setIsEditingLesson(false);
+      toast.success("Lesson updated.");
+    } catch {
+      toast.error("Failed to save lesson.");
+    }
   }
 
   async function handlePublish() {

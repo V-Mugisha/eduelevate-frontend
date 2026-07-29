@@ -31,6 +31,7 @@ export default function AssessmentEditor({ lessonId }: AssessmentEditorProps) {
   const [qOptions, setQOptions] = useState<string[]>(["", ""]);
   const [qCorrect, setQCorrect] = useState<Set<string>>(new Set());
   const [qGrade, setQGrade] = useState(1);
+  const [resetKey, setResetKey] = useState(0);
 
   useEffect(() => {
     assessmentService
@@ -61,6 +62,7 @@ export default function AssessmentEditor({ lessonId }: AssessmentEditorProps) {
     setQCorrect(new Set());
     setQGrade(1);
     setEditQuestionId(null);
+    setResetKey((k) => k + 1);
   }
 
   function handleToggleOptionCorrect(option: string) {
@@ -291,6 +293,7 @@ export default function AssessmentEditor({ lessonId }: AssessmentEditorProps) {
             <div className="space-y-1">
               <Label className="text-xs">Question</Label>
               <TiptapEditor
+                key={`cq-title-${resetKey}`}
                 value={qTitle}
                 onChange={setQTitle}
                 placeholder="Enter the question..."
@@ -308,7 +311,12 @@ export default function AssessmentEditor({ lessonId }: AssessmentEditorProps) {
                     className="mt-2.5 size-3.5"
                   />
                   <div className="flex-1">
-                    <TiptapEditor value={opt} onChange={(v) => handleSetOption(i, v)} toolbarSize="compact" />
+                    <TiptapEditor
+                      key={`cq-opt-${i}-${resetKey}`}
+                      value={opt}
+                      onChange={(v) => handleSetOption(i, v)}
+                      toolbarSize="compact"
+                    />
                   </div>
                   {qOptions.length > 2 && (
                     <Button
@@ -362,7 +370,11 @@ export default function AssessmentEditor({ lessonId }: AssessmentEditorProps) {
                         className="mt-2.5 size-3.5"
                       />
                       <div className="flex-1">
-                        <TiptapEditor value={opt} onChange={(v) => handleSetOption(i, v)} toolbarSize="compact" />
+                        <TiptapEditor
+                          value={opt}
+                          onChange={(v) => handleSetOption(i, v)}
+                          toolbarSize="compact"
+                        />
                       </div>
                       {qOptions.length > 2 && (
                         <Button

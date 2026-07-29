@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from "react";
+import { useCallback, useState } from "react";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import ImageExtension from "@tiptap/extension-image";
@@ -19,6 +19,7 @@ import {
   List,
   ListOrdered,
   Quote,
+  Loader2,
 } from "lucide-react";
 import { uploadImage } from "@/lib/uploadImage";
 
@@ -69,6 +70,7 @@ export default function TiptapEditor({
   readOnly = false,
   toolbarSize = "full",
 }: TiptapEditorProps) {
+  const [isUploading, setIsUploading] = useState(false);
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
@@ -102,13 +104,6 @@ export default function TiptapEditor({
     },
   });
 
-  useEffect(() => {
-    if (!editor) return;
-    if (value !== editor.getHTML()) {
-      editor.commands.setContent(value);
-    }
-  }, [editor, value]);
-
   const handleImageUpload = useCallback(async () => {
     const input = document.createElement("input");
     input.type = "file";
@@ -116,11 +111,14 @@ export default function TiptapEditor({
     input.onchange = async () => {
       const file = input.files?.[0];
       if (!file || !editor) return;
+      setIsUploading(true);
       try {
         const url = await uploadImage(file);
         editor.chain().focus().setImage({ src: url }).run();
       } catch {
         alert("Failed to upload image. Please try again.");
+      } finally {
+        setIsUploading(false);
       }
     };
     input.click();
@@ -145,7 +143,7 @@ export default function TiptapEditor({
       className={`bg-background overflow-hidden rounded-lg border ${
         readOnly
           ? ""
-          : "focus-within:border-primary/50 focus-within:ring-1 focus-within:ring-primary/20"
+          : "focus-within:border-primary/50 focus-within:ring-primary/20 focus-within:ring-1"
       }`}
     >
       {!readOnly && (
@@ -202,7 +200,11 @@ export default function TiptapEditor({
 
           <span className="bg-border mx-1 h-5 w-px" />
 
-          <ToolbarButton onClick={handleAddLink} isActive={editor.isActive("link")} title="Add Link">
+          <ToolbarButton
+            onClick={handleAddLink}
+            isActive={editor.isActive("link")}
+            title="Add Link"
+          >
             <Link className="size-4" />
           </ToolbarButton>
           <ToolbarButton
@@ -223,7 +225,11 @@ export default function TiptapEditor({
                 <Code2 className="size-4" />
               </ToolbarButton>
               <ToolbarButton onClick={handleImageUpload} isActive={false} title="Insert Image">
-                <ImageIcon className="size-4" />
+                {isUploading ? (
+                  <Loader2 className="size-4 animate-spin" />
+                ) : (
+                  <ImageIcon className="size-4" />
+                )}
               </ToolbarButton>
 
               <span className="bg-border mx-1 h-5 w-px" />
