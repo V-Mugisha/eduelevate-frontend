@@ -2,41 +2,47 @@
 
 React + TypeScript frontend for the EduElevate learning platform, built with Vite, Tailwind CSS v4, and Shadcn/ui.
 
-## Tech Stack
+## Prerequisites
 
-- **Runtime:** Node.js
-- **Framework:** React 19 + TypeScript 6
-- **Build Tool:** Vite 8
-- **Styling:** Tailwind CSS v4
-- **Components:** Shadcn/ui
-- **Linting:** Oxlint
+- Node.js 18+
+- npm
 
-## Getting Started
+## Setup
 
-```bash
-npm install
-npm run dev
-```
+1. Clone the repository:
 
-The dev server starts at `http://localhost:5173`.
+   ```bash
+   git clone git@github.com:V-Mugisha/eduelevate-frontend.git
+   cd eduelevate-frontend
+   ```
+
+2. Install dependencies:
+
+   ```bash
+   npm install
+   ```
+
+3. Create a `.env` file:
+
+   ```env
+   VITE_API_URL=http://localhost:3001/api
+   ```
+
+4. Start the dev server:
+
+   ```bash
+   npm run dev
+   ```
+
+The app runs at `http://localhost:5173`.
 
 ## Available Commands
 
-| Command           | Description                        |
-| ----------------- | ---------------------------------- |
-| `npm run dev`     | Start the Vite dev server with HMR |
+| Command           | Description                         |
+| ----------------- | ----------------------------------- |
+| `npm run dev`     | Start the Vite dev server with HMR  |
 | `npm run build`   | Type-check and build for production |
-| `npm run lint`    | Run Oxlint on the codebase         |
+| `npm run lint`    | Run ESLint                          |
+| `npm run format`  | Check Prettier formatting           |
+| `npm run check`   | Run lint + format                   |
 | `npm run preview` | Preview the production build        |
-
-## Project Structure
-
-```
-src/
-├── features/          # Feature-sliced modules (components, hooks, schemas, services, types, utils)
-├── lib/               # Shared utilities (e.g. Shadcn cn helper)
-├── components/shared/ # Globally shared UI components (Shadcn/ui)
-├── App.tsx            # Root component
-├── main.tsx           # Entry point
-└── index.css          # Tailwind + Shadcn theme
-```
