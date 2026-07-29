@@ -132,7 +132,7 @@ export default function TiptapEditor({
       className={`bg-background overflow-hidden rounded-lg border ${
         readOnly
           ? ""
-          : "focus-within:border-primary/50 focus-within:ring-1 focus-within:ring-primary/20"
+          : "focus-within:border-primary/50 focus-within:ring-primary/20 focus-within:ring-1"
       }`}
     >
       {!readOnly && (
@@ -206,11 +206,7 @@ export default function TiptapEditor({
           >
             <Code2 className="size-4" />
           </ToolbarButton>
-          <ToolbarButton
-            onClick={handleImageUpload}
-            isActive={false}
-            title="Insert Image"
-          >
+          <ToolbarButton onClick={handleImageUpload} isActive={false} title="Insert Image">
             <ImageIcon className="size-4" />
           </ToolbarButton>
 

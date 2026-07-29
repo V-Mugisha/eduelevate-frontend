@@ -386,7 +386,7 @@ export default function CourseContentPage() {
                   </div>
                   {activeModule.description && (
                     <div
-                      className="text-muted-foreground prose-sm dark:prose-invert max-w-none mb-6"
+                      className="text-muted-foreground prose-sm dark:prose-invert mb-6 max-w-none"
                       dangerouslySetInnerHTML={{
                         __html: DOMPurify.sanitize(activeModule.description),
                       }}

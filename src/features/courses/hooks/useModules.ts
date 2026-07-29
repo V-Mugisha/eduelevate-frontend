@@ -46,7 +46,10 @@ export default function useModules(courseId: string) {
     setModules((prev) => prev.filter((m) => m.id !== moduleId));
   }
 
-  async function addLesson(moduleId: string, data: { title: string; subtitle?: string; content?: string }) {
+  async function addLesson(
+    moduleId: string,
+    data: { title: string; subtitle?: string; content?: string },
+  ) {
     const lesson = await contentService.createLesson(moduleId, data);
     setModules((prev) =>
       prev.map((m) => (m.id === moduleId ? { ...m, lessons: [...m.lessons, lesson] } : m)),

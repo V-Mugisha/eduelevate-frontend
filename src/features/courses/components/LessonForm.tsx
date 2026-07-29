@@ -28,9 +28,7 @@ export default function LessonForm({
 }: LessonFormProps) {
   return (
     <div className="mx-auto max-w-2xl space-y-4">
-      <h3 className="text-foreground font-semibold">
-        {isEditing ? "Edit Lesson" : "New Lesson"}
-      </h3>
+      <h3 className="text-foreground font-semibold">{isEditing ? "Edit Lesson" : "New Lesson"}</h3>
       <div className="space-y-2">
         <Label>Title</Label>
         <Input value={title} onChange={(e) => onTitleChange(e.target.value)} />

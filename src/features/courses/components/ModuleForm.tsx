@@ -32,9 +32,7 @@ export default function ModuleForm({
 }: ModuleFormProps) {
   return (
     <div className="mx-auto max-w-2xl space-y-4">
-      <h3 className="text-foreground font-semibold">
-        {isEditing ? "Edit Module" : "New Module"}
-      </h3>
+      <h3 className="text-foreground font-semibold">{isEditing ? "Edit Module" : "New Module"}</h3>
       <div className="space-y-2">
         <Label>Title</Label>
         <Input value={title} onChange={(e) => onTitleChange(e.target.value)} />

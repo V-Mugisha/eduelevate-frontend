@@ -402,7 +402,7 @@ export default function AssessmentEditor({ lessonId }: AssessmentEditorProps) {
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
                     <div
-                      className="text-foreground text-sm font-medium prose prose-sm dark:prose-invert max-w-none"
+                      className="text-foreground prose prose-sm dark:prose-invert max-w-none text-sm font-medium"
                       dangerouslySetInnerHTML={{
                         __html: DOMPurify.sanitize(q.title),
                       }}
@@ -430,18 +430,10 @@ export default function AssessmentEditor({ lessonId }: AssessmentEditorProps) {
                     </div>
                   </div>
                   <div className="flex gap-1">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => startEditQuestion(q)}
-                    >
+                    <Button variant="ghost" size="icon" onClick={() => startEditQuestion(q)}>
                       <Pencil className="size-3.5" />
                     </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => handleDeleteQuestion(q.id)}
-                    >
+                    <Button variant="ghost" size="icon" onClick={() => handleDeleteQuestion(q.id)}>
                       <Trash2 className="text-destructive size-3.5" />
                     </Button>
                   </div>
