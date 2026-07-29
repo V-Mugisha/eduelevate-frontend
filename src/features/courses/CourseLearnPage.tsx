@@ -12,6 +12,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import LoadingBubbles from "@/components/shared/LoadingBubbles";
+import DOMPurify from "isomorphic-dompurify";
 import type { Module, Lesson } from "./services/contentService";
 import { listModules } from "./services/contentService";
 import { getCourse } from "./services/coursesService";
@@ -272,15 +273,19 @@ export default function CourseLearnPage() {
               {activeLesson.subtitle && (
                 <p className="text-muted-foreground mt-1">{activeLesson.subtitle}</p>
               )}
-              <div className="mt-8 space-y-6">
-                {(activeLesson.sections ?? []).map((s) => (
-                  <div key={s.id}>
-                    {s.title && (
-                      <h3 className="text-foreground text-lg font-semibold">{s.title}</h3>
-                    )}
-                    <p className="text-muted-foreground whitespace-pre-line">{s.content}</p>
-                  </div>
-                ))}
+              <div className="mt-8">
+                {activeLesson.content ? (
+                  <div
+                    className="prose prose-sm dark:prose-invert max-w-none"
+                    dangerouslySetInnerHTML={{
+                      __html: DOMPurify.sanitize(activeLesson.content),
+                    }}
+                  />
+                ) : (
+                  <p className="text-muted-foreground py-8 text-center text-sm">
+                    This lesson has no content yet.
+                  </p>
+                )}
               </div>
               <div className="mt-8 border-t pt-6">
                 {completedLessonIds.has(activeLesson.id) ? (

@@ -1,10 +1,11 @@
-import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Pencil, Trash2, ClipboardList, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import ActionsDropdown from "@/components/shared/ActionsDropdown";
-import SectionEditModal from "./SectionEditModal";
-import type { Lesson, Section } from "../services/contentService";
+import TiptapEditor from "@/components/shared/TiptapEditor";
+import DOMPurify from "isomorphic-dompurify";
+import type { Lesson } from "../services/contentService";
 
 interface LessonPreviewProps {
   lesson: Lesson;
@@ -12,13 +13,14 @@ interface LessonPreviewProps {
   isEditing: boolean;
   title: string;
   subtitle: string;
+  content: string;
   onTitleChange: (value: string) => void;
   onSubtitleChange: (value: string) => void;
+  onContentChange: (value: string) => void;
   onSaveEdit: () => void;
   onCancelEdit: () => void;
   onStartEdit: () => void;
   onDelete: () => void;
-  onUpdateSection: (sectionId: string, data: { title?: string; content?: string }) => Promise<void>;
 }
 
 export default function LessonPreview({
@@ -27,18 +29,15 @@ export default function LessonPreview({
   isEditing,
   title,
   subtitle,
+  content,
   onTitleChange,
   onSubtitleChange,
+  onContentChange,
   onSaveEdit,
   onCancelEdit,
   onStartEdit,
   onDelete,
-  onUpdateSection,
 }: LessonPreviewProps) {
-  const [editingSection, setEditingSection] = useState<Section | null>(null);
-
-  const sections = lesson.sections ?? [];
-
   return (
     <div className="mx-auto max-w-2xl">
       {isEditing ? (
@@ -46,19 +45,15 @@ export default function LessonPreview({
           <h3 className="text-foreground font-semibold">Edit Lesson</h3>
           <div className="space-y-2">
             <label className="text-sm font-medium">Title</label>
-            <input
-              className="w-full rounded-lg border px-3 py-2 text-sm"
-              value={title}
-              onChange={(e) => onTitleChange(e.target.value)}
-            />
+            <Input value={title} onChange={(e) => onTitleChange(e.target.value)} />
           </div>
           <div className="space-y-2">
             <label className="text-sm font-medium">Subtitle (optional)</label>
-            <input
-              className="w-full rounded-lg border px-3 py-2 text-sm"
-              value={subtitle}
-              onChange={(e) => onSubtitleChange(e.target.value)}
-            />
+            <Input value={subtitle} onChange={(e) => onSubtitleChange(e.target.value)} />
+          </div>
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Content</label>
+            <TiptapEditor value={content} onChange={onContentChange} />
           </div>
           <div className="flex gap-3">
             <Button size="sm" onClick={onSaveEdit}>
@@ -92,25 +87,19 @@ export default function LessonPreview({
               ]}
             />
           </div>
-          {sections.map((s) => (
-            <div key={s.id} className="mb-6">
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  {s.title && <h3 className="text-foreground text-lg font-semibold">{s.title}</h3>}
-                  <p className="text-muted-foreground whitespace-pre-line">{s.content}</p>
-                </div>
-                <ActionsDropdown
-                  actions={[
-                    {
-                      label: "Edit",
-                      icon: <Pencil className="size-4" />,
-                      onClick: () => setEditingSection(s),
-                    },
-                  ]}
-                />
-              </div>
-            </div>
-          ))}
+          {lesson.content && (
+            <div
+              className="prose prose-sm dark:prose-invert max-w-none"
+              dangerouslySetInnerHTML={{
+                __html: DOMPurify.sanitize(lesson.content),
+              }}
+            />
+          )}
+          {!lesson.content && (
+            <p className="text-muted-foreground py-8 text-center text-sm">
+              This lesson has no content yet. Click Edit to add content.
+            </p>
+          )}
           <div className="mt-8 border-t pt-6">
             <Link to={`/courses/${courseId}/content/assessment/${lesson.id}`}>
               <Button variant="outline" size="sm">
@@ -127,15 +116,6 @@ export default function LessonPreview({
             <p className="text-muted-foreground mt-1 text-xs">Progress tracking coming soon</p>
           </div>
         </div>
-      )}
-
-      {editingSection && (
-        <SectionEditModal
-          section={editingSection}
-          isOpen={!!editingSection}
-          onClose={() => setEditingSection(null)}
-          onSave={onUpdateSection}
-        />
       )}
     </div>
   );

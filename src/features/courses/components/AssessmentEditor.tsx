@@ -2,9 +2,10 @@ import { useState, useEffect } from "react";
 import { Plus, Trash2, Pencil, Check, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import TiptapEditor from "@/components/shared/TiptapEditor";
 import LoadingBubbles from "@/components/shared/LoadingBubbles";
+import DOMPurify from "isomorphic-dompurify";
 import * as assessmentService from "../services/assessmentService";
 import type { Assessment, AssessmentQuestion } from "../services/assessmentService";
 
@@ -189,6 +190,12 @@ export default function AssessmentEditor({ lessonId }: AssessmentEditorProps) {
     setQGrade(q.grade);
   }
 
+  function handleSetOption(index: number, value: string) {
+    const next = [...qOptions];
+    next[index] = value;
+    setQOptions(next);
+  }
+
   if (isLoading) return <LoadingBubbles size="sm" />;
 
   if (!assessment) {
@@ -209,7 +216,7 @@ export default function AssessmentEditor({ lessonId }: AssessmentEditorProps) {
             </div>
             <div className="space-y-2">
               <Label>Instructions (optional)</Label>
-              <Textarea value={instructions} onChange={(e) => setInstructions(e.target.value)} />
+              <TiptapEditor value={instructions} onChange={setInstructions} />
             </div>
             <label className="flex items-center gap-2 text-sm">
               <input
@@ -258,7 +265,7 @@ export default function AssessmentEditor({ lessonId }: AssessmentEditorProps) {
         </div>
         <div className="space-y-2">
           <Label>Instructions (optional)</Label>
-          <Textarea value={instructions} onChange={(e) => setInstructions(e.target.value)} />
+          <TiptapEditor value={instructions} onChange={setInstructions} />
         </div>
         <label className="flex items-center gap-2 text-sm">
           <input
@@ -283,32 +290,25 @@ export default function AssessmentEditor({ lessonId }: AssessmentEditorProps) {
           <div className="space-y-3 rounded-lg border p-3">
             <div className="space-y-1">
               <Label className="text-xs">Question</Label>
-              <Textarea
+              <TiptapEditor
                 value={qTitle}
-                onChange={(e) => setQTitle(e.target.value)}
+                onChange={setQTitle}
                 placeholder="Enter the question..."
               />
             </div>
             <div className="space-y-1">
               <Label className="text-xs">Answer Options</Label>
               {qOptions.map((opt, i) => (
-                <div key={i} className="flex items-center gap-2">
+                <div key={i} className="flex items-start gap-2">
                   <input
                     type="checkbox"
                     checked={qCorrect.has(opt)}
                     onChange={() => handleToggleOptionCorrect(opt)}
-                    className="size-3.5"
+                    className="mt-2.5 size-3.5"
                   />
-                  <Input
-                    value={opt}
-                    onChange={(e) => {
-                      const next = [...qOptions];
-                      next[i] = e.target.value;
-                      setQOptions(next);
-                    }}
-                    placeholder={`Option ${i + 1}`}
-                    className="text-sm"
-                  />
+                  <div className="flex-1">
+                    <TiptapEditor value={opt} onChange={(v) => handleSetOption(i, v)} />
+                  </div>
                   {qOptions.length > 2 && (
                     <Button
                       variant="ghost"
@@ -328,7 +328,7 @@ export default function AssessmentEditor({ lessonId }: AssessmentEditorProps) {
               <Label className="text-xs">Grade (points)</Label>
               <Input
                 type="number"
-                min={1}
+                min="1"
                 value={qGrade}
                 onChange={(e) => setQGrade(parseInt(e.target.value, 10) || 1)}
                 className="w-24 text-sm"
@@ -336,10 +336,7 @@ export default function AssessmentEditor({ lessonId }: AssessmentEditorProps) {
             </div>
             <div className="flex gap-2">
               <Button size="sm" onClick={handleCreateQuestion} disabled={isSaving}>
-                <Check className="mr-1 size-3" /> Add Question
-              </Button>
-              <Button size="sm" variant="outline" onClick={resetQuestionForm}>
-                Clear
+                <Plus className="mr-1 size-3" /> Add
               </Button>
             </div>
           </div>
@@ -351,28 +348,21 @@ export default function AssessmentEditor({ lessonId }: AssessmentEditorProps) {
               <div className="space-y-3">
                 <div className="space-y-1">
                   <Label className="text-xs">Question</Label>
-                  <Textarea value={qTitle} onChange={(e) => setQTitle(e.target.value)} />
+                  <TiptapEditor value={qTitle} onChange={setQTitle} />
                 </div>
                 <div className="space-y-1">
                   <Label className="text-xs">Answer Options</Label>
                   {qOptions.map((opt, i) => (
-                    <div key={i} className="flex items-center gap-2">
+                    <div key={i} className="flex items-start gap-2">
                       <input
                         type="checkbox"
                         checked={qCorrect.has(opt)}
                         onChange={() => handleToggleOptionCorrect(opt)}
-                        className="size-3.5"
+                        className="mt-2.5 size-3.5"
                       />
-                      <Input
-                        value={opt}
-                        onChange={(e) => {
-                          const next = [...qOptions];
-                          next[i] = e.target.value;
-                          setQOptions(next);
-                        }}
-                        placeholder={`Option ${i + 1}`}
-                        className="text-sm"
-                      />
+                      <div className="flex-1">
+                        <TiptapEditor value={opt} onChange={(v) => handleSetOption(i, v)} />
+                      </div>
                       {qOptions.length > 2 && (
                         <Button
                           variant="ghost"
@@ -392,7 +382,7 @@ export default function AssessmentEditor({ lessonId }: AssessmentEditorProps) {
                   <Label className="text-xs">Grade (points)</Label>
                   <Input
                     type="number"
-                    min={1}
+                    min="1"
                     value={qGrade}
                     onChange={(e) => setQGrade(parseInt(e.target.value, 10) || 1)}
                     className="w-24 text-sm"
@@ -411,7 +401,12 @@ export default function AssessmentEditor({ lessonId }: AssessmentEditorProps) {
               <div>
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
-                    <p className="text-foreground text-sm font-medium">{q.title}</p>
+                    <div
+                      className="text-foreground text-sm font-medium prose prose-sm dark:prose-invert max-w-none"
+                      dangerouslySetInnerHTML={{
+                        __html: DOMPurify.sanitize(q.title),
+                      }}
+                    />
                     <p className="text-muted-foreground mt-0.5 text-xs">
                       {q.answerOptions.length} options, {q.grade} pt(s)
                     </p>
@@ -425,16 +420,28 @@ export default function AssessmentEditor({ lessonId }: AssessmentEditorProps) {
                               : "bg-muted text-muted-foreground"
                           }`}
                         >
-                          {o}
+                          <span
+                            dangerouslySetInnerHTML={{
+                              __html: DOMPurify.sanitize(o),
+                            }}
+                          />
                         </span>
                       ))}
                     </div>
                   </div>
                   <div className="flex gap-1">
-                    <Button variant="ghost" size="icon" onClick={() => startEditQuestion(q)}>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => startEditQuestion(q)}
+                    >
                       <Pencil className="size-3.5" />
                     </Button>
-                    <Button variant="ghost" size="icon" onClick={() => handleDeleteQuestion(q.id)}>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => handleDeleteQuestion(q.id)}
+                    >
                       <Trash2 className="text-destructive size-3.5" />
                     </Button>
                   </div>

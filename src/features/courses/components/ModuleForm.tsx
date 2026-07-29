@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import TiptapEditor from "@/components/shared/TiptapEditor";
 
 interface ModuleFormProps {
   title: string;
@@ -32,7 +32,9 @@ export default function ModuleForm({
 }: ModuleFormProps) {
   return (
     <div className="mx-auto max-w-2xl space-y-4">
-      <h3 className="text-foreground font-semibold">{isEditing ? "Edit Module" : "New Module"}</h3>
+      <h3 className="text-foreground font-semibold">
+        {isEditing ? "Edit Module" : "New Module"}
+      </h3>
       <div className="space-y-2">
         <Label>Title</Label>
         <Input value={title} onChange={(e) => onTitleChange(e.target.value)} />
@@ -43,7 +45,7 @@ export default function ModuleForm({
       </div>
       <div className="space-y-2">
         <Label>Description (optional)</Label>
-        <Textarea value={description} onChange={(e) => onDescriptionChange(e.target.value)} />
+        <TiptapEditor value={description} onChange={onDescriptionChange} />
       </div>
       <div className="space-y-2">
         <Label>Prerequisites (comma-separated)</Label>

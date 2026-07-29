@@ -1,15 +1,16 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import SectionsEditor from "@/components/shared/SectionsEditor";
+import TiptapEditor from "@/components/shared/TiptapEditor";
 
 interface LessonFormProps {
   title: string;
   subtitle: string;
-  sections: { title: string; content: string }[];
+  content: string;
+  isEditing: boolean;
   onTitleChange: (value: string) => void;
   onSubtitleChange: (value: string) => void;
-  onSectionsChange: (sections: { title: string; content: string }[]) => void;
+  onContentChange: (value: string) => void;
   onSave: () => void;
   onCancel: () => void;
 }
@@ -17,16 +18,19 @@ interface LessonFormProps {
 export default function LessonForm({
   title,
   subtitle,
-  sections,
+  content,
+  isEditing,
   onTitleChange,
   onSubtitleChange,
-  onSectionsChange,
+  onContentChange,
   onSave,
   onCancel,
 }: LessonFormProps) {
   return (
     <div className="mx-auto max-w-2xl space-y-4">
-      <h3 className="text-foreground font-semibold">New Lesson</h3>
+      <h3 className="text-foreground font-semibold">
+        {isEditing ? "Edit Lesson" : "New Lesson"}
+      </h3>
       <div className="space-y-2">
         <Label>Title</Label>
         <Input value={title} onChange={(e) => onTitleChange(e.target.value)} />
@@ -36,11 +40,11 @@ export default function LessonForm({
         <Input value={subtitle} onChange={(e) => onSubtitleChange(e.target.value)} />
       </div>
       <div className="space-y-2">
-        <Label>Sections</Label>
-        <SectionsEditor sections={sections} onChange={onSectionsChange} />
+        <Label>Content</Label>
+        <TiptapEditor value={content} onChange={onContentChange} />
       </div>
       <div className="flex gap-3">
-        <Button onClick={onSave}>Create Lesson</Button>
+        <Button onClick={onSave}>{isEditing ? "Save Lesson" : "Create Lesson"}</Button>
         <Button variant="outline" onClick={onCancel}>
           Cancel
         </Button>

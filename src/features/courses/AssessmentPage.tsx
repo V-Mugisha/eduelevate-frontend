@@ -3,6 +3,7 @@ import { useParams, useNavigate, Navigate } from "react-router-dom";
 import { ArrowLeft, CheckCircle, XCircle, Send, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import LoadingBubbles from "@/components/shared/LoadingBubbles";
+import DOMPurify from "isomorphic-dompurify";
 import useEnrollment from "./hooks/useEnrollment";
 import { listModules } from "./services/contentService";
 import * as assessmentService from "./services/assessmentService";
@@ -162,9 +163,12 @@ export default function AssessmentPage() {
 
       {assessment.instructions && (
         <div className="bg-card mt-4 rounded-lg border p-4">
-          <p className="text-muted-foreground text-sm whitespace-pre-line">
-            {assessment.instructions}
-          </p>
+          <div
+            className="text-muted-foreground prose-sm dark:prose-invert max-w-none text-sm"
+            dangerouslySetInnerHTML={{
+              __html: DOMPurify.sanitize(assessment.instructions),
+            }}
+          />
         </div>
       )}
 
@@ -183,7 +187,13 @@ export default function AssessmentPage() {
           return (
             <div key={q.id} className="bg-card rounded-lg border p-4">
               <p className="text-foreground text-sm font-medium">
-                {i + 1}. {q.title}
+                {i + 1}.{" "}
+                <span
+                  className="prose-sm dark:prose-invert"
+                  dangerouslySetInnerHTML={{
+                    __html: DOMPurify.sanitize(q.title),
+                  }}
+                />
                 <span className="text-muted-foreground ml-2 text-xs">
                   ({q.grade} pt{q.grade !== 1 ? "s" : ""})
                 </span>

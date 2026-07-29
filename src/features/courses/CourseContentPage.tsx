@@ -14,6 +14,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import LoadingBubbles from "@/components/shared/LoadingBubbles";
+import DOMPurify from "isomorphic-dompurify";
 import ModuleSidebar from "./components/ModuleSidebar";
 import ModuleForm from "./components/ModuleForm";
 import LessonForm from "./components/LessonForm";
@@ -22,7 +23,6 @@ import ActionsDropdown from "@/components/shared/ActionsDropdown";
 import useModules from "./hooks/useModules";
 import type { Module, Lesson } from "./services/contentService";
 import { getCourse, publishCourse } from "./services/coursesService";
-import { createSection, updateSection } from "./services/contentService";
 
 export default function CourseContentPage() {
   const { id: courseId } = useParams<{ id: string }>();
@@ -55,9 +55,7 @@ export default function CourseContentPage() {
 
   const [lessonTitle, setLessonTitle] = useState("");
   const [lessonSubtitle, setLessonSubtitle] = useState("");
-  const [lessonSections, setLessonSections] = useState<{ title: string; content: string }[]>([
-    { title: "", content: "" },
-  ]);
+  const [lessonContent, setLessonContent] = useState("");
 
   const [courseTitle, setCourseTitle] = useState("");
   const [courseSubtitle, setCourseSubtitle] = useState<string | null>(null);
@@ -133,7 +131,7 @@ export default function CourseContentPage() {
     setActiveLessonId(null);
     setLessonTitle("");
     setLessonSubtitle("");
-    setLessonSections([{ title: "", content: "" }]);
+    setLessonContent("");
     setMobileSheetOpen(false);
   }
 
@@ -167,11 +165,8 @@ export default function CourseContentPage() {
     const lesson = await addLesson(activeModuleId, {
       title: lessonTitle,
       subtitle: lessonSubtitle || undefined,
+      content: lessonContent || undefined,
     });
-    const validSections = lessonSections.filter((s) => s.title.trim() || s.content.trim());
-    for (const s of validSections) {
-      await createSection(lesson.id, { title: s.title || undefined, content: s.content });
-    }
     setIsAddingLesson(false);
     await fetchModules();
     setActiveLessonId(lesson.id);
@@ -179,9 +174,10 @@ export default function CourseContentPage() {
 
   async function handleSaveLesson() {
     if (!activeLessonId || !activeModuleId) return;
-    await editLesson(activeModuleId, activeLessonId, {
+    await editLesson(activeLessonId, activeModuleId, {
       title: lessonTitle,
       subtitle: lessonSubtitle || undefined,
+      content: lessonContent || undefined,
     });
     setIsEditingLesson(false);
   }
@@ -216,20 +212,6 @@ export default function CourseContentPage() {
       toast.error("Failed to unpublish course.");
     } finally {
       setIsPublishing(false);
-    }
-  }
-
-  async function handleUpdateSection(
-    lessonId: string,
-    sectionId: string,
-    data: { title?: string; content?: string },
-  ) {
-    try {
-      await updateSection(lessonId, sectionId, data);
-      await fetchModules();
-      toast.success("Section updated.");
-    } catch {
-      toast.error("Failed to update section.");
     }
   }
 
@@ -403,9 +385,12 @@ export default function CourseContentPage() {
                     />
                   </div>
                   {activeModule.description && (
-                    <p className="text-muted-foreground mb-6 leading-relaxed">
-                      {activeModule.description}
-                    </p>
+                    <div
+                      className="text-muted-foreground prose-sm dark:prose-invert max-w-none mb-6"
+                      dangerouslySetInnerHTML={{
+                        __html: DOMPurify.sanitize(activeModule.description),
+                      }}
+                    />
                   )}
                   {activeModule.prerequisites.length > 0 && (
                     <div className="mb-6">
@@ -432,10 +417,11 @@ export default function CourseContentPage() {
             <LessonForm
               title={lessonTitle}
               subtitle={lessonSubtitle}
-              sections={lessonSections}
+              content={lessonContent}
+              isEditing={false}
               onTitleChange={setLessonTitle}
               onSubtitleChange={setLessonSubtitle}
-              onSectionsChange={setLessonSections}
+              onContentChange={setLessonContent}
               onSave={handleAddLesson}
               onCancel={() => setIsAddingLesson(false)}
             />
@@ -449,31 +435,30 @@ export default function CourseContentPage() {
                   moduleId: activeModule.id,
                   title: lessonTitle,
                   subtitle: lessonSubtitle || null,
+                  content: null,
                   createdAt: "",
                   updatedAt: "",
-                  sections: [],
                 }
               }
               courseId={courseId!}
               isEditing={isEditingLesson}
               title={lessonTitle}
               subtitle={lessonSubtitle}
+              content={lessonContent}
               onTitleChange={setLessonTitle}
               onSubtitleChange={setLessonSubtitle}
+              onContentChange={setLessonContent}
               onSaveEdit={handleSaveLesson}
               onCancelEdit={() => setIsEditingLesson(false)}
-              onStartEdit={() => setIsEditingLesson(true)}
+              onStartEdit={() => {
+                const currentLesson = activeModule.lessons.find((l) => l.id === activeLessonId);
+                setLessonContent(currentLesson?.content ?? "");
+                setIsEditingLesson(true);
+              }}
               onDelete={() => {
                 removeLesson(activeLessonId, activeModule.id);
                 setActiveLessonId(null);
               }}
-              onUpdateSection={(sectionId, data) =>
-                handleUpdateSection(
-                  activeModule.lessons.find((l) => l.id === activeLessonId)?.id ?? activeLessonId,
-                  sectionId,
-                  data,
-                )
-              }
             />
           )}
 
