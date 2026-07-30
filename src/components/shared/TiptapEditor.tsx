@@ -21,6 +21,7 @@ import {
   ListOrdered,
   Quote,
   Loader2,
+  Trash2,
 } from "lucide-react";
 import { uploadImage } from "@/lib/uploadImage";
 
@@ -225,13 +226,23 @@ export default function TiptapEditor({
               >
                 <Code2 className="size-4" />
               </ToolbarButton>
-              <ToolbarButton onClick={handleImageUpload} isActive={false} title="Insert Image">
-                {isUploading ? (
-                  <Loader2 className="size-4 animate-spin" />
-                ) : (
-                  <ImageIcon className="size-4" />
-                )}
-              </ToolbarButton>
+              {editor.isActive("image") ? (
+                <ToolbarButton
+                  onClick={() => editor.chain().focus().deleteSelection().run()}
+                  isActive={false}
+                  title="Remove Image"
+                >
+                  <Trash2 className="text-destructive size-4" />
+                </ToolbarButton>
+              ) : (
+                <ToolbarButton onClick={handleImageUpload} isActive={false} title="Insert Image">
+                  {isUploading ? (
+                    <Loader2 className="size-4 animate-spin" />
+                  ) : (
+                    <ImageIcon className="size-4" />
+                  )}
+                </ToolbarButton>
+              )}
 
               <span className="bg-border mx-1 h-5 w-px" />
 
