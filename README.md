@@ -25,11 +25,13 @@ React + TypeScript frontend for the EduElevate learning platform, built with Vit
    npm install
    ```
 
-3. Create a `.env` file:
+3. Create a `.env` file from the example:
 
-   ```env
-   VITE_API_URL=http://localhost:3001/api
+   ```bash
+   cp .env.example .env
    ```
+
+   The default `VITE_API_URL` points to `http://localhost:3001/api`. Change it if your backend runs elsewhere.
 
 4. Start the dev server:
 
