@@ -31,7 +31,7 @@ export default function AssessmentEditor({ lessonId }: AssessmentEditorProps) {
 
   const [qTitle, setQTitle] = useState("");
   const [qOptions, setQOptions] = useState<string[]>(["", ""]);
-  const [qCorrect, setQCorrect] = useState<Set<string>>(new Set());
+  const [qCorrect, setQCorrect] = useState<Set<number>>(new Set());
   const [qGrade, setQGrade] = useState(1);
   const [resetKey, setResetKey] = useState(0);
 
@@ -67,11 +67,11 @@ export default function AssessmentEditor({ lessonId }: AssessmentEditorProps) {
     setResetKey((k) => k + 1);
   }
 
-  function handleToggleOptionCorrect(option: string) {
+  function handleToggleOptionCorrect(index: number) {
     setQCorrect((prev) => {
       const next = new Set(prev);
-      if (next.has(option)) next.delete(option);
-      else next.add(option);
+      if (next.has(index)) next.delete(index);
+      else next.add(index);
       return next;
     });
   }
@@ -153,7 +153,7 @@ export default function AssessmentEditor({ lessonId }: AssessmentEditorProps) {
       const created = await assessmentService.createQuestion(assessment.id, {
         title: qTitle.trim(),
         answerOptions: qOptions.filter((o) => o.trim()),
-        correctAnswers: [...qCorrect],
+        correctAnswers: [...qCorrect].map((i) => qOptions[i].trim()).filter(Boolean),
         grade: qGrade,
       });
       setQuestions((prev) => [...prev, created]);
@@ -186,7 +186,7 @@ export default function AssessmentEditor({ lessonId }: AssessmentEditorProps) {
       const updated = await assessmentService.updateQuestion(questionId, {
         title: qTitle.trim(),
         answerOptions: qOptions.filter((o) => o.trim()),
-        correctAnswers: [...qCorrect],
+        correctAnswers: [...qCorrect].map((i) => qOptions[i].trim()).filter(Boolean),
         grade: qGrade,
       });
       setQuestions((prev) => prev.map((q) => (q.id === questionId ? updated : q)));
@@ -203,7 +203,9 @@ export default function AssessmentEditor({ lessonId }: AssessmentEditorProps) {
     setEditQuestionId(q.id);
     setQTitle(q.title);
     setQOptions(q.answerOptions.length > 0 ? q.answerOptions : ["", ""]);
-    setQCorrect(new Set(q.correctAnswers ?? []));
+    setQCorrect(
+      new Set(q.correctAnswers?.map((a) => q.answerOptions.indexOf(a)).filter((i) => i >= 0) ?? []),
+    );
     setQGrade(q.grade);
   }
 
@@ -373,8 +375,8 @@ export default function AssessmentEditor({ lessonId }: AssessmentEditorProps) {
               <div key={i} className="flex items-start gap-2">
                 <input
                   type="checkbox"
-                  checked={qCorrect.has(opt)}
-                  onChange={() => handleToggleOptionCorrect(opt)}
+                  checked={qCorrect.has(i)}
+                  onChange={() => handleToggleOptionCorrect(i)}
                   className="mt-2.5 size-3.5"
                 />
                 <div className="flex-1">
@@ -451,8 +453,8 @@ export default function AssessmentEditor({ lessonId }: AssessmentEditorProps) {
                       <div key={i} className="flex items-start gap-2">
                         <input
                           type="checkbox"
-                          checked={qCorrect.has(opt)}
-                          onChange={() => handleToggleOptionCorrect(opt)}
+                          checked={qCorrect.has(i)}
+                          onChange={() => handleToggleOptionCorrect(i)}
                           className="mt-2.5 size-3.5"
                         />
                         <div className="flex-1">
