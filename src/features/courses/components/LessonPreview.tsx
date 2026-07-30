@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import ActionsDropdown from "@/components/shared/ActionsDropdown";
 import TiptapEditor from "@/components/shared/TiptapEditor";
+import LoadingBubbles from "@/components/shared/LoadingBubbles";
 import DOMPurify from "isomorphic-dompurify";
 import type { Lesson } from "../services/contentService";
 
@@ -11,6 +12,7 @@ interface LessonPreviewProps {
   lesson: Lesson;
   courseId: string;
   isEditing: boolean;
+  isSaving: boolean;
   title: string;
   subtitle: string;
   content: string;
@@ -27,6 +29,7 @@ export default function LessonPreview({
   lesson,
   courseId,
   isEditing,
+  isSaving,
   title,
   subtitle,
   content,
@@ -56,10 +59,10 @@ export default function LessonPreview({
             <TiptapEditor value={content} onChange={onContentChange} />
           </div>
           <div className="flex gap-3">
-            <Button size="sm" onClick={onSaveEdit}>
-              Save Lesson
+            <Button size="sm" onClick={onSaveEdit} disabled={isSaving}>
+              {isSaving ? <LoadingBubbles size="sm" /> : "Save Lesson"}
             </Button>
-            <Button size="sm" variant="outline" onClick={onCancelEdit}>
+            <Button size="sm" variant="outline" onClick={onCancelEdit} disabled={isSaving}>
               Cancel
             </Button>
           </div>

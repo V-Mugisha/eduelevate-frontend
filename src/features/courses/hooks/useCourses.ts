@@ -3,7 +3,7 @@ import useDebounce from "@/hooks/useDebounce";
 import type { Course, Category } from "../types/coursesTypes";
 import * as coursesService from "../services/coursesService";
 
-export default function useCourses() {
+export default function useCourses(initialShowMyCourses = false) {
   const [courses, setCourses] = useState<Course[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -11,7 +11,7 @@ export default function useCourses() {
   const debouncedSearch = useDebounce(search, 300);
   const [categoryId, setCategoryId] = useState("");
   const [level, setLevel] = useState("");
-  const [showMyCourses, setShowMyCourses] = useState(false);
+  const [showMyCourses, setShowMyCourses] = useState(initialShowMyCourses);
 
   const fetchCourses = useCallback(async () => {
     setIsLoading(true);

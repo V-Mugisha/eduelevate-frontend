@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import LoadingBubbles from "@/components/shared/LoadingBubbles";
 import type { MentorshipApplication } from "../services/mentorshipService";
 
 interface ApplicationCardProps {
@@ -7,6 +8,7 @@ interface ApplicationCardProps {
   isEducator: boolean;
   rejectingId: string | null;
   rejectionReason: string;
+  isSaving: boolean;
   onAccept: (id: string) => void;
   onReject: (id: string) => void;
   onShowReject: (id: string) => void;
@@ -25,6 +27,7 @@ export default function ApplicationCard({
   isEducator,
   rejectingId,
   rejectionReason,
+  isSaving,
   onAccept,
   onReject,
   onShowReject,
@@ -102,19 +105,29 @@ export default function ApplicationCard({
                   value={rejectionReason}
                   onChange={(e) => onRejectionReasonChange(e.target.value)}
                 />
-                <Button size="sm" variant="destructive" onClick={() => onReject(application.id)}>
-                  Confirm
+                <Button
+                  size="sm"
+                  variant="destructive"
+                  onClick={() => onReject(application.id)}
+                  disabled={isSaving}
+                >
+                  {isSaving ? <LoadingBubbles size="sm" /> : "Confirm"}
                 </Button>
-                <Button size="sm" variant="outline" onClick={onCancelReject}>
+                <Button size="sm" variant="outline" onClick={onCancelReject} disabled={isSaving}>
                   Cancel
                 </Button>
               </div>
             ) : (
               <>
-                <Button size="sm" onClick={() => onAccept(application.id)}>
-                  Accept
+                <Button size="sm" onClick={() => onAccept(application.id)} disabled={isSaving}>
+                  {isSaving ? <LoadingBubbles size="sm" /> : "Accept"}
                 </Button>
-                <Button size="sm" variant="outline" onClick={() => onShowReject(application.id)}>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => onShowReject(application.id)}
+                  disabled={isSaving}
+                >
                   Reject
                 </Button>
               </>

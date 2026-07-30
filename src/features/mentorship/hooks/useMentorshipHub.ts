@@ -24,6 +24,7 @@ export default function useMentorshipHub() {
   const [bio, setBio] = useState("");
   const [isOptedIn, setIsOptedIn] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [isOptingOut, setIsOptingOut] = useState(false);
 
   const [applications, setApplications] = useState<MentorshipApplication[]>([]);
   const [activeMentorships, setActiveMentorships] = useState<Mentorship[]>([]);
@@ -32,6 +33,10 @@ export default function useMentorshipHub() {
 
   const [applicationsLoaded, setApplicationsLoaded] = useState(false);
   const [activeLoaded, setActiveLoaded] = useState(false);
+  const [isLoadingApplications, setIsLoadingApplications] = useState(false);
+  const [isLoadingActive, setIsLoadingActive] = useState(false);
+  const [isSavingApplications, setIsSavingApplications] = useState(false);
+  const [isSavingActive, setIsSavingActive] = useState(false);
 
   useEffect(() => {
     mentorshipService
@@ -72,6 +77,7 @@ export default function useMentorshipHub() {
 
   const handleOptOut = useCallback(async () => {
     if (!confirm("Remove yourself from the mentorship hub?")) return;
+    setIsOptingOut(true);
     try {
       await mentorshipService.removeProfile();
       setIsOptedIn(false);
@@ -79,11 +85,14 @@ export default function useMentorshipHub() {
       toast.success("Removed from mentorship hub.");
     } catch {
       toast.error("Failed to remove profile.");
+    } finally {
+      setIsOptingOut(false);
     }
   }, []);
 
   const loadApplications = useCallback(async () => {
     if (applicationsLoaded) return;
+    setIsLoadingApplications(true);
     try {
       const apps = isEducatorOrAdmin
         ? await mentorshipService.listReceivedApplications()
@@ -92,17 +101,22 @@ export default function useMentorshipHub() {
       setApplicationsLoaded(true);
     } catch {
       toast.error("Failed to load applications.");
+    } finally {
+      setIsLoadingApplications(false);
     }
   }, [isEducatorOrAdmin, applicationsLoaded]);
 
   const loadActive = useCallback(async () => {
     if (activeLoaded) return;
+    setIsLoadingActive(true);
     try {
       const list = await mentorshipService.listMentorships();
       setActiveMentorships(list);
       setActiveLoaded(true);
     } catch {
       toast.error("Failed to load mentorships.");
+    } finally {
+      setIsLoadingActive(false);
     }
   }, [activeLoaded]);
 
@@ -116,6 +130,7 @@ export default function useMentorshipHub() {
   );
 
   const handleAccept = useCallback(async (id: string) => {
+    setIsSavingApplications(true);
     try {
       await mentorshipService.acceptApplication(id);
       toast.success("Application accepted.");
@@ -128,11 +143,14 @@ export default function useMentorshipHub() {
         (e as { response?: { data?: { message?: string } } })?.response?.data?.message ??
           "Failed to accept.",
       );
+    } finally {
+      setIsSavingApplications(false);
     }
   }, []);
 
   const handleReject = useCallback(
     async (id: string) => {
+      setIsSavingApplications(true);
       try {
         await mentorshipService.rejectApplication(id, rejectionReason || undefined);
         toast.success("Application rejected.");
@@ -143,6 +161,8 @@ export default function useMentorshipHub() {
         loadApplications();
       } catch {
         toast.error("Failed to reject.");
+      } finally {
+        setIsSavingApplications(false);
       }
     },
     [rejectionReason, loadApplications],
@@ -151,6 +171,7 @@ export default function useMentorshipHub() {
   const handleEndMentorship = useCallback(
     async (id: string) => {
       if (!confirm("End this mentorship?")) return;
+      setIsSavingActive(true);
       try {
         await mentorshipService.endMentorship(id);
         toast.success("Mentorship ended.");
@@ -159,6 +180,8 @@ export default function useMentorshipHub() {
         loadActive();
       } catch {
         toast.error("Failed to end mentorship.");
+      } finally {
+        setIsSavingActive(false);
       }
     },
     [loadActive],
@@ -192,12 +215,17 @@ export default function useMentorshipHub() {
     setBio,
     isOptedIn,
     isSaving,
+    isOptingOut,
     applications,
     activeMentorships,
     rejectionReason,
     setRejectionReason,
     rejectingId,
     setRejectingId,
+    isLoadingApplications,
+    isLoadingActive,
+    isSavingApplications,
+    isSavingActive,
     handleOptIn,
     handleOptOut,
     handleTabChange,

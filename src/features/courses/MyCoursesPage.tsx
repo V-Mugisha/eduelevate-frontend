@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -20,13 +19,8 @@ export default function MyCoursesPage() {
     setCategoryId,
     level,
     setLevel,
-    setShowMyCourses,
-  } = useCourses();
+  } = useCourses(true);
   const isEducatorOrAdmin = user?.role === "educator" || user?.role === "admin";
-
-  useEffect(() => {
-    setShowMyCourses(true);
-  }, [setShowMyCourses]);
 
   return (
     <div className="mx-auto w-full max-w-7xl px-6 py-10 lg:px-8">

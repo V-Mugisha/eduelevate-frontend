@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import LoadingBubbles from "@/components/shared/LoadingBubbles";
 
 interface OptInBannerProps {
   isEducator: boolean;
@@ -11,6 +12,7 @@ interface OptInBannerProps {
   topics: string[];
   bio: string;
   isSaving: boolean;
+  isOptingOut: boolean;
   onToggle: () => void;
   onSave: () => void;
   onOptOut: () => void;
@@ -27,6 +29,7 @@ export default function OptInBanner({
   topics,
   bio,
   isSaving,
+  isOptingOut,
   onToggle,
   onSave,
   onOptOut,
@@ -54,8 +57,14 @@ export default function OptInBanner({
             <Button variant="outline" size="sm" onClick={onToggle}>
               Edit
             </Button>
-            <Button variant="ghost" size="sm" className="text-destructive" onClick={onOptOut}>
-              Opt Out
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-destructive"
+              onClick={onOptOut}
+              disabled={isOptingOut}
+            >
+              {isOptingOut ? <LoadingBubbles size="sm" /> : "Opt Out"}
             </Button>
           </div>
         </div>

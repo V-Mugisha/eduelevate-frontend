@@ -49,6 +49,7 @@ export default function MentorshipHubPage() {
             topics={hub.topics}
             bio={hub.bio}
             isSaving={hub.isSaving}
+            isOptingOut={hub.isOptingOut}
             onToggle={() => hub.setShowOptIn(!hub.showOptIn)}
             onSave={hub.handleOptIn}
             onOptOut={hub.handleOptOut}
@@ -75,6 +76,8 @@ export default function MentorshipHubPage() {
           isEducator={hub.isEducatorOrAdmin}
           rejectingId={hub.rejectingId}
           rejectionReason={hub.rejectionReason}
+          isLoading={hub.isLoadingApplications}
+          isSaving={hub.isSavingApplications}
           onAccept={hub.handleAccept}
           onReject={hub.handleReject}
           onShowReject={hub.setRejectingId}
@@ -87,6 +90,8 @@ export default function MentorshipHubPage() {
         <ActiveMentorshipList
           mentorships={hub.activeMentorships}
           currentUser={hub.user!}
+          isLoading={hub.isLoadingActive}
+          isSaving={hub.isSavingActive}
           onChat={(id) => navigate(`/mentorship/${id}`)}
           onEnd={hub.handleEndMentorship}
         />

@@ -1,11 +1,13 @@
 import { MessageSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import LoadingBubbles from "@/components/shared/LoadingBubbles";
 import type { Mentorship } from "../services/mentorshipService";
 import type { User } from "@/features/auth/types/authTypes";
 
 interface ActiveMentorshipCardProps {
   mentorship: Mentorship;
   currentUser: User;
+  isSaving: boolean;
   onChat: (id: string) => void;
   onEnd: (id: string) => void;
 }
@@ -21,6 +23,7 @@ function formatDate(date: string) {
 export default function ActiveMentorshipCard({
   mentorship,
   currentUser,
+  isSaving,
   onChat,
   onEnd,
 }: ActiveMentorshipCardProps) {
@@ -71,8 +74,13 @@ export default function ActiveMentorshipCard({
             <MessageSquare className="mr-1.5 size-3" />
             Chat
           </Button>
-          <Button variant="outline" size="sm" onClick={() => onEnd(mentorship.id)}>
-            End
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => onEnd(mentorship.id)}
+            disabled={isSaving}
+          >
+            {isSaving ? <LoadingBubbles size="sm" /> : "End"}
           </Button>
         </div>
       )}

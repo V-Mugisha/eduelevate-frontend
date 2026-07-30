@@ -1,6 +1,7 @@
 import { useCallback, useState } from "react";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
+import { toast } from "sonner";
 import ImageExtension from "@tiptap/extension-image";
 import CodeBlockLowlight from "@tiptap/extension-code-block-lowlight";
 import Placeholder from "@tiptap/extension-placeholder";
@@ -116,7 +117,7 @@ export default function TiptapEditor({
         const url = await uploadImage(file);
         editor.chain().focus().setImage({ src: url }).run();
       } catch {
-        alert("Failed to upload image. Please try again.");
+        toast.error("Failed to upload image. Please try again.");
       } finally {
         setIsUploading(false);
       }

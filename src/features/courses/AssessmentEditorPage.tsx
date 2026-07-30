@@ -33,7 +33,7 @@ export default function AssessmentEditorPage() {
   if (isLoading) return <LoadingBubbles size="lg" />;
 
   return (
-    <div className="mx-auto w-full max-w-3xl px-4 py-8 sm:px-6 lg:px-8 lg:py-10">
+    <div className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6 lg:px-8 lg:py-10">
       <Button
         variant="ghost"
         onClick={() => navigate(`/courses/${courseId}/content`)}

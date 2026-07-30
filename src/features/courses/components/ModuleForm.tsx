@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import TiptapEditor from "@/components/shared/TiptapEditor";
+import LoadingBubbles from "@/components/shared/LoadingBubbles";
 
 interface ModuleFormProps {
   title: string;
@@ -9,6 +10,7 @@ interface ModuleFormProps {
   description: string;
   prerequisites: string;
   isEditing: boolean;
+  isSaving: boolean;
   onTitleChange: (value: string) => void;
   onSubtitleChange: (value: string) => void;
   onDescriptionChange: (value: string) => void;
@@ -23,6 +25,7 @@ export default function ModuleForm({
   description,
   prerequisites,
   isEditing,
+  isSaving,
   onTitleChange,
   onSubtitleChange,
   onDescriptionChange,
@@ -54,8 +57,10 @@ export default function ModuleForm({
         />
       </div>
       <div className="flex gap-3">
-        <Button onClick={onSave}>{isEditing ? "Save Module" : "Create Module"}</Button>
-        <Button variant="outline" onClick={onCancel}>
+        <Button onClick={onSave} disabled={isSaving}>
+          {isSaving ? <LoadingBubbles size="sm" /> : isEditing ? "Save Module" : "Create Module"}
+        </Button>
+        <Button variant="outline" onClick={onCancel} disabled={isSaving}>
           Cancel
         </Button>
       </div>

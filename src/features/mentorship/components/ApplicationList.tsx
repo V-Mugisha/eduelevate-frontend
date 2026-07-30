@@ -1,4 +1,5 @@
 import { Handshake } from "lucide-react";
+import LoadingBubbles from "@/components/shared/LoadingBubbles";
 import ApplicationCard from "./ApplicationCard";
 import type { MentorshipApplication } from "../services/mentorshipService";
 
@@ -7,6 +8,8 @@ interface ApplicationListProps {
   isEducator: boolean;
   rejectingId: string | null;
   rejectionReason: string;
+  isLoading: boolean;
+  isSaving: boolean;
   onAccept: (id: string) => void;
   onReject: (id: string) => void;
   onShowReject: (id: string) => void;
@@ -19,12 +22,22 @@ export default function ApplicationList({
   isEducator,
   rejectingId,
   rejectionReason,
+  isLoading,
+  isSaving,
   onAccept,
   onReject,
   onShowReject,
   onCancelReject,
   onRejectionReasonChange,
 }: ApplicationListProps) {
+  if (isLoading) {
+    return (
+      <div className="flex justify-center py-16">
+        <LoadingBubbles size="md" />
+      </div>
+    );
+  }
+
   if (applications.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-16 text-center">
@@ -43,6 +56,7 @@ export default function ApplicationList({
           isEducator={isEducator}
           rejectingId={rejectingId}
           rejectionReason={rejectionReason}
+          isSaving={isSaving}
           onAccept={onAccept}
           onReject={onReject}
           onShowReject={onShowReject}

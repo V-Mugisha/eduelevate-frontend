@@ -455,6 +455,8 @@ export default function CourseDetailPage() {
                     </Button>
                   </Link>
                 </div>
+              ) : user?.role === "educator" ? (
+                <p className="text-muted-foreground text-sm">Educators cannot enroll in courses.</p>
               ) : (
                 <Button className="w-full" onClick={() => setShowEnrollModal(true)}>
                   Enroll

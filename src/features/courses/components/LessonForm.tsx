@@ -2,12 +2,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import TiptapEditor from "@/components/shared/TiptapEditor";
+import LoadingBubbles from "@/components/shared/LoadingBubbles";
 
 interface LessonFormProps {
   title: string;
   subtitle: string;
   content: string;
   isEditing: boolean;
+  isSaving: boolean;
   onTitleChange: (value: string) => void;
   onSubtitleChange: (value: string) => void;
   onContentChange: (value: string) => void;
@@ -20,6 +22,7 @@ export default function LessonForm({
   subtitle,
   content,
   isEditing,
+  isSaving,
   onTitleChange,
   onSubtitleChange,
   onContentChange,
@@ -42,8 +45,10 @@ export default function LessonForm({
         <TiptapEditor value={content} onChange={onContentChange} />
       </div>
       <div className="flex gap-3">
-        <Button onClick={onSave}>{isEditing ? "Save Lesson" : "Create Lesson"}</Button>
-        <Button variant="outline" onClick={onCancel}>
+        <Button onClick={onSave} disabled={isSaving}>
+          {isSaving ? <LoadingBubbles size="sm" /> : isEditing ? "Save Lesson" : "Create Lesson"}
+        </Button>
+        <Button variant="outline" onClick={onCancel} disabled={isSaving}>
           Cancel
         </Button>
       </div>

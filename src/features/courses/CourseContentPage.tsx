@@ -62,6 +62,7 @@ export default function CourseContentPage() {
   const [courseIsPublished, setCourseIsPublished] = useState(false);
   const [showUnpublishConfirm, setShowUnpublishConfirm] = useState(false);
   const [isPublishing, setIsPublishing] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     if (!courseId) return;
@@ -141,6 +142,7 @@ export default function CourseContentPage() {
 
   async function handleSaveModule() {
     if (!activeModuleId) return;
+    setIsSaving(true);
     try {
       await editModule(activeModuleId, {
         title: moduleTitle,
@@ -152,25 +154,36 @@ export default function CourseContentPage() {
       toast.success("Module updated.");
     } catch {
       toast.error("Failed to update module.");
+    } finally {
+      setIsSaving(false);
     }
   }
 
   async function handleAddModule() {
     if (!moduleTitle || !courseId) return;
-    await addModule({
-      title: moduleTitle,
-      subtitle: moduleSubtitle || undefined,
-      description: moduleDescription || undefined,
-    });
-    setShowAddModule(false);
-    setModuleTitle("");
-    setModuleSubtitle("");
-    setModuleDescription("");
-    setModulePrereq("");
+    setIsSaving(true);
+    try {
+      await addModule({
+        title: moduleTitle,
+        subtitle: moduleSubtitle || undefined,
+        description: moduleDescription || undefined,
+      });
+      setShowAddModule(false);
+      setModuleTitle("");
+      setModuleSubtitle("");
+      setModuleDescription("");
+      setModulePrereq("");
+      toast.success("Module created.");
+    } catch {
+      toast.error("Failed to create module.");
+    } finally {
+      setIsSaving(false);
+    }
   }
 
   async function handleAddLesson() {
     if (!activeModuleId || !lessonTitle || !courseId) return;
+    setIsSaving(true);
     try {
       const lesson = await addLesson(activeModuleId, {
         title: lessonTitle,
@@ -184,11 +197,14 @@ export default function CourseContentPage() {
       toast.success("Lesson created.");
     } catch {
       toast.error("Failed to create lesson.");
+    } finally {
+      setIsSaving(false);
     }
   }
 
   async function handleSaveLesson() {
     if (!activeLessonId || !activeLessonPair) return;
+    setIsSaving(true);
     try {
       await editLesson(activeLessonId, activeLessonPair.module.id, {
         title: lessonTitle,
@@ -200,6 +216,8 @@ export default function CourseContentPage() {
       toast.success("Lesson updated.");
     } catch {
       toast.error("Failed to save lesson.");
+    } finally {
+      setIsSaving(false);
     }
   }
 
@@ -367,6 +385,7 @@ export default function CourseContentPage() {
               onPrerequisitesChange={setModulePrereq}
               onSave={handleAddModule}
               onCancel={() => setShowAddModule(false)}
+              isSaving={isSaving}
             />
           )}
 
@@ -385,6 +404,7 @@ export default function CourseContentPage() {
                   onPrerequisitesChange={setModulePrereq}
                   onSave={handleSaveModule}
                   onCancel={() => setIsEditingModule(false)}
+                  isSaving={isSaving}
                 />
               ) : (
                 <div className="mx-auto max-w-2xl">
@@ -454,6 +474,7 @@ export default function CourseContentPage() {
               onContentChange={setLessonContent}
               onSave={handleAddLesson}
               onCancel={() => setIsAddingLesson(false)}
+              isSaving={isSaving}
             />
           )}
 
@@ -470,6 +491,7 @@ export default function CourseContentPage() {
               onContentChange={setLessonContent}
               onSaveEdit={handleSaveLesson}
               onCancelEdit={() => setIsEditingLesson(false)}
+              isSaving={isSaving}
               onStartEdit={() => {
                 const currentLesson = activeLessonPair.lesson;
                 setLessonContent(currentLesson.content ?? "");
