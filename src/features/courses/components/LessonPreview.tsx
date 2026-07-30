@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Pencil, Trash2, ClipboardList, CheckCircle } from "lucide-react";
+import { Pencil, Trash2, ClipboardList } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import ActionsDropdown from "@/components/shared/ActionsDropdown";
@@ -110,13 +110,6 @@ export default function LessonPreview({
                 Manage Assessment
               </Button>
             </Link>
-          </div>
-          <div className="mt-12 border-t pt-6">
-            <Button disabled title="Progress tracking coming soon">
-              <CheckCircle className="mr-1.5 size-4" />
-              Mark as Complete
-            </Button>
-            <p className="text-muted-foreground mt-1 text-xs">Progress tracking coming soon</p>
           </div>
         </div>
       )}
